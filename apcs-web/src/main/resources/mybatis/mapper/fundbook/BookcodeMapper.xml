@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yjy.repository.mapper.BookcodeMapper" >
+  <resultMap id="BaseResultMap" type="com.yjy.entity.Bookcode" >
+    <id column="Id" property="id" jdbcType="INTEGER" />
+    <result column="PlatFormRole" property="platformrole" jdbcType="INTEGER" />
+    <result column="EntryUserRole" property="entryuserrole" jdbcType="INTEGER" />
+    <result column="AccBookNumber" property="accbooknumber" jdbcType="INTEGER" />
+    <result column="PName" property="pname" jdbcType="VARCHAR" />
+    <result column="EName" property="ename" jdbcType="VARCHAR" />
+    <result column="AName" property="aname" jdbcType="VARCHAR" />
+    <result column="Idx" property="idx" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    Id, PlatFormRole, EntryUserRole, AccBookNumber, PName, EName, AName, Idx
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.entity.BookcodeExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from bookcode
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.yjy.entity.BookcodeExample" >
+    delete from bookcode
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insertSelective" parameterType="com.yjy.entity.Bookcode" >
+    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into bookcode
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="platformrole != null" >
+        PlatFormRole,
+      </if>
+      <if test="entryuserrole != null" >
+        EntryUserRole,
+      </if>
+      <if test="accbooknumber != null" >
+        AccBookNumber,
+      </if>
+      <if test="pname != null" >
+        PName,
+      </if>
+      <if test="ename != null" >
+        EName,
+      </if>
+      <if test="aname != null" >
+        AName,
+      </if>
+      <if test="idx != null" >
+        Idx,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="platformrole != null" >
+        #{platformrole,jdbcType=INTEGER},
+      </if>
+      <if test="entryuserrole != null" >
+        #{entryuserrole,jdbcType=INTEGER},
+      </if>
+      <if test="accbooknumber != null" >
+        #{accbooknumber,jdbcType=INTEGER},
+      </if>
+      <if test="pname != null" >
+        #{pname,jdbcType=VARCHAR},
+      </if>
+      <if test="ename != null" >
+        #{ename,jdbcType=VARCHAR},
+      </if>
+      <if test="aname != null" >
+        #{aname,jdbcType=VARCHAR},
+      </if>
+      <if test="idx != null" >
+        #{idx,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.yjy.entity.BookcodeExample" resultType="java.lang.Integer" >
+    select count(*) from bookcode
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update bookcode
+    <set >
+      <if test="record.id != null" >
+        Id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.platformrole != null" >
+        PlatFormRole = #{record.platformrole,jdbcType=INTEGER},
+      </if>
+      <if test="record.entryuserrole != null" >
+        EntryUserRole = #{record.entryuserrole,jdbcType=INTEGER},
+      </if>
+      <if test="record.accbooknumber != null" >
+        AccBookNumber = #{record.accbooknumber,jdbcType=INTEGER},
+      </if>
+      <if test="record.pname != null" >
+        PName = #{record.pname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ename != null" >
+        EName = #{record.ename,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aname != null" >
+        AName = #{record.aname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.idx != null" >
+        Idx = #{record.idx,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update bookcode
+    set Id = #{record.id,jdbcType=INTEGER},
+      PlatFormRole = #{record.platformrole,jdbcType=INTEGER},
+      EntryUserRole = #{record.entryuserrole,jdbcType=INTEGER},
+      AccBookNumber = #{record.accbooknumber,jdbcType=INTEGER},
+      PName = #{record.pname,jdbcType=VARCHAR},
+      EName = #{record.ename,jdbcType=VARCHAR},
+      AName = #{record.aname,jdbcType=VARCHAR},
+      Idx = #{record.idx,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yjy.entity.Bookcode" >
+    update bookcode
+    <set >
+      <if test="platformrole != null" >
+        PlatFormRole = #{platformrole,jdbcType=INTEGER},
+      </if>
+      <if test="entryuserrole != null" >
+        EntryUserRole = #{entryuserrole,jdbcType=INTEGER},
+      </if>
+      <if test="accbooknumber != null" >
+        AccBookNumber = #{accbooknumber,jdbcType=INTEGER},
+      </if>
+      <if test="pname != null" >
+        PName = #{pname,jdbcType=VARCHAR},
+      </if>
+      <if test="ename != null" >
+        EName = #{ename,jdbcType=VARCHAR},
+      </if>
+      <if test="aname != null" >
+        AName = #{aname,jdbcType=VARCHAR},
+      </if>
+      <if test="idx != null" >
+        Idx = #{idx,jdbcType=INTEGER},
+      </if>
+    </set>
+    where Id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
