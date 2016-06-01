@@ -1,40 +1,40 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yjy.repository.mapper.FundbookMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbook" >
-    <id column="BookId" property="bookid" jdbcType="BIGINT" />
-    <result column="EntryId" property="entryid" jdbcType="BIGINT" />
-    <result column="PlatformRole" property="platformrole" jdbcType="INTEGER" />
-    <result column="EntryUserRole" property="entryuserrole" jdbcType="INTEGER" />
-    <result column="AccBookNumber" property="accbooknumber" jdbcType="INTEGER" />
-    <result column="EntryNumber" property="entrynumber" jdbcType="VARCHAR" />
-    <result column="UserId" property="userid" jdbcType="INTEGER" />
-    <result column="AreaCode" property="areacode" jdbcType="INTEGER" />
-    <result column="InvoiceNumber" property="invoicenumber" jdbcType="VARCHAR" />
-    <result column="HappenTime" property="happentime" jdbcType="BIGINT" />
-    <result column="Goods" property="goods" jdbcType="DECIMAL" />
-    <result column="Money" property="money" jdbcType="DECIMAL" />
-    <result column="Balance" property="balance" jdbcType="DECIMAL" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yjy.repository.mapper.FundbookMapper">
+  <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbook">
+    <id column="BookId" jdbcType="BIGINT" property="bookid" />
+    <result column="EntryId" jdbcType="BIGINT" property="entryid" />
+    <result column="PlatformRole" jdbcType="INTEGER" property="platformrole" />
+    <result column="EntryUserRole" jdbcType="INTEGER" property="entryuserrole" />
+    <result column="AccBookNumber" jdbcType="INTEGER" property="accbooknumber" />
+    <result column="EntryNumber" jdbcType="VARCHAR" property="entrynumber" />
+    <result column="UserId" jdbcType="INTEGER" property="userid" />
+    <result column="AreaCode" jdbcType="INTEGER" property="areacode" />
+    <result column="InvoiceNumber" jdbcType="VARCHAR" property="invoicenumber" />
+    <result column="HappenTime" jdbcType="BIGINT" property="happentime" />
+    <result column="Goods" jdbcType="DECIMAL" property="goods" />
+    <result column="Money" jdbcType="DECIMAL" property="money" />
+    <result column="Balance" jdbcType="DECIMAL" property="balance" />
   </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -45,25 +45,25 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
                   and ${criterion.condition}
                 </when>
-                <when test="criterion.singleValue" >
+                <when test="criterion.singleValue">
                   and ${criterion.condition} #{criterion.value}
                 </when>
-                <when test="criterion.betweenValue" >
+                <when test="criterion.betweenValue">
                   and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
                 </when>
-                <when test="criterion.listValue" >
+                <when test="criterion.listValue">
                   and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
                   </foreach>
                 </when>
@@ -74,166 +74,166 @@
       </foreach>
     </where>
   </sql>
-  <sql id="Base_Column_List" >
-    BookId, EntryId, PlatformRole, EntryUserRole, AccBookNumber, EntryNumber, UserId, 
+  <sql id="Base_Column_List">
+    BookId, EntryId, PlatformRole, EntryUserRole, AccBookNumber, EntryNumber, UserId,
     AreaCode, InvoiceNumber, HappenTime, Goods, Money, Balance
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.entity.FundbookExample" >
+  <select id="selectByExample" parameterType="com.yjy.entity.FundbookExample" resultMap="BaseResultMap">
     select
-    <if test="distinct" >
+    <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
     from fundbook
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-    <if test="orderByClause != null" >
+    <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="com.yjy.entity.FundbookExample" >
+  <delete id="deleteByExample" parameterType="com.yjy.entity.FundbookExample">
     delete from fundbook
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insertSelective" parameterType="com.yjy.entity.Fundbook" >
-    <selectKey resultType="java.lang.Long" keyProperty="bookid" order="AFTER" >
+  <insert id="insertSelective" parameterType="com.yjy.entity.Fundbook">
+    <selectKey keyProperty="bookid" order="AFTER" resultType="java.lang.Long">
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into fundbook
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="entryid != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="entryid != null">
         EntryId,
       </if>
-      <if test="platformrole != null" >
+      <if test="platformrole != null">
         PlatformRole,
       </if>
-      <if test="entryuserrole != null" >
+      <if test="entryuserrole != null">
         EntryUserRole,
       </if>
-      <if test="accbooknumber != null" >
+      <if test="accbooknumber != null">
         AccBookNumber,
       </if>
-      <if test="entrynumber != null" >
+      <if test="entrynumber != null">
         EntryNumber,
       </if>
-      <if test="userid != null" >
+      <if test="userid != null">
         UserId,
       </if>
-      <if test="areacode != null" >
+      <if test="areacode != null">
         AreaCode,
       </if>
-      <if test="invoicenumber != null" >
+      <if test="invoicenumber != null">
         InvoiceNumber,
       </if>
-      <if test="happentime != null" >
+      <if test="happentime != null">
         HappenTime,
       </if>
-      <if test="goods != null" >
+      <if test="goods != null">
         Goods,
       </if>
-      <if test="money != null" >
+      <if test="money != null">
         Money,
       </if>
-      <if test="balance != null" >
+      <if test="balance != null">
         Balance,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="entryid != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="entryid != null">
         #{entryid,jdbcType=BIGINT},
       </if>
-      <if test="platformrole != null" >
+      <if test="platformrole != null">
         #{platformrole,jdbcType=INTEGER},
       </if>
-      <if test="entryuserrole != null" >
+      <if test="entryuserrole != null">
         #{entryuserrole,jdbcType=INTEGER},
       </if>
-      <if test="accbooknumber != null" >
+      <if test="accbooknumber != null">
         #{accbooknumber,jdbcType=INTEGER},
       </if>
-      <if test="entrynumber != null" >
+      <if test="entrynumber != null">
         #{entrynumber,jdbcType=VARCHAR},
       </if>
-      <if test="userid != null" >
+      <if test="userid != null">
         #{userid,jdbcType=INTEGER},
       </if>
-      <if test="areacode != null" >
+      <if test="areacode != null">
         #{areacode,jdbcType=INTEGER},
       </if>
-      <if test="invoicenumber != null" >
+      <if test="invoicenumber != null">
         #{invoicenumber,jdbcType=VARCHAR},
       </if>
-      <if test="happentime != null" >
+      <if test="happentime != null">
         #{happentime,jdbcType=BIGINT},
       </if>
-      <if test="goods != null" >
+      <if test="goods != null">
         #{goods,jdbcType=DECIMAL},
       </if>
-      <if test="money != null" >
+      <if test="money != null">
         #{money,jdbcType=DECIMAL},
       </if>
-      <if test="balance != null" >
+      <if test="balance != null">
         #{balance,jdbcType=DECIMAL},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.yjy.entity.FundbookExample" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.yjy.entity.FundbookExample" resultType="java.lang.Integer">
     select count(*) from fundbook
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map" >
+  <update id="updateByExampleSelective" parameterType="map">
     update fundbook
-    <set >
-      <if test="record.bookid != null" >
+    <set>
+      <if test="record.bookid != null">
         BookId = #{record.bookid,jdbcType=BIGINT},
       </if>
-      <if test="record.entryid != null" >
+      <if test="record.entryid != null">
         EntryId = #{record.entryid,jdbcType=BIGINT},
       </if>
-      <if test="record.platformrole != null" >
+      <if test="record.platformrole != null">
         PlatformRole = #{record.platformrole,jdbcType=INTEGER},
       </if>
-      <if test="record.entryuserrole != null" >
+      <if test="record.entryuserrole != null">
         EntryUserRole = #{record.entryuserrole,jdbcType=INTEGER},
       </if>
-      <if test="record.accbooknumber != null" >
+      <if test="record.accbooknumber != null">
         AccBookNumber = #{record.accbooknumber,jdbcType=INTEGER},
       </if>
-      <if test="record.entrynumber != null" >
+      <if test="record.entrynumber != null">
         EntryNumber = #{record.entrynumber,jdbcType=VARCHAR},
       </if>
-      <if test="record.userid != null" >
+      <if test="record.userid != null">
         UserId = #{record.userid,jdbcType=INTEGER},
       </if>
-      <if test="record.areacode != null" >
+      <if test="record.areacode != null">
         AreaCode = #{record.areacode,jdbcType=INTEGER},
       </if>
-      <if test="record.invoicenumber != null" >
+      <if test="record.invoicenumber != null">
         InvoiceNumber = #{record.invoicenumber,jdbcType=VARCHAR},
       </if>
-      <if test="record.happentime != null" >
+      <if test="record.happentime != null">
         HappenTime = #{record.happentime,jdbcType=BIGINT},
       </if>
-      <if test="record.goods != null" >
+      <if test="record.goods != null">
         Goods = #{record.goods,jdbcType=DECIMAL},
       </if>
-      <if test="record.money != null" >
+      <if test="record.money != null">
         Money = #{record.money,jdbcType=DECIMAL},
       </if>
-      <if test="record.balance != null" >
+      <if test="record.balance != null">
         Balance = #{record.balance,jdbcType=DECIMAL},
       </if>
     </set>
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByExample" parameterType="map" >
+  <update id="updateByExample" parameterType="map">
     update fundbook
     set BookId = #{record.bookid,jdbcType=BIGINT},
       EntryId = #{record.entryid,jdbcType=BIGINT},
@@ -248,47 +248,47 @@
       Goods = #{record.goods,jdbcType=DECIMAL},
       Money = #{record.money,jdbcType=DECIMAL},
       Balance = #{record.balance,jdbcType=DECIMAL}
-    <if test="_parameter != null" >
+    <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.yjy.entity.Fundbook" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.yjy.entity.Fundbook">
     update fundbook
-    <set >
-      <if test="entryid != null" >
+    <set>
+      <if test="entryid != null">
         EntryId = #{entryid,jdbcType=BIGINT},
       </if>
-      <if test="platformrole != null" >
+      <if test="platformrole != null">
         PlatformRole = #{platformrole,jdbcType=INTEGER},
       </if>
-      <if test="entryuserrole != null" >
+      <if test="entryuserrole != null">
         EntryUserRole = #{entryuserrole,jdbcType=INTEGER},
       </if>
-      <if test="accbooknumber != null" >
+      <if test="accbooknumber != null">
         AccBookNumber = #{accbooknumber,jdbcType=INTEGER},
       </if>
-      <if test="entrynumber != null" >
+      <if test="entrynumber != null">
         EntryNumber = #{entrynumber,jdbcType=VARCHAR},
       </if>
-      <if test="userid != null" >
+      <if test="userid != null">
         UserId = #{userid,jdbcType=INTEGER},
       </if>
-      <if test="areacode != null" >
+      <if test="areacode != null">
         AreaCode = #{areacode,jdbcType=INTEGER},
       </if>
-      <if test="invoicenumber != null" >
+      <if test="invoicenumber != null">
         InvoiceNumber = #{invoicenumber,jdbcType=VARCHAR},
       </if>
-      <if test="happentime != null" >
+      <if test="happentime != null">
         HappenTime = #{happentime,jdbcType=BIGINT},
       </if>
-      <if test="goods != null" >
+      <if test="goods != null">
         Goods = #{goods,jdbcType=DECIMAL},
       </if>
-      <if test="money != null" >
+      <if test="money != null">
         Money = #{money,jdbcType=DECIMAL},
       </if>
-      <if test="balance != null" >
+      <if test="balance != null">
         Balance = #{balance,jdbcType=DECIMAL},
       </if>
     </set>

@@ -8,6 +8,7 @@ public class UserBasicInfo {
     private String companyname;
     private Integer userid;
     private Integer typeId;
+    private Integer createTime;
 
     public String getCompanyname() {
         return companyname;
@@ -31,5 +32,13 @@ public class UserBasicInfo {
 
     public void setTypeId(Integer typeId) {
         this.typeId = typeId;
+    }
+
+    public Integer getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Integer createTime) {
+        this.createTime = createTime;
     }
 }

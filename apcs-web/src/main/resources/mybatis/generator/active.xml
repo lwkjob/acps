@@ -5,7 +5,7 @@
 
 <generatorConfiguration>
     <classPathEntry
-            location="/Users/liwenke/.m2/repository/mysql/mysql-connector-java/5.1.22/mysql-connector-java-5.1.22.jar"/>
+            location="C:\Users\Administrator\.m2\repository\mysql\mysql-connector-java\5.1.22\mysql-connector-java-5.1.22.jar"/>
 
     <context id="Mysql2Tables" targetRuntime="MyBatis3">
 
@@ -17,54 +17,45 @@
         </commentGenerator>
 
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://localhost:3306/ypzdw_fundcapital?characterEncoding=utf8"
-                        userId="root"
-                        password="">
+                        connectionURL="jdbc:mysql://acc.cmqndxdodheb.rds.cn-north-1.amazonaws.com.cn:8306/ypzdw_fundcapital?characterEncoding=utf8"
+                        userId="acc"
+                        password="ywkjacc">
         </jdbcConnection>
 
         <javaTypeResolver>
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
 
-        <!--实体类-->
+         <!--实体类  -->
         <javaModelGenerator targetPackage="com.yjy.entity"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
-        <!--mapper-xml文件-->
+         <!--mapper-xml文件 -->
         <sqlMapGenerator targetPackage="mybatis.mapper.fundbook"
                          targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
-        <!--mapper-java接口-->
+       <!--mapper-java接口 -->
         <javaClientGenerator type="MIXEDMAPPER" targetPackage="com.yjy.repository.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
-        <!-- <table tableName="active_day_report_total" schema="logistics">
-             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-         </table>-->
-        <!--
-                <table tableName="active_day_report" schema="logistics">
-                    <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-                </table>-->
-        <table tableName="fundbook" schema="ypzdw_fundcapital">
-            <generatedKey column="bookid" sqlStatement="MySql" identity="true"/>
-        </table>
+
+        <!--<table tableName="fundbook" schema="ypzdw_fundcapital">-->
+            <!--<generatedKey column="bookid" sqlStatement="MySql" identity="true"/>-->
+        <!--</table>-->
+
 
         <table tableName="bookcode" schema="ypzdw_fundcapital">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
-        <!--  <table tableName="active_money_bill" schema="logistics">
-                  <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-              </table>-->
 
-        <!-- <table tableName="active_money" schema="logistics">
-              <generatedKey column="id" sqlStatement="MySql" identity="true"/>
-         </table>-->
+
+
 
     </context>
 </generatorConfiguration>

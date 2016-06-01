@@ -65,9 +65,9 @@ public class LogginController {
             bookcodes = new ArrayList<>();
             String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "-");
             Bookcode bookcode = new Bookcode();
-            bookcode.setPlatformrole(Integer.parseInt(accbookArray[0]));
-            bookcode.setEntryuserrole(Integer.parseInt(accbookArray[1]));
-            bookcode.setAccbooknumber(Integer.parseInt(accbookArray[2]));
+            bookcode.setBookcodeone(Integer.parseInt(accbookArray[0]));
+            bookcode.setBookcodetwo(Integer.parseInt(accbookArray[1]));
+            bookcode.setBookcodethree(Integer.parseInt(accbookArray[2]));
             bookcodes.add(bookcode);
         }
 
@@ -77,10 +77,9 @@ public class LogginController {
         if (updateBalanceVo.getUserId() == null || updateBalanceVo.getUserId() <= 0) {
             //查询所有的用户
             Map<String, Object> map = new HashedMap();
-//            map.put("startIndex", 0);
-//            map.put("endIndex", 10);
             map.put("typeid", 2);
-            users = fundbookService.getUsers(map);
+            int typeid=updateBalanceVo.getTypeid();
+            users = fundbookService.getUsers(0,0,typeid,0,0);
         } else {
 
             UserBasicInfo userBasicInfo = new UserBasicInfo();

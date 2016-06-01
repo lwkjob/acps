@@ -5,10 +5,14 @@
     <id     column="UserId"       property="userid"       jdbcType="BIGINT" />
     <result column="companyname"  property="companyname"  jdbcType="VARCHAR" />
     <result column="typeId"       property="typeId"       jdbcType="INTEGER" />
+    <result column="CreateTime"   property="createTime"   jdbcType="BIGINT" />
   </resultMap>
 
   <sql id="Base_Column_List" >
-    userbasic.Companyname Companyname, userbasic.UserId userid, users.typeId typeid
+    userbasic.Companyname Companyname,
+    userbasic.UserId userid,
+     users.typeId typeid,
+     users.CreateTime createTime
   </sql>
 
   <sql id="tables">
@@ -30,17 +34,20 @@
       </if>
   </select>
 
-
   <sql id="Where_Clause">
     <where>
       <if test="userid != null ">
         userbasic.userid=#{userid}
       </if>
-
       <if test="typeid != null ">
         users.typeid=#{typeid}
       </if>
-
+      <if test="startTime != null and startTime!=0">
+        users.CreateTime &gt;= #{startTime}
+      </if>
+      <if test="endTime != null and endTime!=0">
+        users.CreateTime &lt;= #{endTime}
+      </if>
     </where>
   </sql>
 

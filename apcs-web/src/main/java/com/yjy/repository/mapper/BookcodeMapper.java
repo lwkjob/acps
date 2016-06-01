@@ -23,12 +23,14 @@ public interface BookcodeMapper {
     int deleteByPrimaryKey(Integer id);
 
     @Insert({
-        "insert into bookcode (PlatFormRole, EntryUserRole, ",
-        "AccBookNumber, PName, ",
-        "EName, AName, Idx)",
-        "values (#{platformrole,jdbcType=INTEGER}, #{entryuserrole,jdbcType=INTEGER}, ",
-        "#{accbooknumber,jdbcType=INTEGER}, #{pname,jdbcType=VARCHAR}, ",
-        "#{ename,jdbcType=VARCHAR}, #{aname,jdbcType=VARCHAR}, #{idx,jdbcType=INTEGER})"
+        "insert into bookcode (fundtype, BookCodeOne, ",
+        "BookCodeTwo, BookCodeThree, ",
+        "BookCodeOneDesc, BookCodeTwoDesc, ",
+        "BookCodeThreeDesc, Idx)",
+        "values (#{fundtype,jdbcType=INTEGER}, #{bookcodeone,jdbcType=INTEGER}, ",
+        "#{bookcodetwo,jdbcType=INTEGER}, #{bookcodethree,jdbcType=INTEGER}, ",
+        "#{bookcodeonedesc,jdbcType=VARCHAR}, #{bookcodetwodesc,jdbcType=VARCHAR}, ",
+        "#{bookcodethreedesc,jdbcType=VARCHAR}, #{idx,jdbcType=INTEGER})"
     })
     @SelectKey(statement="SELECT LAST_INSERT_ID()", keyProperty="id", before=false, resultType=Integer.class)
     int insert(Bookcode record);
@@ -39,7 +41,8 @@ public interface BookcodeMapper {
 
     @Select({
         "select",
-        "Id, PlatFormRole, EntryUserRole, AccBookNumber, PName, EName, AName, Idx",
+        "Id, fundtype, BookCodeOne, BookCodeTwo, BookCodeThree, BookCodeOneDesc, BookCodeTwoDesc, ",
+        "BookCodeThreeDesc, Idx",
         "from bookcode",
         "where Id = #{id,jdbcType=INTEGER}"
     })
@@ -54,12 +57,13 @@ public interface BookcodeMapper {
 
     @Update({
         "update bookcode",
-        "set PlatFormRole = #{platformrole,jdbcType=INTEGER},",
-          "EntryUserRole = #{entryuserrole,jdbcType=INTEGER},",
-          "AccBookNumber = #{accbooknumber,jdbcType=INTEGER},",
-          "PName = #{pname,jdbcType=VARCHAR},",
-          "EName = #{ename,jdbcType=VARCHAR},",
-          "AName = #{aname,jdbcType=VARCHAR},",
+        "set fundtype = #{fundtype,jdbcType=INTEGER},",
+          "BookCodeOne = #{bookcodeone,jdbcType=INTEGER},",
+          "BookCodeTwo = #{bookcodetwo,jdbcType=INTEGER},",
+          "BookCodeThree = #{bookcodethree,jdbcType=INTEGER},",
+          "BookCodeOneDesc = #{bookcodeonedesc,jdbcType=VARCHAR},",
+          "BookCodeTwoDesc = #{bookcodetwodesc,jdbcType=VARCHAR},",
+          "BookCodeThreeDesc = #{bookcodethreedesc,jdbcType=VARCHAR},",
           "Idx = #{idx,jdbcType=INTEGER}",
         "where Id = #{id,jdbcType=INTEGER}"
     })

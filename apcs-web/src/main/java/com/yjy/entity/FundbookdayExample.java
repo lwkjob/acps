@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FundbookExample {
+public class FundbookdayExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public FundbookExample() {
+    public FundbookdayExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -105,6 +105,66 @@ public class FundbookExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
+        public Criteria andIdIsNull() {
+            addCriterion("Id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdIsNotNull() {
+            addCriterion("Id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdEqualTo(Long value) {
+            addCriterion("Id =", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdNotEqualTo(Long value) {
+            addCriterion("Id <>", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdGreaterThan(Long value) {
+            addCriterion("Id >", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("Id >=", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdLessThan(Long value) {
+            addCriterion("Id <", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdLessThanOrEqualTo(Long value) {
+            addCriterion("Id <=", value, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdIn(List<Long> values) {
+            addCriterion("Id in", values, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdNotIn(List<Long> values) {
+            addCriterion("Id not in", values, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdBetween(Long value1, Long value2) {
+            addCriterion("Id between", value1, value2, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIdNotBetween(Long value1, Long value2) {
+            addCriterion("Id not between", value1, value2, "id");
+            return (Criteria) this;
+        }
+
         public Criteria andBookidIsNull() {
             addCriterion("BookId is null");
             return (Criteria) this;
@@ -162,66 +222,6 @@ public class FundbookExample {
 
         public Criteria andBookidNotBetween(Long value1, Long value2) {
             addCriterion("BookId not between", value1, value2, "bookid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidIsNull() {
-            addCriterion("EntryId is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidIsNotNull() {
-            addCriterion("EntryId is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidEqualTo(Long value) {
-            addCriterion("EntryId =", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidNotEqualTo(Long value) {
-            addCriterion("EntryId <>", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidGreaterThan(Long value) {
-            addCriterion("EntryId >", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidGreaterThanOrEqualTo(Long value) {
-            addCriterion("EntryId >=", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidLessThan(Long value) {
-            addCriterion("EntryId <", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidLessThanOrEqualTo(Long value) {
-            addCriterion("EntryId <=", value, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidIn(List<Long> values) {
-            addCriterion("EntryId in", values, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidNotIn(List<Long> values) {
-            addCriterion("EntryId not in", values, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidBetween(Long value1, Long value2) {
-            addCriterion("EntryId between", value1, value2, "entryid");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntryidNotBetween(Long value1, Long value2) {
-            addCriterion("EntryId not between", value1, value2, "entryid");
             return (Criteria) this;
         }
 
@@ -405,76 +405,6 @@ public class FundbookExample {
             return (Criteria) this;
         }
 
-        public Criteria andEntrynumberIsNull() {
-            addCriterion("EntryNumber is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberIsNotNull() {
-            addCriterion("EntryNumber is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberEqualTo(String value) {
-            addCriterion("EntryNumber =", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberNotEqualTo(String value) {
-            addCriterion("EntryNumber <>", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberGreaterThan(String value) {
-            addCriterion("EntryNumber >", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberGreaterThanOrEqualTo(String value) {
-            addCriterion("EntryNumber >=", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberLessThan(String value) {
-            addCriterion("EntryNumber <", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberLessThanOrEqualTo(String value) {
-            addCriterion("EntryNumber <=", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberLike(String value) {
-            addCriterion("EntryNumber like", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberNotLike(String value) {
-            addCriterion("EntryNumber not like", value, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberIn(List<String> values) {
-            addCriterion("EntryNumber in", values, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberNotIn(List<String> values) {
-            addCriterion("EntryNumber not in", values, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberBetween(String value1, String value2) {
-            addCriterion("EntryNumber between", value1, value2, "entrynumber");
-            return (Criteria) this;
-        }
-
-        public Criteria andEntrynumberNotBetween(String value1, String value2) {
-            addCriterion("EntryNumber not between", value1, value2, "entrynumber");
-            return (Criteria) this;
-        }
-
         public Criteria andUseridIsNull() {
             addCriterion("UserId is null");
             return (Criteria) this;
@@ -595,253 +525,243 @@ public class FundbookExample {
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberIsNull() {
-            addCriterion("InvoiceNumber is null");
+        public Criteria andBookdateIsNull() {
+            addCriterion("BookDate is null");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberIsNotNull() {
-            addCriterion("InvoiceNumber is not null");
+        public Criteria andBookdateIsNotNull() {
+            addCriterion("BookDate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberEqualTo(String value) {
-            addCriterion("InvoiceNumber =", value, "invoicenumber");
+        public Criteria andBookdateEqualTo(Integer value) {
+            addCriterion("BookDate =", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberNotEqualTo(String value) {
-            addCriterion("InvoiceNumber <>", value, "invoicenumber");
+        public Criteria andBookdateNotEqualTo(Integer value) {
+            addCriterion("BookDate <>", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberGreaterThan(String value) {
-            addCriterion("InvoiceNumber >", value, "invoicenumber");
+        public Criteria andBookdateGreaterThan(Integer value) {
+            addCriterion("BookDate >", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberGreaterThanOrEqualTo(String value) {
-            addCriterion("InvoiceNumber >=", value, "invoicenumber");
+        public Criteria andBookdateGreaterThanOrEqualTo(Integer value) {
+            addCriterion("BookDate >=", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberLessThan(String value) {
-            addCriterion("InvoiceNumber <", value, "invoicenumber");
+        public Criteria andBookdateLessThan(Integer value) {
+            addCriterion("BookDate <", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberLessThanOrEqualTo(String value) {
-            addCriterion("InvoiceNumber <=", value, "invoicenumber");
+        public Criteria andBookdateLessThanOrEqualTo(Integer value) {
+            addCriterion("BookDate <=", value, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberLike(String value) {
-            addCriterion("InvoiceNumber like", value, "invoicenumber");
+        public Criteria andBookdateIn(List<Integer> values) {
+            addCriterion("BookDate in", values, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberNotLike(String value) {
-            addCriterion("InvoiceNumber not like", value, "invoicenumber");
+        public Criteria andBookdateNotIn(List<Integer> values) {
+            addCriterion("BookDate not in", values, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberIn(List<String> values) {
-            addCriterion("InvoiceNumber in", values, "invoicenumber");
+        public Criteria andBookdateBetween(Integer value1, Integer value2) {
+            addCriterion("BookDate between", value1, value2, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberNotIn(List<String> values) {
-            addCriterion("InvoiceNumber not in", values, "invoicenumber");
+        public Criteria andBookdateNotBetween(Integer value1, Integer value2) {
+            addCriterion("BookDate not between", value1, value2, "bookdate");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberBetween(String value1, String value2) {
-            addCriterion("InvoiceNumber between", value1, value2, "invoicenumber");
+        public Criteria andPrevbalanceIsNull() {
+            addCriterion("PrevBalance is null");
             return (Criteria) this;
         }
 
-        public Criteria andInvoicenumberNotBetween(String value1, String value2) {
-            addCriterion("InvoiceNumber not between", value1, value2, "invoicenumber");
+        public Criteria andPrevbalanceIsNotNull() {
+            addCriterion("PrevBalance is not null");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeIsNull() {
-            addCriterion("HappenTime is null");
+        public Criteria andPrevbalanceEqualTo(BigDecimal value) {
+            addCriterion("PrevBalance =", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeIsNotNull() {
-            addCriterion("HappenTime is not null");
+        public Criteria andPrevbalanceNotEqualTo(BigDecimal value) {
+            addCriterion("PrevBalance <>", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeEqualTo(Long value) {
-            addCriterion("HappenTime =", value, "happentime");
+        public Criteria andPrevbalanceGreaterThan(BigDecimal value) {
+            addCriterion("PrevBalance >", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeNotEqualTo(Long value) {
-            addCriterion("HappenTime <>", value, "happentime");
+        public Criteria andPrevbalanceGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("PrevBalance >=", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeGreaterThan(Long value) {
-            addCriterion("HappenTime >", value, "happentime");
+        public Criteria andPrevbalanceLessThan(BigDecimal value) {
+            addCriterion("PrevBalance <", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("HappenTime >=", value, "happentime");
+        public Criteria andPrevbalanceLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("PrevBalance <=", value, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeLessThan(Long value) {
-            addCriterion("HappenTime <", value, "happentime");
+        public Criteria andPrevbalanceIn(List<BigDecimal> values) {
+            addCriterion("PrevBalance in", values, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeLessThanOrEqualTo(Long value) {
-            addCriterion("HappenTime <=", value, "happentime");
+        public Criteria andPrevbalanceNotIn(List<BigDecimal> values) {
+            addCriterion("PrevBalance not in", values, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeIn(List<Long> values) {
-            addCriterion("HappenTime in", values, "happentime");
+        public Criteria andPrevbalanceBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("PrevBalance between", value1, value2, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeNotIn(List<Long> values) {
-            addCriterion("HappenTime not in", values, "happentime");
+        public Criteria andPrevbalanceNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("PrevBalance not between", value1, value2, "prevbalance");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeBetween(Long value1, Long value2) {
-            addCriterion("HappenTime between", value1, value2, "happentime");
+        public Criteria andHappendebitIsNull() {
+            addCriterion("HappenDebit is null");
             return (Criteria) this;
         }
 
-        public Criteria andHappentimeNotBetween(Long value1, Long value2) {
-            addCriterion("HappenTime not between", value1, value2, "happentime");
+        public Criteria andHappendebitIsNotNull() {
+            addCriterion("HappenDebit is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDebitIsNull() {
-            addCriterion("Debit is null");
+        public Criteria andHappendebitEqualTo(BigDecimal value) {
+            addCriterion("HappenDebit =", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitIsNotNull() {
-            addCriterion("Debit is not null");
+        public Criteria andHappendebitNotEqualTo(BigDecimal value) {
+            addCriterion("HappenDebit <>", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitEqualTo(BigDecimal value) {
-            addCriterion("Debit =", value, "debit");
+        public Criteria andHappendebitGreaterThan(BigDecimal value) {
+            addCriterion("HappenDebit >", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitNotEqualTo(BigDecimal value) {
-            addCriterion("Debit <>", value, "debit");
+        public Criteria andHappendebitGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("HappenDebit >=", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitGreaterThan(BigDecimal value) {
-            addCriterion("Debit >", value, "debit");
+        public Criteria andHappendebitLessThan(BigDecimal value) {
+            addCriterion("HappenDebit <", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("Debit >=", value, "debit");
+        public Criteria andHappendebitLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("HappenDebit <=", value, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitLessThan(BigDecimal value) {
-            addCriterion("Debit <", value, "debit");
+        public Criteria andHappendebitIn(List<BigDecimal> values) {
+            addCriterion("HappenDebit in", values, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("Debit <=", value, "debit");
+        public Criteria andHappendebitNotIn(List<BigDecimal> values) {
+            addCriterion("HappenDebit not in", values, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitIn(List<BigDecimal> values) {
-            addCriterion("Debit in", values, "debit");
+        public Criteria andHappendebitBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("HappenDebit between", value1, value2, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitNotIn(List<BigDecimal> values) {
-            addCriterion("Debit not in", values, "debit");
+        public Criteria andHappendebitNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("HappenDebit not between", value1, value2, "happendebit");
             return (Criteria) this;
         }
 
-        public Criteria andDebitBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("Debit between", value1, value2, "debit");
+        public Criteria andHappencreditIsNull() {
+            addCriterion("HappenCredit is null");
             return (Criteria) this;
         }
 
-        public Criteria andDebitNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("Debit not between", value1, value2, "debit");
+        public Criteria andHappencreditIsNotNull() {
+            addCriterion("HappenCredit is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreditIsNull() {
-            addCriterion("Credit is null");
+        public Criteria andHappencreditEqualTo(BigDecimal value) {
+            addCriterion("HappenCredit =", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditIsNotNull() {
-            addCriterion("Credit is not null");
+        public Criteria andHappencreditNotEqualTo(BigDecimal value) {
+            addCriterion("HappenCredit <>", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditEqualTo(BigDecimal value) {
-            addCriterion("Credit =", value, "credit");
+        public Criteria andHappencreditGreaterThan(BigDecimal value) {
+            addCriterion("HappenCredit >", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditNotEqualTo(BigDecimal value) {
-            addCriterion("Credit <>", value, "credit");
+        public Criteria andHappencreditGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("HappenCredit >=", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditGreaterThan(BigDecimal value) {
-            addCriterion("Credit >", value, "credit");
+        public Criteria andHappencreditLessThan(BigDecimal value) {
+            addCriterion("HappenCredit <", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("Credit >=", value, "credit");
+        public Criteria andHappencreditLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("HappenCredit <=", value, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditLessThan(BigDecimal value) {
-            addCriterion("Credit <", value, "credit");
+        public Criteria andHappencreditIn(List<BigDecimal> values) {
+            addCriterion("HappenCredit in", values, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("Credit <=", value, "credit");
+        public Criteria andHappencreditNotIn(List<BigDecimal> values) {
+            addCriterion("HappenCredit not in", values, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditIn(List<BigDecimal> values) {
-            addCriterion("Credit in", values, "credit");
+        public Criteria andHappencreditBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("HappenCredit between", value1, value2, "happencredit");
             return (Criteria) this;
         }
 
-        public Criteria andCreditNotIn(List<BigDecimal> values) {
-            addCriterion("Credit not in", values, "credit");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreditBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("Credit between", value1, value2, "credit");
-            return (Criteria) this;
-        }
-
-        public Criteria andCreditNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("Credit not between", value1, value2, "credit");
+        public Criteria andHappencreditNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("HappenCredit not between", value1, value2, "happencredit");
             return (Criteria) this;
         }
 

@@ -5,17 +5,19 @@ import java.io.Serializable;
 public class Bookcode implements Serializable {
     private Integer id;
 
-    private Integer platformrole;
+    private Integer fundtype;
 
-    private Integer entryuserrole;
+    private Integer bookcodeone;
 
-    private Integer accbooknumber;
+    private Integer bookcodetwo;
 
-    private String pname;
+    private Integer bookcodethree;
 
-    private String ename;
+    private String bookcodeonedesc;
 
-    private String aname;
+    private String bookcodetwodesc;
+
+    private String bookcodethreedesc;
 
     private Integer idx;
 
@@ -29,52 +31,60 @@ public class Bookcode implements Serializable {
         this.id = id;
     }
 
-    public Integer getPlatformrole() {
-        return platformrole;
+    public Integer getFundtype() {
+        return fundtype;
     }
 
-    public void setPlatformrole(Integer platformrole) {
-        this.platformrole = platformrole;
+    public void setFundtype(Integer fundtype) {
+        this.fundtype = fundtype;
     }
 
-    public Integer getEntryuserrole() {
-        return entryuserrole;
+    public Integer getBookcodeone() {
+        return bookcodeone;
     }
 
-    public void setEntryuserrole(Integer entryuserrole) {
-        this.entryuserrole = entryuserrole;
+    public void setBookcodeone(Integer bookcodeone) {
+        this.bookcodeone = bookcodeone;
     }
 
-    public Integer getAccbooknumber() {
-        return accbooknumber;
+    public Integer getBookcodetwo() {
+        return bookcodetwo;
     }
 
-    public void setAccbooknumber(Integer accbooknumber) {
-        this.accbooknumber = accbooknumber;
+    public void setBookcodetwo(Integer bookcodetwo) {
+        this.bookcodetwo = bookcodetwo;
     }
 
-    public String getPname() {
-        return pname;
+    public Integer getBookcodethree() {
+        return bookcodethree;
     }
 
-    public void setPname(String pname) {
-        this.pname = pname == null ? null : pname.trim();
+    public void setBookcodethree(Integer bookcodethree) {
+        this.bookcodethree = bookcodethree;
     }
 
-    public String getEname() {
-        return ename;
+    public String getBookcodeonedesc() {
+        return bookcodeonedesc;
     }
 
-    public void setEname(String ename) {
-        this.ename = ename == null ? null : ename.trim();
+    public void setBookcodeonedesc(String bookcodeonedesc) {
+        this.bookcodeonedesc = bookcodeonedesc == null ? null : bookcodeonedesc.trim();
     }
 
-    public String getAname() {
-        return aname;
+    public String getBookcodetwodesc() {
+        return bookcodetwodesc;
     }
 
-    public void setAname(String aname) {
-        this.aname = aname == null ? null : aname.trim();
+    public void setBookcodetwodesc(String bookcodetwodesc) {
+        this.bookcodetwodesc = bookcodetwodesc == null ? null : bookcodetwodesc.trim();
+    }
+
+    public String getBookcodethreedesc() {
+        return bookcodethreedesc;
+    }
+
+    public void setBookcodethreedesc(String bookcodethreedesc) {
+        this.bookcodethreedesc = bookcodethreedesc == null ? null : bookcodethreedesc.trim();
     }
 
     public Integer getIdx() {
@@ -98,12 +108,13 @@ public class Bookcode implements Serializable {
         }
         Bookcode other = (Bookcode) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getPlatformrole() == null ? other.getPlatformrole() == null : this.getPlatformrole().equals(other.getPlatformrole()))
-            && (this.getEntryuserrole() == null ? other.getEntryuserrole() == null : this.getEntryuserrole().equals(other.getEntryuserrole()))
-            && (this.getAccbooknumber() == null ? other.getAccbooknumber() == null : this.getAccbooknumber().equals(other.getAccbooknumber()))
-            && (this.getPname() == null ? other.getPname() == null : this.getPname().equals(other.getPname()))
-            && (this.getEname() == null ? other.getEname() == null : this.getEname().equals(other.getEname()))
-            && (this.getAname() == null ? other.getAname() == null : this.getAname().equals(other.getAname()))
+            && (this.getFundtype() == null ? other.getFundtype() == null : this.getFundtype().equals(other.getFundtype()))
+            && (this.getBookcodeone() == null ? other.getBookcodeone() == null : this.getBookcodeone().equals(other.getBookcodeone()))
+            && (this.getBookcodetwo() == null ? other.getBookcodetwo() == null : this.getBookcodetwo().equals(other.getBookcodetwo()))
+            && (this.getBookcodethree() == null ? other.getBookcodethree() == null : this.getBookcodethree().equals(other.getBookcodethree()))
+            && (this.getBookcodeonedesc() == null ? other.getBookcodeonedesc() == null : this.getBookcodeonedesc().equals(other.getBookcodeonedesc()))
+            && (this.getBookcodetwodesc() == null ? other.getBookcodetwodesc() == null : this.getBookcodetwodesc().equals(other.getBookcodetwodesc()))
+            && (this.getBookcodethreedesc() == null ? other.getBookcodethreedesc() == null : this.getBookcodethreedesc().equals(other.getBookcodethreedesc()))
             && (this.getIdx() == null ? other.getIdx() == null : this.getIdx().equals(other.getIdx()));
     }
 
@@ -112,12 +123,13 @@ public class Bookcode implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getPlatformrole() == null) ? 0 : getPlatformrole().hashCode());
-        result = prime * result + ((getEntryuserrole() == null) ? 0 : getEntryuserrole().hashCode());
-        result = prime * result + ((getAccbooknumber() == null) ? 0 : getAccbooknumber().hashCode());
-        result = prime * result + ((getPname() == null) ? 0 : getPname().hashCode());
-        result = prime * result + ((getEname() == null) ? 0 : getEname().hashCode());
-        result = prime * result + ((getAname() == null) ? 0 : getAname().hashCode());
+        result = prime * result + ((getFundtype() == null) ? 0 : getFundtype().hashCode());
+        result = prime * result + ((getBookcodeone() == null) ? 0 : getBookcodeone().hashCode());
+        result = prime * result + ((getBookcodetwo() == null) ? 0 : getBookcodetwo().hashCode());
+        result = prime * result + ((getBookcodethree() == null) ? 0 : getBookcodethree().hashCode());
+        result = prime * result + ((getBookcodeonedesc() == null) ? 0 : getBookcodeonedesc().hashCode());
+        result = prime * result + ((getBookcodetwodesc() == null) ? 0 : getBookcodetwodesc().hashCode());
+        result = prime * result + ((getBookcodethreedesc() == null) ? 0 : getBookcodethreedesc().hashCode());
         result = prime * result + ((getIdx() == null) ? 0 : getIdx().hashCode());
         return result;
     }

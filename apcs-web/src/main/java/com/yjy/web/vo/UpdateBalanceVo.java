@@ -9,6 +9,7 @@ public class UpdateBalanceVo {
     private String endDate;
     private Integer userId;
     private String accBook; //角色-用户角色-账本编号; 格式如: 1103-1151-1217
+    private Integer typeid; //用户类型 3平台 2卖家 1买家
 
     public String getStartDate() {
         return startDate;
@@ -40,5 +41,13 @@ public class UpdateBalanceVo {
 
     public void setAccBook(String accBook) {
         this.accBook = accBook;
+    }
+
+    public Integer getTypeid() {
+        return typeid;
+    }
+
+    public void setTypeid(Integer typeid) {
+        this.typeid = typeid;
     }
 }
