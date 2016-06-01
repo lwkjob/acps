@@ -15,10 +15,9 @@ import java.util.Map;
 public interface FundbookExtMapper {
 
     /**
-     *
      * @param fundbook
      * @param tableName 要查询的账本表如:fundbook201309
-     * @param lastData 是否取最后一条数据
+     * @param lastData  是否取最后一条数据
      * @return
      */
     List<Fundbook> selectByWhere(@Param("fundbook") Fundbook fundbook,
@@ -30,12 +29,12 @@ public interface FundbookExtMapper {
                                      @Param("tableName") String tableName);
 
 
-  void batchUpdateByPrimaryKeySelective(@Param("fundbooks") List<Fundbook> fundbooks,
-                                     @Param("tableName") String tableName);
+    void batchUpdateByPrimaryKeySelective(@Param("fundbooks") List<Fundbook> fundbooks,
+                                          @Param("tableName") String tableName);
 
 
     Fundbook selectByPrimaryKey(@Param("tableName") String tableName,
-                                @Param("bookid")Long bookid);
+                                @Param("bookid") Long bookid);
 
-
+    List<Fundbook> getDayOfBalance(Map map);
 }

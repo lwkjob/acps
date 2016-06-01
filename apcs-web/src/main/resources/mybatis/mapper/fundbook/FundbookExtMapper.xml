@@ -26,23 +26,23 @@
   <sql id="Where_Clause">
     <where>
       <if test="fundbook.platformrole != null ">
-        PlatformRole=#{fundbook.platformrole}
+       AND  PlatformRole=#{fundbook.platformrole}
       </if>
 
       <if test="fundbook.entryuserrole != null ">
-        and EntryUserRole=#{fundbook.entryuserrole}
+        AND EntryUserRole=#{fundbook.entryuserrole}
       </if>
 
       <if test="fundbook.accbooknumber != null ">
-        and AccBookNumber=#{fundbook.accbooknumber}
+        AND AccBookNumber=#{fundbook.accbooknumber}
       </if>
 
       <if test="fundbook.bookid != null ">
-        and BookId = #{fundbook.bookid}
+        AND BookId = #{fundbook.bookid}
       </if>
 
       <if test=" fundbook.userid != null ">
-        and UserId = #{fundbook.userid}
+        AND UserId = #{fundbook.userid}
       </if>
 
     </where>
@@ -149,5 +149,45 @@
   </select>
 
 
+
+  <!--取每天所有用户的最后余额-->
+  <select id="getDayOfBalance" resultMap="BaseResultMap" parameterType="map">
+    SELECT * from ${tablename} b
+            WHERE
+            b.PlatformRole = #{platformrole}
+        AND b.EntryUserRole = #{entryuserrole}
+        AND b.AccBookNumber = #{accbooknumber}
+        AND b.HappenTime BETWEEN #{startTime} AND #{endTime}
+        AND not exists(select * from ${tablename} a
+                     where
+                    a.PlatformRole = #{platformrole}
+                    AND a.EntryUserRole = #{entryuserrole}
+                    AND a.AccBookNumber = #{accbooknumber}
+                    AND a.HappenTime BETWEEN #{startTime} AND #{endTime}
+                    and a.userid=b.userid
+                    and (a.HappenTime>b.HappenTime or (a.HappenTime=b.HappenTime and a.bookid>b.bookid)))
+      order by b.userid ASC
+ </select>
+
+  <delete id="deleteFundbookDay" parameterType="map">
+      DELETE  FROM ${tablename}
+      <where>
+        <if test="platformrole!=null">
+        AND  PlatformRole = #{platformrole}
+        </if>
+        <if test="platformrole!=null">
+          AND EntryUserRole = #{entryuserrole}
+        </if>
+        <if test="platformrole!=null">
+          AND AccBookNumber = #{accbooknumber}
+        </if>
+        <if test="platformrole!=null">
+          AND HappenTime BETWEEN #{startTime} AND #{endTime}
+        </if>
+        <if test="userid!=null">
+          AND userid=#{userid}
+        </if>
+      </where>
+  </delete>
 
 </mapper>
