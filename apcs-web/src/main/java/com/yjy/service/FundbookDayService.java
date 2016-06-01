@@ -17,10 +17,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Administrator on 2016/5/31.
@@ -60,7 +57,10 @@ public class FundbookDayService {
     public int insertFundBookDay(Date startDate, Date endDate, List<Bookcode> bookcodes,List<UserBasicInfo> users) {
         //delete日清表指定时间之前的数据
         //1.1根据时间区间算出所有需要删数据的表名
+         long start= System.currentTimeMillis();
+        Map<String,List<Fundbookday>> insertIntoMap=new HashedMap();
         Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
+
          for(String key :deleteTableNameMap.keySet()){
              DelTableName delTableName = deleteTableNameMap.get(key);
              fundbookdayExtMapper.deleteFundbookDay(
@@ -70,12 +70,77 @@ public class FundbookDayService {
                      Integer.parseInt(delTableName.getStartStr()),
                      Integer.parseInt(delTableName.getEndStr()));
 
+             //2 统计每天每个用户每个账本数据
+             Fundbook fundbookExample=new Fundbook(); //查询条件
+
+             List<Fundbook>  fundbooks=  getFundbooks(fundbookExample,
+                     delTableName.getTableName(),
+                     Integer.parseInt(delTableName.getStartStr()),
+                     Integer.parseInt(delTableName.getEndStr()));
+
+             Map<String,Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
+
+             List<Fundbookday> fundbookdays=new ArrayList<>();
+             //3 每个表，每个用户，每天，每个账本一条数据
+                //3.1每个表
+             for (UserBasicInfo userBasicInfo:users){
+                 //3.2每个用户
+                Date startDateByTable=parseDateFromStr(simpleDateFormat_yyyyMMdd,delTableName.getStartStr());
+                Date dateDateByTable=parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
+                 while (dateDateByTable.compareTo(startDateByTable)!=-1){
+                     //3.3每天
+                     for(Bookcode bookcode:bookcodes){
+                         //3.4每个账本
+                         String bookDateStr=simpleDateFormat_yyyyMMdd.format(startDate);
+                         Fundbookday fundbookday=new Fundbookday();
+                         fundbookday.setUserid(userBasicInfo.getUserid());
+                         fundbookday.setBookdate(Integer.parseInt(bookDateStr));
+                         fundbookday.setPlatformrole(bookcode.getBookcodeone());
+                         fundbookday.setEntryuserrole(bookcode.getBookcodetwo());
+                         fundbookday.setAccbooknumber(bookcode.getBookcodethree());
+
+                         String mapkey=String.format("%s-%s-%s-%s-%s",
+                                 bookDateStr,bookcode.getBookcodeone(),
+                                 bookcode.getBookcodetwo(),
+                                 bookcode.getBookcodethree(),
+                                 userBasicInfo.getUserid());
+                         Fundbookday fundbookday1 = fundbookdayMap.get(mapkey);
+                         if(fundbookday1!=null){
+                             fundbookday.setAreacode(fundbookday1.getAreacode());
+                             fundbookday.setPrevbalance(fundbookday1.getPrevbalance());
+                             fundbookday.setBalance(fundbookday1.getBalance());
+                             fundbookday.setHappencredit(fundbookday1.getHappencredit());
+                             fundbookday.setHappendebit(fundbookday1.getHappendebit());
+                         }
+                         fundbookdays.add(fundbookday);
+                     }
+                     startDateByTable=getNextDayDate(startDate);
+                 }
+             }
+             insertIntoMap.put(delTableName.getTableName(),fundbookdays);
          }
-//        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, startDate.getTime() / 1000, endDate.getTime() / 1000);
-        //取出指定时间之前的所有用户,插入到日清表中
-        //更新日清表中当天sum(货),sum(钱),当天余
+        long end = System.currentTimeMillis();
+        logger.info("内存计算完了"+(float)(end-start)/1000+"秒");
+        //批量插入
+        for(String key:insertIntoMap.keySet()){
+            List<Fundbookday> fundbookdays = insertIntoMap.get(key);
+            fundbookdayExtMapper.batchInsert(key,fundbookdays);
+        }
         return 1;
     }
+
+    private Date parseDateFromStr(SimpleDateFormat simpleDateFormat,String dateStr){
+
+       Date date=null;
+        try {
+
+               date=simpleDateFormat.parse(dateStr);
+        }catch (Exception e){
+            logger.error("日期转换报错",e);
+        }
+        return date;
+    }
+
 
     /**
      * 计算需要删除的表明和日期区间
@@ -115,7 +180,7 @@ public class FundbookDayService {
      * 计算范围时间内:每天-每个用户-每个账本 的sum(借),sum(贷),余
      * 取出来的数据必须是按照按照用户和发生时间排好序
      */
-    public Map getFundbookDay(List<Fundbook> fundbooks){
+    public  Map<String,Fundbookday> getFundbookDay(List<Fundbook> fundbooks){
         Map<String,Fundbookday>  map=new HashedMap(20000);
         for (Fundbook fundbook:fundbooks){
             calendar.setTimeInMillis(fundbook.getHappentime() * 1000l);
@@ -130,7 +195,7 @@ public class FundbookDayService {
                fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
                fundbookDaySum.setBalance(fundbook.getBalance());
            }
-            fundbookDaySum.setPrevbalance(getPrevbalance(map,key));  //上期的余。。。。
+            fundbookDaySum.setPrevbalance(getPrevbalance(map,key));  //设置上期的余。。。。
             map.put(key, fundbookDaySum);
         }
         return map;

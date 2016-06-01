@@ -19,4 +19,6 @@ public interface FundbookdayExtMapper {
                            @Param("startTime")int startTime,
                            @Param("endTime")int endTime);
 
+    void batchInsert(@Param("tablename")String tablename,
+                     @Param("fundbookdays") List<Fundbookday> fundbookdays);
 }

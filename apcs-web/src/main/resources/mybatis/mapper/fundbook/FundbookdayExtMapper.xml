@@ -73,4 +73,15 @@
       </if>
     </where>
   </delete>
+
+  <insert id="batchInsert" parameterType="map">
+    INSERT  INTO ${tablename} (   PlatformRole, EntryUserRole, AccBookNumber, UserId, AreaCode, BookDate,
+      PrevBalance, HappenDebit, HappenCredit, Balance) VALUES
+      <foreach collection="fundbookdays" item="fundbookday" open="(" close=")"  separator="," >
+          (#{fundbookday.platformrole},#{fundbookday.entryuserrole},#{fundbookday.accbooknumber},#{fundbookday.userid},
+          #{fundbookday.bookdate},#{fundbookday.prevbalance},
+          #{fundbookday.happendebit},#{fundbookday.happencredit},#{fundbookday.balance})
+      </foreach>
+
+  </insert>
 </mapper>
