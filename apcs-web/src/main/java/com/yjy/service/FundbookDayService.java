@@ -63,15 +63,7 @@ public class FundbookDayService {
                     DelTableName delTableName = deleteTableNameMap.get(key);
                     //1.2删除需要统计的数据
                     String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-                    int startInt = Integer.parseInt(delTableName.getStartStr());
-                    int entInt = Integer.parseInt(delTableName.getEndStr());
-                    fundbookdayExtMapper.deleteFundbookDay(
-                            bookcodes,
-                            users,
-                            fundbookDayTableName,
-                            startInt,
-                            entInt
-                    );
+
 
             //2 统计每天每个用户每个账本数据
             Fundbook fundbookExample = new Fundbook(); //查询条件
@@ -94,7 +86,7 @@ public class FundbookDayService {
                     i++;
                     //用户数据量很大目前接近10万
                     List<Fundbookday> fundbookdays = new ArrayList<>();
-                    String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDate);
+                    String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
                     for (UserBasicInfo userBasicInfo : users) {
                         //3.4每个账本
                             Fundbookday fundbookday = new Fundbookday();
@@ -120,11 +112,23 @@ public class FundbookDayService {
                         }
                         fundbookdays.add(fundbookday);
                      }
+                    int startInt = Integer.parseInt(delTableName.getStartStr());
+                    int entInt = Integer.parseInt(delTableName.getEndStr());
+                    List<Fundbookcode> delBookcode=new ArrayList();
+                    logger.info("删除重新统计数据"+JsonUtils.toJson(delBookcode));
+                    delBookcode.add(bookcode);//数据太多只能一个一个账本的删除
+                    fundbookdayExtMapper.deleteFundbookDay(
+                            delBookcode,
+                            users,
+                            fundbookDayTableName,
+                            startInt,
+                            entInt
+                    );
                     logger.info("内存计算完"+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+fundbookdays.size());
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
                     logger.info("插入完成账本"+bookDateStr+" "+JsonUtils.toJson(bookcode));
                 }
-                startDateByTable = getNextDayDate(startDate);
+                startDateByTable = getNextDayDate(startDateByTable);
             }
         }
         long end = System.currentTimeMillis();

@@ -54,11 +54,7 @@ public class FundbookMonthService {
         while (endDate.compareTo(startDate) != -1) {
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
-            //1删除需要重新统计的数据
-            fundbookMonthExtMapper.deleteFundbookMonth(
-                    bookcodes,
-                    users,
-                    monthTableName);
+
 
             //2 统计当前月每个用户每个账本产生的数据
             Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
@@ -100,6 +96,14 @@ public class FundbookMonthService {
                     }
                     FundbookmonthList.add(fundbookmonth);
                 }
+
+                List<Fundbookcode> delBookCode=new ArrayList<>();
+                delBookCode.add(bookcode);
+                //1删除需要重新统计的数据
+                fundbookMonthExtMapper.deleteFundbookMonth(
+                        delBookCode,
+                        users,
+                        monthTableName);
                 logger.info("内存计算完"+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+FundbookmonthList.size());
                 fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
                 logger.info("插入完成账本"+bookDateStr+" "+ JsonUtils.toJson(bookcode));
@@ -137,7 +141,7 @@ public class FundbookMonthService {
      * 取出来的数据必须是按照按照用户和发生时间排好序,因为本期余就取最后一条的余记录
      */
     public Map<String, Fundbookmonth> getFundbookMonth(List<Fundbookday> fundbookdays) {
-        Map<String, Fundbookmonth> map = new HashedMap(2000);
+        Map<String, Fundbookmonth> map = new HashedMap(2000);//一个用户每个月至少账本数量条,用户量很大的情况月统计也很大
         for (Fundbookday fundbookday : fundbookdays) {
             String dayStr = StringUtils.substring(fundbookday.getBookdate() + "", 0, 6);
             String key = String.format("%s|-%s|-%s", dayStr, fundbookday.getBookcode(), fundbookday.getUserid());
