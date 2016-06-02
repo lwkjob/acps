@@ -65,17 +65,7 @@ public class FundbookDayService {
                     String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
 
-            //2 统计每天每个用户每个账本数据
-            Fundbook fundbookExample = new Fundbook(); //查询条件
-            String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-            List<Fundbook> fundbooks = getFundbooks(
-                    fundbookExample,
-                    fundbookTableName,
-                    Integer.parseInt(delTableName.getStartStr()),
-                    Integer.parseInt(delTableName.getEndStr()));
 
-            //当期月每个用户每个账本每天的业务发生
-            Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
@@ -83,6 +73,16 @@ public class FundbookDayService {
             while (endDateByTable.compareTo(startDateByTable) != -1) {
                 int i=0;
                 for (Fundbookcode bookcode : bookcodes) {
+                    //2 统计每天每个用户每个账本数据
+                    Fundbook fundbookExample = new Fundbook(); //查询条件
+                    String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
+                    List<Fundbook> fundbooks = getFundbooks(
+                            fundbookExample,
+                            fundbookTableName,
+                            Integer.parseInt(delTableName.getStartStr()),
+                            Integer.parseInt(delTableName.getEndStr()));
+                    //当期月每个用户每个账本每天的业务发生
+                    Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
                     i++;
                     //用户数据量很大目前接近10万
                     List<Fundbookday> fundbookdays = new ArrayList<>();
@@ -115,8 +115,8 @@ public class FundbookDayService {
                     int startInt = Integer.parseInt(delTableName.getStartStr());
                     int entInt = Integer.parseInt(delTableName.getEndStr());
                     List<Fundbookcode> delBookcode=new ArrayList();
-                    logger.info("删除重新统计数据"+JsonUtils.toJson(delBookcode));
                     delBookcode.add(bookcode);//数据太多只能一个一个账本的删除
+                    logger.info("删除重新统计数据"+JsonUtils.toJson(bookcode));
                     fundbookdayExtMapper.deleteFundbookDay(
                             delBookcode,
                             users,

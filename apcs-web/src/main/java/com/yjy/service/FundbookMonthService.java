@@ -56,15 +56,15 @@ public class FundbookMonthService {
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
 
 
-            //2 统计当前月每个用户每个账本产生的数据
-            Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
-            List<Fundbookday> fundbookdays = getFundbookDays(fundbookdayExample, dayTableName);
 
-            //当月发发生数据
-            Map<String, Fundbookmonth> fundbookmonthMap = getFundbookMonth(fundbookdays);
 
             //3 每个表，每个用户，每月，每个账本一条数据
             for (Fundbookcode bookcode : bookcodes) {
+                //2 统计当前月每个用户每个账本产生的数据
+                Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
+                List<Fundbookday> fundbookdays = getFundbookDays(fundbookdayExample, dayTableName);
+                //当月发发生数据
+                Map<String, Fundbookmonth> fundbookmonthMap = getFundbookMonth(fundbookdays);
                 List<Fundbookmonth> FundbookmonthList = new ArrayList<>();
                 int i=0;
                 String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
@@ -79,6 +79,7 @@ public class FundbookMonthService {
                             bookcode.getBookcode(),
                             userBasicInfo.getUserid());
                     //如果当月有发生数据
+
                     Fundbookmonth fundbookmonthActive = fundbookmonthMap.get(mapkey);
                     if (fundbookmonthActive != null) {
                         fundbookmonth.setAreacode(fundbookmonthActive.getAreacode());
@@ -99,6 +100,7 @@ public class FundbookMonthService {
 
                 List<Fundbookcode> delBookCode=new ArrayList<>();
                 delBookCode.add(bookcode);
+                logger.info("删除重新统计"+JsonUtils.toJson(bookcode));
                 //1删除需要重新统计的数据
                 fundbookMonthExtMapper.deleteFundbookMonth(
                         delBookCode,
