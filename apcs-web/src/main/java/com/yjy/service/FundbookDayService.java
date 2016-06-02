@@ -75,6 +75,7 @@ public class FundbookDayService {
                 for (Fundbookcode bookcode : bookcodes) {
                     //2 统计每天每个用户每个账本数据
                     Fundbook fundbookExample = new Fundbook(); //查询条件
+                    fundbookExample.setBookcode(bookcode.getBookcode());
                     String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
                     List<Fundbook> fundbooks = getFundbooks(
                             fundbookExample,

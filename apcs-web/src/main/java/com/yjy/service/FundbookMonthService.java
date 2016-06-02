@@ -62,6 +62,7 @@ public class FundbookMonthService {
             for (Fundbookcode bookcode : bookcodes) {
                 //2 统计当前月每个用户每个账本产生的数据
                 Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
+                fundbookdayExample.setBookcode(bookcode.getBookcode());
                 List<Fundbookday> fundbookdays = getFundbookDays(fundbookdayExample, dayTableName);
                 //当月发发生数据
                 Map<String, Fundbookmonth> fundbookmonthMap = getFundbookMonth(fundbookdays);
