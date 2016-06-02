@@ -36,7 +36,7 @@ public class FundbookDayService {
 
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
 
-    private  static Calendar calendar = Calendar.getInstance();
+    private static Calendar calendar = Calendar.getInstance();
 
     //取前一天
     public Date getPreDayDate(Date startDate) {
@@ -51,85 +51,77 @@ public class FundbookDayService {
     }
 
     //插入日清数据
-    public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes,List<UserBasicInfo> users) {
+    public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes, List<UserBasicInfo> users) {
         //delete日清表指定时间之前的数据
 
-         long start= System.currentTimeMillis();
-        Map<String,Map<String,Fundbookday>> insertIntoMap=new HashedMap();
+        long start = System.currentTimeMillis();
 
         //1.1根据时间区间算出所有需要删数据的表名
         Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
 
-         for(String key :deleteTableNameMap.keySet()){
-             DelTableName delTableName = deleteTableNameMap.get(key);
-             //1.2删除需要统计的数据
-             String tableNameTmp= FundConstant.PRE_FUNDBOOKDAY_TABLE_NAME+delTableName.getTableNameSuffix();
-             int startInt=Integer.parseInt(delTableName.getStartStr());
-             int entInt=Integer.parseInt(delTableName.getEndStr());
-             fundbookdayExtMapper.deleteFundbookDay(
-                     bookcodes,
-                     users,
-                     tableNameTmp,
-                     startInt,
-                     entInt
-                     );
+        for (String key : deleteTableNameMap.keySet()) {
+                    DelTableName delTableName = deleteTableNameMap.get(key);
+                    //1.2删除需要统计的数据
+                    String tableNameTmp = FundConstant.PRE_FUNDBOOKDAY_TABLE_NAME + delTableName.getTableNameSuffix();
+                    int startInt = Integer.parseInt(delTableName.getStartStr());
+                    int entInt = Integer.parseInt(delTableName.getEndStr());
+                    fundbookdayExtMapper.deleteFundbookDay(
+                            bookcodes,
+                            users,
+                            tableNameTmp,
+                            startInt,
+                            entInt
+                    );
 
-             //2 统计每天每个用户每个账本数据
-             Fundbook fundbookExample=new Fundbook(); //查询条件
-             String fundbookTableName= FundConstant.PRE_FUNDBOOK_TABLE_NAME+delTableName.getTableNameSuffix();
-             List<Fundbook>  fundbooks=  getFundbooks(
-                     fundbookExample,
-                     fundbookTableName,
-                     Integer.parseInt(delTableName.getStartStr()),
-                     Integer.parseInt(delTableName.getEndStr()));
+            //2 统计每天每个用户每个账本数据
+            Fundbook fundbookExample = new Fundbook(); //查询条件
+            String fundbookTableName = FundConstant.PRE_FUNDBOOK_TABLE_NAME + delTableName.getTableNameSuffix();
+            List<Fundbook> fundbooks = getFundbooks(
+                    fundbookExample,
+                    fundbookTableName,
+                    Integer.parseInt(delTableName.getStartStr()),
+                    Integer.parseInt(delTableName.getEndStr()));
 
-             //每个用户每个账本每天的业务发生
-             Map<String,Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
-
-             Map<String,Fundbookday> fundbookdays=new HashedMap();
-             //3 每个表，每个用户，每天，每个账本一条数据
-                //3.1每个表
-             for (UserBasicInfo userBasicInfo:users){
-                 //3.2每个用户
-                Date startDateByTable=parseDateFromStr(simpleDateFormat_yyyyMMdd,delTableName.getStartStr());
-                Date dateDateByTable=parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
-                 while (dateDateByTable.compareTo(startDateByTable)!=-1){
-                     //3.3每天
-                     for(Fundbookcode bookcode:bookcodes){
-                         //3.4每个账本
-                         String bookDateStr=simpleDateFormat_yyyyMMdd.format(startDate);
-                         Fundbookday fundbookday=new Fundbookday();
-                         fundbookday.setUserid(userBasicInfo.getUserid());
-                         fundbookday.setBookdate(Integer.parseInt(bookDateStr));
-                         fundbookday.setBookcode(bookcode.getBookcode());
-                         String mapKey=String.format("%s|-%s|-%s", bookDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
-                         fundbookdays.put(mapKey,fundbookday);
-                         logger.info("整在处理:"+bookDateStr+" "+JsonUtils.toJson(fundbookday));
+            //每个用户每个账本每天的业务发生
+            Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
+            //3 每个表，每个用户，每天，每个账本一条数据
+            //3.2每个用户
+            Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
+            Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
+            while (endDateByTable.compareTo(startDateByTable) != -1) {
+                for (Fundbookcode bookcode : bookcodes) {
+                    //用户数据量很大目前接近10万
+                    List<Fundbookday> fundbookdays = new ArrayList<>();
+                    for (UserBasicInfo userBasicInfo : users) {
+                            //3.4每个账本
+                            String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDate);
+                            Fundbookday fundbookday = new Fundbookday();
+                            fundbookday.setUserid(userBasicInfo.getUserid());
+                            fundbookday.setBookdate(Integer.parseInt(bookDateStr));
+                            fundbookday.setBookcode(bookcode.getBookcode());
+//                            String mapKey = String.format("%s|-%s|-%s", bookDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
+                            fundbookdays.add(fundbookday);
                      }
-                     logger.info("搞完一天");
-                     startDateByTable=getNextDayDate(startDate);
-                 }
-             }
-             insertIntoMap.put(tableNameTmp,fundbookdays);
-         }
-        long end = System.currentTimeMillis();
-        logger.info("内存计算完了"+(float)(end-start)/1000+"秒");
-        //批量插入
-        for(String key:insertIntoMap.keySet()){
-//            List<Fundbookday> fundbookdays = insertIntoMap.get(key);
-//            fundbookdayExtMapper.batchInsert(fundbookdays,key); //todo
+                    logger.info("内存计算完一次插入");
+                    fundbookdayExtMapper.batchInsert(fundbookdays,key);
+                    logger.info("插入完成账本"+JsonUtils.toJson(bookcode));
+                }
+                startDateByTable = getNextDayDate(startDate);
+            }
         }
+        long end = System.currentTimeMillis();
+        logger.info("计算完了" + (float) (end - start) / 1000 + "秒");
         return 1;
     }
 
-    private Date parseDateFromStr(SimpleDateFormat simpleDateFormat,String dateStr){
+    private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
 
-       Date date=null;
+        Date date = null;
         try {
 
-               date=simpleDateFormat.parse(dateStr);
-        }catch (Exception e){
-            logger.error("日期转换报错",e);
+            date = simpleDateFormat.parse(dateStr);
+        } catch (Exception e) {
+            logger.error("日期转换报错", e);
         }
         return date;
     }
@@ -140,32 +132,32 @@ public class FundbookDayService {
      *
      * @return
      */
-    public  Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate) {
+    public Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate) {
         Map<String, DelTableName> map = new HashedMap();
         while (endDate.compareTo(startDate) != -1) {
             String startStr = simpleDateFormat_yyyyMMdd.format(startDate);
-            String tableNameSuffix= StringUtils.substring(startStr, 0, 6);//数据库中yyyyMM作为表名的后缀
+            String tableNameSuffix = StringUtils.substring(startStr, 0, 6);//数据库中yyyyMM作为表名的后缀
             DelTableName delTableName = new DelTableName();
-            if (map.get(tableNameSuffix)!=null){
+            if (map.get(tableNameSuffix) != null) {
                 String startStrTemp = map.get(tableNameSuffix).getStartStr();
                 delTableName.setTableNameSuffix(tableNameSuffix);
                 delTableName.setStartStr(startStrTemp);
                 delTableName.setEndStr(startStr);
-            }else {
+            } else {
                 delTableName.setTableNameSuffix(tableNameSuffix);
                 delTableName.setStartStr(startStr);
                 delTableName.setEndStr(startStr);
             }
-            map.put(tableNameSuffix,delTableName);
-            startDate= getNextDayDate(startDate);
+            map.put(tableNameSuffix, delTableName);
+            startDate = getNextDayDate(startDate);
         }
-        logger.info("需要删除的表明和日期区间:"+JsonUtils.toJson(map));
+        logger.info("需要删除的表明和日期区间:" + JsonUtils.toJson(map));
         return map;
     }
 
     //查询区间内全部账本数据
-    public List<Fundbook> getFundbooks(Fundbook fundbook,String tableName,int startTime,int endTime){
-      return   fundbookExtMapper.selectByExample(fundbook, tableName, startTime, endTime, true);
+    public List<Fundbook> getFundbooks(Fundbook fundbook, String tableName, int startTime, int endTime) {
+        return fundbookExtMapper.selectByExample(fundbook, tableName, startTime, endTime, true);
     }
 
 
@@ -174,22 +166,22 @@ public class FundbookDayService {
      * 计算范围时间内:每天-每个账本-每个用户 的sum(借),sum(贷),余
      * 取出来的数据必须是按照按照用户和发生时间排好序
      */
-    public  Map<String,Fundbookday> getFundbookDay(List<Fundbook> fundbooks){
-        Map<String,Fundbookday>  map=new HashedMap(2000);
-        for (Fundbook fundbook:fundbooks){
+    public Map<String, Fundbookday> getFundbookDay(List<Fundbook> fundbooks) {
+        Map<String, Fundbookday> map = new HashedMap(2000);
+        for (Fundbook fundbook : fundbooks) {
             calendar.setTimeInMillis(fundbook.getHappentime() * 1000l);
-            String dayStr=simpleDateFormat_yyyyMMdd.format(calendar.getTime());
-            String key=String.format("%s|-%s|-%s",dayStr,fundbook.getBookcode(),fundbook.getUserid());
-            Fundbookday fundbookDaySum=map.get(key);
-           if(map.get(key)==null){
-                 fundbookDaySum = new Fundbookday();
-                 copyPropertis(fundbook, dayStr, fundbookDaySum);
-           }else {
-               fundbookDaySum.setHappendebit(fundbook.getDebit().add(fundbookDaySum.getHappendebit()));
-               fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
-               fundbookDaySum.setBalance(fundbook.getBalance());
-           }
-            fundbookDaySum.setPrevbalance(getPrevbalance(map,key));  //设置上期的余。。。。
+            String dayStr = simpleDateFormat_yyyyMMdd.format(calendar.getTime());
+            String key = String.format("%s|-%s|-%s", dayStr, fundbook.getBookcode(), fundbook.getUserid());
+            Fundbookday fundbookDaySum = map.get(key);
+            if (map.get(key) == null) {
+                fundbookDaySum = new Fundbookday();
+                copyPropertis(fundbook, dayStr, fundbookDaySum);
+            } else {
+                fundbookDaySum.setHappendebit(fundbook.getDebit().add(fundbookDaySum.getHappendebit()));
+                fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
+                fundbookDaySum.setBalance(fundbook.getBalance());
+            }
+            fundbookDaySum.setPrevbalance(getPrevbalance(map, key));  //设置上期的余。。。。
             map.put(key, fundbookDaySum);
         }
         return map;
@@ -197,37 +189,37 @@ public class FundbookDayService {
 
     //获取前一天的日清余额
     private BigDecimal getPrevbalance(Map<String, Fundbookday> map, String key) {
-        String currentDateStr=StringUtils.substring(key,0,8);
-        Date currentDate =null;
+        String currentDateStr = StringUtils.substring(key, 0, 8);
+        Date currentDate = null;
         try {
-              currentDate = simpleDateFormat_yyyyMMdd.parse(currentDateStr);
+            currentDate = simpleDateFormat_yyyyMMdd.parse(currentDateStr);
         } catch (ParseException e) {
-           logger.error("日期转换出错",e);
+            logger.error("日期转换出错", e);
         }
         Date preDayDate = getPreDayDate(currentDate);
-        String preKey=simpleDateFormat_yyyyMMdd.format(preDayDate)+StringUtils.substring(key, 8);
+        String preKey = simpleDateFormat_yyyyMMdd.format(preDayDate) + StringUtils.substring(key, 8);
         Fundbookday fundbookday = map.get(preKey);
-        if (fundbookday!=null){
+        if (fundbookday != null) {
             return fundbookday.getBalance();
-        }else{
+        } else {
             logger.info("没找到去数据库查询");
-            String yyyyMM=StringUtils.substring(preKey, 0, 6);
-            String tableName="fundbookday"+yyyyMM;
-            String[] preKeyArray=StringUtils.split(preKey,"|-");
-            String bookdate=preKeyArray[0];
-            String bookcode=preKeyArray[1];
-            String userid=preKeyArray[2];
-            Fundbookday fundbookday1=new Fundbookday();
+            String yyyyMM = StringUtils.substring(preKey, 0, 6);
+            String tableName = "fundbookday" + yyyyMM;
+            String[] preKeyArray = StringUtils.split(preKey, "|-");
+            String bookdate = preKeyArray[0];
+            String bookcode = preKeyArray[1];
+            String userid = preKeyArray[2];
+            Fundbookday fundbookday1 = new Fundbookday();
             fundbookday1.setUserid(Integer.parseInt(userid));
             fundbookday1.setBookdate(Integer.parseInt(bookdate));       //前一天
             fundbookday1.setBookcode(bookcode);
 
             //取前一天的这个用户的这个账本数据
             List<Fundbookday> fundbookdays = fundbookdayExtMapper.selectByExample(fundbookday1, tableName);
-            if(fundbookdays!=null){
+            if (fundbookdays != null) {
                 return fundbookdays.get(0).getBalance();
-            }else {
-                logger.info("数据库都没找到preKey="+preKey);
+            } else {
+                logger.info("数据库都没找到preKey=" + preKey);
                 return new BigDecimal(0);
             }
         }
