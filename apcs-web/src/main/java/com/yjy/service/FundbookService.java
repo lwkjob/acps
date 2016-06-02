@@ -7,6 +7,7 @@ import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookExtMapper;
+import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,9 @@ public class FundbookService {
     @Resource
     private FundbookExtMapper fundbookExtMapper;
 
+    @Resource
+    private UserBasicExtMapper userBasicExtMapper;
+
     private static Logger logger = LoggerFactory.getLogger(FundbookService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
@@ -35,9 +39,12 @@ public class FundbookService {
      * 根据日期段一个月一个月的更新
      *
      * @param bookcodes
-     * @param users
      */
-    public void oneByOneUpdateBalance(Date startDate, Date endDate, List<Fundbookcode> bookcodes, List<UserBasicInfo> users) {
+    public void oneByOneUpdateBalance(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid,List<UserBasicInfo> users) {
+        // 当期活跃用户
+        if (users==null){
+              users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
+        }
 
         //轮训用户
         //这里可以考虑多线程

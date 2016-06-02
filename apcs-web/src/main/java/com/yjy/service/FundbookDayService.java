@@ -6,6 +6,7 @@ import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
+import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -32,6 +33,9 @@ public class FundbookDayService {
     @Resource
     private FundbookExtMapper fundbookExtMapper;
 
+    @Resource
+    private UserBasicExtMapper userBasicExtMapper;
+
     private static Logger logger = LoggerFactory.getLogger(FundbookDayService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
@@ -50,8 +54,12 @@ public class FundbookDayService {
         return preDate;
     }
 
+
+
     //插入日清数据
-    public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes, List<UserBasicInfo> users) {
+    public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid,List<UserBasicInfo> users) {
+
+
         //delete日清表指定时间之前的数据
 
         long start = System.currentTimeMillis();
@@ -73,6 +81,7 @@ public class FundbookDayService {
             while (endDateByTable.compareTo(startDateByTable) != -1) {
                 int i=0;
                 for (Fundbookcode bookcode : bookcodes) {
+                    i++;
                     //2 统计每天每个用户每个账本数据
                     Fundbook fundbookExample = new Fundbook(); //查询条件
                     fundbookExample.setBookcode(bookcode.getBookcode());
@@ -84,10 +93,14 @@ public class FundbookDayService {
                             Integer.parseInt(delTableName.getEndStr()));
                     //当期月每个用户每个账本每天的业务发生
                     Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
-                    i++;
+
                     //用户数据量很大目前接近10万
                     List<Fundbookday> fundbookdays = new ArrayList<>();
                     String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
+                    // 当期活跃用户
+                    if (users==null){
+                         users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDateByTable.getTime() / 1000);
+                    }
                     for (UserBasicInfo userBasicInfo : users) {
                         //3.4每个账本
                             Fundbookday fundbookday = new Fundbookday();

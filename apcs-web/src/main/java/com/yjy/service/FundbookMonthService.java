@@ -6,6 +6,7 @@ import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookMonthExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
+import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -31,6 +32,9 @@ public class FundbookMonthService {
     @Resource
     private FundbookdayExtMapper fundbookdayExtMapper;
 
+    @Resource
+    private UserBasicExtMapper userBasicExtMapper;
+
     private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
@@ -48,7 +52,7 @@ public class FundbookMonthService {
     }
 
     //插入日清数据
-    public int insertFundBookMonth(Date startDate, Date endDate, List<Fundbookcode> bookcodes, List<UserBasicInfo> users) {
+    public int insertFundBookMonth(Date startDate, Date endDate, List<Fundbookcode> bookcodes,int typeid,List<UserBasicInfo> users) {
 
         long start = System.currentTimeMillis();//记录运行时间
         while (endDate.compareTo(startDate) != -1) {
@@ -69,7 +73,12 @@ public class FundbookMonthService {
                 List<Fundbookmonth> FundbookmonthList = new ArrayList<>();
                 int i=0;
                 String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
+                // 当期活跃用户
+                if (users==null){
+                      users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
+                }
                 for (UserBasicInfo userBasicInfo : users) {
+                    i++;
                     //3.3每个账本
                     Fundbookmonth fundbookmonth = new Fundbookmonth();
                     fundbookmonth.setUserid(userBasicInfo.getUserid());

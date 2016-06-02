@@ -90,14 +90,12 @@ public class LoginController {
         }
 
         //判断用户
-        List<UserBasicInfo> users = new ArrayList<>();
-
+        List<UserBasicInfo> users = null;
+        int typeid=0;
         if (updateBalanceVo.getUserid() == null || updateBalanceVo.getUserid() <= 0) {
-            //查询所有的用户
-            int typeid=updateBalanceVo.getTypeid()==null?0:updateBalanceVo.getTypeid();
-            users = userService.getUsers(0,0,typeid,0,0);
+            //查询所有的用户,(注册时间小于当前时间)
+              typeid=updateBalanceVo.getTypeid()==null?0:updateBalanceVo.getTypeid();
         } else {
-
             UserBasicInfo userBasicInfo = new UserBasicInfo();
             userBasicInfo.setUserid(updateBalanceVo.getUserid());
             users.add(userBasicInfo);
@@ -109,13 +107,13 @@ public class LoginController {
              case 1:
                  startDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getStartDate(), logger);
                  endDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getEndDate(), logger);
-                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodes, users);
+                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodes, typeid,users);
                  break;
              case 2:
-                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodes, users);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodes, typeid,users);
                  break;
              default:
-                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, typeid,users);
          }
 
         long endTime = System.currentTimeMillis();
