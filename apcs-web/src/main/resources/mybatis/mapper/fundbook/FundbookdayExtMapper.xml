@@ -67,17 +67,17 @@
     </delete>
 
     <insert id="batchInsert" parameterType="map">
-        INSERT INTO ${tablename}
-        ( BookCode, UserId, AreaCode, BookDate,PrevBalance, HappenDebit, HappenCredit, Balance) VALUES
-        <foreach collection="fundbookdays" item="fundbookday" open="(" close=")" separator=",">
+        INSERT INTO ${tablename} ( BookCode, UserId, AreaCode, BookDate,PrevBalance, HappenDebit, HappenCredit, Balance)
+        VALUES <foreach collection="fundbookdays" item="fundbookday" open="" close="" separator=",">
             (#{fundbookday.bookcode},
             #{fundbookday.userid},
+            #{fundbookday.areacode},
             #{fundbookday.bookdate},
             #{fundbookday.prevbalance},
             #{fundbookday.happendebit},
             #{fundbookday.happencredit},
             #{fundbookday.balance})
-        </foreach>
+           </foreach>
 
     </insert>
 </mapper>
