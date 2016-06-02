@@ -45,8 +45,8 @@ public class FundbookService {
 
             //轮训每一个月
             while (!(endDate.compareTo(startDate) == -1)) {
-                String preTableName = FundConstant.PRE_FUNDBOOK_TABLE_NAME + getPreMonthsDateStr(startDate);
-                String tableName = FundConstant.PRE_FUNDBOOK_TABLE_NAME + simpleDateFormat_yyyyMM.format(startDate);
+                String preTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + getPreMonthsDateStr(startDate);
+                String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
                 doUpdateBalance(bookcodes,
                         userBasicInfo.getUserid(),
                         preTableName,

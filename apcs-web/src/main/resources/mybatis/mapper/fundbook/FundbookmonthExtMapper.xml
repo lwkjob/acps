@@ -43,9 +43,10 @@
   <insert id="batchInsert" parameterType="map">
     INSERT  INTO ${tablename}
     (BookCode, UserId, AreaCode, BookDate, PrevBalance, HappenDebit, HappenCredit, Balance) VALUES
-    <foreach collection="fundbookmonths" item="fundbookmonth" open="(" close=")"  separator="," >
+    <foreach collection="fundbookmonths" item="fundbookmonth" open="" close=""  separator="," >
       (#{fundbookmonth.bookcode},
       #{fundbookmonth.userid},
+      #{fundbookmonth.areacode},
       #{fundbookmonth.bookdate},
       #{fundbookmonth.prevbalance},
       #{fundbookmonth.happendebit},

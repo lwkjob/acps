@@ -62,7 +62,7 @@ public class FundbookDayService {
         for (String key : deleteTableNameMap.keySet()) {
                     DelTableName delTableName = deleteTableNameMap.get(key);
                     //1.2删除需要统计的数据
-                    String fundbookDayTableName = FundConstant.PRE_FUNDBOOKDAY_TABLE_NAME + delTableName.getTableNameSuffix();
+                    String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
                     int startInt = Integer.parseInt(delTableName.getStartStr());
                     int entInt = Integer.parseInt(delTableName.getEndStr());
                     fundbookdayExtMapper.deleteFundbookDay(
@@ -75,42 +75,54 @@ public class FundbookDayService {
 
             //2 统计每天每个用户每个账本数据
             Fundbook fundbookExample = new Fundbook(); //查询条件
-            String fundbookTableName = FundConstant.PRE_FUNDBOOK_TABLE_NAME + delTableName.getTableNameSuffix();
+            String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
             List<Fundbook> fundbooks = getFundbooks(
                     fundbookExample,
                     fundbookTableName,
                     Integer.parseInt(delTableName.getStartStr()),
                     Integer.parseInt(delTableName.getEndStr()));
 
-            //每个用户每个账本每天的业务发生
+            //当期月每个用户每个账本每天的业务发生
             Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
             Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
             while (endDateByTable.compareTo(startDateByTable) != -1) {
+                int i=0;
                 for (Fundbookcode bookcode : bookcodes) {
+                    i++;
                     //用户数据量很大目前接近10万
                     List<Fundbookday> fundbookdays = new ArrayList<>();
+                    String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDate);
                     for (UserBasicInfo userBasicInfo : users) {
-                            //3.4每个账本
-                            String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDate);
+                        //3.4每个账本
                             Fundbookday fundbookday = new Fundbookday();
                             fundbookday.setUserid(userBasicInfo.getUserid());
                             fundbookday.setBookdate(Integer.parseInt(bookDateStr));
                             fundbookday.setBookcode(bookcode.getBookcode());
-                            fundbookday.setAreacode(0);
+                        //遍历没个用户今天是否产生账本信息
+                        String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(),  fundbookday.getUserid());
+                        Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
+                        if (fundbookdayActive!=null){
+                            fundbookday.setPrevbalance(fundbookdayActive.getPrevbalance());
+                            fundbookday.setBalance(fundbookdayActive.getBalance());
+                            fundbookday.setAreacode(fundbookdayActive.getAreacode());
+                            fundbookday.setHappencredit(fundbookdayActive.getHappencredit());
+                            fundbookday.setHappendebit(fundbookdayActive.getHappendebit());
+                        }else {
                             BigDecimal bigDecimal0 = new BigDecimal(0);
+                            fundbookday.setAreacode(0);
                             fundbookday.setBalance(bigDecimal0);
                             fundbookday.setHappencredit(bigDecimal0);
                             fundbookday.setHappendebit(bigDecimal0);
                             fundbookday.setPrevbalance(bigDecimal0);
-//                            String mapKey = String.format("%s|-%s|-%s", bookDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
-                            fundbookdays.add(fundbookday);
+                        }
+                        fundbookdays.add(fundbookday);
                      }
-                    logger.info("内存计算完一次,数据量:"+fundbookdays.size());
+                    logger.info("内存计算完"+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+fundbookdays.size());
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
-                    logger.info("插入完成账本"+JsonUtils.toJson(bookcode));
+                    logger.info("插入完成账本"+bookDateStr+" "+JsonUtils.toJson(bookcode));
                 }
                 startDateByTable = getNextDayDate(startDate);
             }
@@ -124,7 +136,6 @@ public class FundbookDayService {
 
         Date date = null;
         try {
-
             date = simpleDateFormat.parse(dateStr);
         } catch (Exception e) {
             logger.error("日期转换报错", e);
@@ -157,7 +168,7 @@ public class FundbookDayService {
             map.put(tableNameSuffix, delTableName);
             startDate = getNextDayDate(startDate);
         }
-        logger.info("需要删除的表明和日期区间:" + JsonUtils.toJson(map));
+        logger.info("需要删除的表名和日期区间:" + JsonUtils.toJson(map));
         return map;
     }
 
@@ -180,9 +191,10 @@ public class FundbookDayService {
             String key = String.format("%s|-%s|-%s", dayStr, fundbook.getBookcode(), fundbook.getUserid());
             Fundbookday fundbookDaySum = map.get(key);
             if (map.get(key) == null) {
-                fundbookDaySum = new Fundbookday();
+                fundbookDaySum = new Fundbookday();//插入一条新的
                 copyPropertis(fundbook, dayStr, fundbookDaySum);
             } else {
+                //更新余额,汇总发生
                 fundbookDaySum.setHappendebit(fundbook.getDebit().add(fundbookDaySum.getHappendebit()));
                 fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
                 fundbookDaySum.setBalance(fundbook.getBalance());
@@ -234,12 +246,12 @@ public class FundbookDayService {
     //复制账本数据到日清数据
     private void copyPropertis(Fundbook fundbook, String dayStr, Fundbookday fundbookDaySum) {
         fundbookDaySum.setBookcode(fundbook.getBookcode());
-        fundbookDaySum.setAreacode(fundbook.getAreacode());
+        fundbookDaySum.setAreacode(fundbook.getAreacode());//这个区域同booid一样是多条数据 有可能不一样
         fundbookDaySum.setHappendebit(fundbook.getDebit());
         fundbookDaySum.setHappencredit(fundbook.getCredit());
         fundbookDaySum.setBalance(fundbook.getBalance());
         fundbookDaySum.setBookdate(Integer.parseInt(dayStr));
-        fundbookDaySum.setBookid(fundbook.getBookid());
+        fundbookDaySum.setBookid(fundbook.getBookid()); //这个bookid貌似没有意义
         fundbookDaySum.setUserid(fundbook.getUserid());
     }
 }
