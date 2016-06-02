@@ -62,13 +62,13 @@ public class FundbookDayService {
         for (String key : deleteTableNameMap.keySet()) {
                     DelTableName delTableName = deleteTableNameMap.get(key);
                     //1.2删除需要统计的数据
-                    String tableNameTmp = FundConstant.PRE_FUNDBOOKDAY_TABLE_NAME + delTableName.getTableNameSuffix();
+                    String fundbookDayTableName = FundConstant.PRE_FUNDBOOKDAY_TABLE_NAME + delTableName.getTableNameSuffix();
                     int startInt = Integer.parseInt(delTableName.getStartStr());
                     int entInt = Integer.parseInt(delTableName.getEndStr());
                     fundbookdayExtMapper.deleteFundbookDay(
                             bookcodes,
                             users,
-                            tableNameTmp,
+                            fundbookDayTableName,
                             startInt,
                             entInt
                     );
@@ -102,8 +102,8 @@ public class FundbookDayService {
 //                            String mapKey = String.format("%s|-%s|-%s", bookDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
                             fundbookdays.add(fundbookday);
                      }
-                    logger.info("内存计算完一次插入");
-                    fundbookdayExtMapper.batchInsert(fundbookdays,key);
+                    logger.info("内存计算完一次");
+                    fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
                     logger.info("插入完成账本"+JsonUtils.toJson(bookcode));
                 }
                 startDateByTable = getNextDayDate(startDate);
