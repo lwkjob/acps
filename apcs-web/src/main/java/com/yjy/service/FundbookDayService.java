@@ -99,10 +99,16 @@ public class FundbookDayService {
                             fundbookday.setUserid(userBasicInfo.getUserid());
                             fundbookday.setBookdate(Integer.parseInt(bookDateStr));
                             fundbookday.setBookcode(bookcode.getBookcode());
+                            fundbookday.setAreacode(0);
+                            BigDecimal bigDecimal0 = new BigDecimal(0);
+                            fundbookday.setBalance(bigDecimal0);
+                            fundbookday.setHappencredit(bigDecimal0);
+                            fundbookday.setHappendebit(bigDecimal0);
+                            fundbookday.setPrevbalance(bigDecimal0);
 //                            String mapKey = String.format("%s|-%s|-%s", bookDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
                             fundbookdays.add(fundbookday);
                      }
-                    logger.info("内存计算完一次");
+                    logger.info("内存计算完一次,数据量:"+fundbookdays.size());
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
                     logger.info("插入完成账本"+JsonUtils.toJson(bookcode));
                 }
