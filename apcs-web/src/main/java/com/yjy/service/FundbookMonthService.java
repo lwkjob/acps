@@ -61,9 +61,10 @@ public class FundbookMonthService {
 
 
 
-
+            int i=0;
             //3 每个表，每个用户，每月，每个账本一条数据
             for (Fundbookcode bookcode : bookcodes) {
+                i++;
                 //2 统计当前月每个用户每个账本产生的数据
                 Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
                 fundbookdayExample.setBookcode(bookcode.getBookcode());
@@ -71,14 +72,13 @@ public class FundbookMonthService {
                 //当月发发生数据
                 Map<String, Fundbookmonth> fundbookmonthMap = getFundbookMonth(fundbookdays);
                 List<Fundbookmonth> FundbookmonthList = new ArrayList<>();
-                int i=0;
+
                 String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
                 // 当期活跃用户
                 if (users==null){
                       users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
                 }
                 for (UserBasicInfo userBasicInfo : users) {
-                    i++;
                     //3.3每个账本
                     Fundbookmonth fundbookmonth = new Fundbookmonth();
                     fundbookmonth.setUserid(userBasicInfo.getUserid());
@@ -110,13 +110,13 @@ public class FundbookMonthService {
 
                 List<Fundbookcode> delBookCode=new ArrayList<>();
                 delBookCode.add(bookcode);
-                logger.info("删除重新统计"+JsonUtils.toJson(bookcode));
+                logger.info("删除重新统计"+bookDateStr+" "+JsonUtils.toJson(bookcode));
                 //1删除需要重新统计的数据
                 fundbookMonthExtMapper.deleteFundbookMonth(
                         delBookCode,
                         users,
                         monthTableName);
-                logger.info("内存计算完"+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+FundbookmonthList.size());
+                logger.info("内存计算完"+bookDateStr+" "+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+FundbookmonthList.size());
                 fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
                 logger.info("插入完成账本"+bookDateStr+" "+ JsonUtils.toJson(bookcode));
             }
