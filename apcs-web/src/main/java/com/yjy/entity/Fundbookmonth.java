@@ -3,7 +3,7 @@ package com.yjy.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Fundbookday implements Serializable {
+public class Fundbookmonth implements Serializable {
     private Long id;
 
     private Long bookid;
@@ -117,7 +117,7 @@ public class Fundbookday implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Fundbookday other = (Fundbookday) that;
+        Fundbookmonth other = (Fundbookmonth) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getBookid() == null ? other.getBookid() == null : this.getBookid().equals(other.getBookid()))
             && (this.getBookcode() == null ? other.getBookcode() == null : this.getBookcode().equals(other.getBookcode()))

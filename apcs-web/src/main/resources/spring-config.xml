@@ -20,5 +20,4 @@
     </bean>
 
     <import resource="spring/dataSource.xml" />
-   <!-- <import resource="spring/spring-config-quartz.xml"/>-->
 </beans>

@@ -45,17 +45,22 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <!--<table tableName="fundbook" schema="ypzdw_fundcapital">-->
-            <!--<generatedKey column="bookid" sqlStatement="MySql" identity="true"/>-->
-        <!--</table>-->
 
+       <!-- <table tableName="fundbookmonth201309" domainObjectName="Fundbookmonth" schema="ypzdw_fundcapital">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>-->
 
-        <table tableName="bookcode" schema="ypzdw_fundcapital">
+        <table tableName="fundbookcode" domainObjectName="Fundbookcode" schema="ypzdw_fundcapital">
             <generatedKey column="id" sqlStatement="MySql" identity="true"/>
         </table>
 
+        <table tableName="fundbook201309" domainObjectName="Fundbook" schema="ypzdw_fundcapital">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
 
-
+        <table tableName="fundbookday201309" domainObjectName="Fundbookday" schema="ypzdw_fundcapital">
+            <generatedKey column="id" sqlStatement="MySql" identity="true"/>
+        </table>
 
     </context>
 </generatorConfiguration>

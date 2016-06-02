@@ -7,7 +7,7 @@ public class UpdateBalanceVo {
 
     private String startDate;
     private String endDate;
-    private Integer userId;
+    private Integer userid;
     private String accBook; //角色-用户角色-账本编号; 格式如: 1103-1151-1217
     private Integer typeid; //用户类型 3平台 2卖家 1买家
 
@@ -27,12 +27,12 @@ public class UpdateBalanceVo {
         this.endDate = endDate;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getUserid() {
+        return userid;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUserid(Integer userid) {
+        this.userid = userid;
     }
 
     public String getAccBook() {

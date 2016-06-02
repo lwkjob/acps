@@ -27,43 +27,22 @@
     from
       <include refid="tables"/>
 
-      <include refid="Where_Clause"/>
+    <where>
+      <if test=" typeid!=0">
+        users.typeid=#{typeid}
+      </if>
+      <if test=" startTime!=0">
+        users.CreateTime &gt;= #{startTime}
+      </if>
+      <if test="  endTime!=0">
+        users.CreateTime &lt;= #{endTime}
+      </if>
+    </where>
 
-      <if test="startIndex != null and endIndex !=null">
+      <if test="  startIndex!=0 and  endIndex!=0" >
         limit #{startIndex},#{endIndex}
       </if>
   </select>
 
-  <sql id="Where_Clause">
-    <where>
-      <if test="userid != null ">
-        userbasic.userid=#{userid}
-      </if>
-      <if test="typeid != null ">
-        users.typeid=#{typeid}
-      </if>
-      <if test="startTime != null and startTime!=0">
-        users.CreateTime &gt;= #{startTime}
-      </if>
-      <if test="endTime != null and endTime!=0">
-        users.CreateTime &lt;= #{endTime}
-      </if>
-    </where>
-  </sql>
-
-  <select id="countByExample" parameterType="map" resultType="java.lang.Integer" >
-    select count(*)
-    from
-    <include refid="tables"/>
-    <include refid="Where_Clause" />
-  </select>
-
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="map">
-      SELECT
-        <include refid="Base_Column_List"/>
-      FROM
-    <include refid="tables"/>
-      where  userbasic.userid= #{userid,jdbcType=BIGINT}
-  </select>
 
 </mapper>

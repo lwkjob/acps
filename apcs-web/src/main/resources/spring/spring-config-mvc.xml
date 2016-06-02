@@ -13,7 +13,7 @@
     <!--注解自动配置-->
     <context:annotation-config />
 
-    <context:component-scan base-package="com.yjy.controller"/>
+    <context:component-scan base-package="com.yjy.web.controller"/>
 
     <!-- 属性文件读入 -->
      <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

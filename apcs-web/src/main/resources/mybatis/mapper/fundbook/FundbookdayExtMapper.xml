@@ -1,87 +1,83 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yjy.repository.mapper.FundbookdayExtMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbookday" >
-    <result column="Id" property="id" jdbcType="BIGINT" />
-    <result column="BookId" property="bookid" jdbcType="BIGINT" />
-    <result column="PlatformRole" property="platformrole" jdbcType="INTEGER" />
-    <result column="EntryUserRole" property="entryuserrole" jdbcType="INTEGER" />
-    <result column="AccBookNumber" property="accbooknumber" jdbcType="INTEGER" />
-    <result column="UserId" property="userid" jdbcType="INTEGER" />
-    <result column="AreaCode" property="areacode" jdbcType="INTEGER" />
-    <result column="BookDate" property="bookdate" jdbcType="INTEGER" />
-    <result column="PrevBalance" property="prevbalance" jdbcType="DECIMAL" />
-    <result column="HappenDebit" property="happendebit" jdbcType="DECIMAL" />
-    <result column="HappenCredit" property="happencredit" jdbcType="DECIMAL" />
-    <result column="Balance" property="balance" jdbcType="DECIMAL" />
-  </resultMap>
-  <sql id="Base_Column_List" >
-    Id, BookId, PlatformRole, EntryUserRole, AccBookNumber, UserId, AreaCode, BookDate,
-    PrevBalance, HappenDebit, HappenCredit, Balance
+<mapper namespace="com.yjy.repository.mapper.FundbookdayExtMapper">
+    <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbookday">
+        <id column="Id" property="id" jdbcType="BIGINT"/>
+        <result column="BookId" property="bookid" jdbcType="BIGINT"/>
+        <result column="BookCode" property="bookcode" jdbcType="VARCHAR"/>
+        <result column="UserId" property="userid" jdbcType="INTEGER"/>
+        <result column="AreaCode" property="areacode" jdbcType="INTEGER"/>
+        <result column="BookDate" property="bookdate" jdbcType="INTEGER"/>
+        <result column="PrevBalance" property="prevbalance" jdbcType="DECIMAL"/>
+        <result column="HappenDebit" property="happendebit" jdbcType="DECIMAL"/>
+        <result column="HappenCredit" property="happencredit" jdbcType="DECIMAL"/>
+        <result column="Balance" property="balance" jdbcType="DECIMAL"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+   Id, BookId, BookCode, UserId, AreaCode, BookDate, PrevBalance, HappenDebit, HappenCredit,
+    Balance
   </sql>
 
-  <sql id="Example_Where_Clause" >
-    <where >
-       <if test="fundbookday.bookdate != null">
-         AND BookDate=#{fundbookday.bookdate}
-       </if>
-      <if test="fundbookday.userid != null">
-        AND BookDate=#{fundbookday.userid}
-      </if>
-      <if test="fundbookday.platformrole != null">
-        AND BookDate=#{fundbookday.platformrole}
-      </if>
-      <if test="fundbookday.entryuserrole != null">
-        AND BookDate=#{fundbookday.entryuserrole}
-      </if>
-      <if test="fundbookday.accbooknumber != null">
-        AND BookDate=#{fundbookday.accbooknumber}
-      </if>
-    </where>
-  </sql>
+    <sql id="Example_Where_Clause">
+        <where>
+            <if test="fundbookday!=null and fundbookday.bookdate != null">
+                AND BookDate=#{fundbookday.bookdate}
+            </if>
+            <if test="fundbookday!=null and fundbookday.userid != null">
+                AND BookDate=#{fundbookday.userid}
+            </if>
+            <if test="fundbookday!=null and fundbookday.bookcode != null">
+                AND BookDate=#{fundbookday.bookcode}
+            </if>
+        </where>
+    </sql>
 
 
-  <select id="selectByMap" resultMap="BaseResultMap" parameterType="map" >
-    select
-       <include refid="Base_Column_List" />
-    from ${tablename}
-       <include refid="Example_Where_Clause" />
-  </select>
+    <select id="selectByExample" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List"/>
+        from ${tablename}
+        <include refid="Example_Where_Clause"/>
+    </select>
 
- <delete id="deleteFundbookDay" parameterType="map">
-    DELETE  FROM ${tablename}
-    <where>
-      <if test="bookcodes!=null">
-        AND
-          <foreach collection="bookcodes" index="i" close=")" open="(" item="bookcode" separator="or">
-              (PlatformRole = #{bookcode.platformrole} AND EntryUserRole = #{bookcode.entryuserrole} AND AccBookNumber = #{bookcode.accbooknumber})
-          </foreach>
-      </if>
+    <delete id="deleteFundbookDay" parameterType="map">
+        DELETE FROM ${tablename}
+        <where>
 
-      <if test="users !=null">
-        AND userid in
-            <foreach collection="users" index="i" close=")" open="(" item="user" separator=",">
-              #{user.userid}
-            </foreach>
+            <if test="fundBookCodes !=null and fundBookCodes.size()!=0">
+                AND BookCode IN
+                <foreach collection="fundBookCodes" open="(" close=")" item="fundBookCode" separator=",">
+                    #{fundBookCode.bookcode}
+                </foreach>
+            </if>
 
-      </if>
-      <if test="startTime!=null and startTime!=0">
-        AND HappenTime &gt;= #{startTime}
-      </if>
-      <if test="endTime!=null and endTime!=0">
-        AND HappenTime &lt;= #{endTime}
-      </if>
-    </where>
-  </delete>
+            <if test="users != null and users.size() !=0">
+                AND userid IN
+                <foreach collection="users"  open="(" close=")" item="user" separator=",">
+                    #{user.userid}
+                </foreach>
+            </if>
+            <if test=" startTime!=0">
+                AND BookDate &gt;= #{startTime}
+            </if>
+            <if test=" endTime!=0">
+                AND BookDate &lt;= #{endTime}
+            </if>
+        </where>
+    </delete>
 
-  <insert id="batchInsert" parameterType="map">
-    INSERT  INTO ${tablename} (   PlatformRole, EntryUserRole, AccBookNumber, UserId, AreaCode, BookDate,
-      PrevBalance, HappenDebit, HappenCredit, Balance) VALUES
-      <foreach collection="fundbookdays" item="fundbookday" open="(" close=")"  separator="," >
-          (#{fundbookday.platformrole},#{fundbookday.entryuserrole},#{fundbookday.accbooknumber},#{fundbookday.userid},
-          #{fundbookday.bookdate},#{fundbookday.prevbalance},
-          #{fundbookday.happendebit},#{fundbookday.happencredit},#{fundbookday.balance})
-      </foreach>
+    <insert id="batchInsert" parameterType="map">
+        INSERT INTO ${tablename}
+        ( BookCode, UserId, AreaCode, BookDate,PrevBalance, HappenDebit, HappenCredit, Balance) VALUES
+        <foreach collection="fundbookdays" item="fundbookday" open="(" close=")" separator=",">
+            (#{fundbookday.bookcode},
+            #{fundbookday.userid},
+            #{fundbookday.bookdate},
+            #{fundbookday.prevbalance},
+            #{fundbookday.happendebit},
+            #{fundbookday.happencredit},
+            #{fundbookday.balance})
+        </foreach>
 
-  </insert>
+    </insert>
 </mapper>

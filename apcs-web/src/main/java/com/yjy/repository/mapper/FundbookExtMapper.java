@@ -16,23 +16,17 @@ public interface FundbookExtMapper {
      * @param lastData  是否只取最后一条数据
      * @return
      */
-    List<Fundbook> selectByWhere(@Param("fundbook") Fundbook fundbook,
-                                 @Param("tableName") String tableName,
-                                 @Param("startTime") int startTime,
-                                 @Param("endTime")int endTime,
-                                 @Param("lastData") boolean lastData);
+    List<Fundbook> selectByExample(@Param("fundbook") Fundbook fundbook,
+                                   @Param("tableName") String tableName,
+                                   @Param("startTime") int startTime,
+                                   @Param("endTime") int endTime,
+                                   @Param("lastData") boolean lastData);
 
 
-    void updateByPrimaryKeySelective(@Param("fundbook") Fundbook fundbooks,
-                                     @Param("tableName") String tableName);
 
 
     void batchUpdateByPrimaryKeySelective(@Param("fundbooks") List<Fundbook> fundbooks,
                                           @Param("tableName") String tableName);
-
-
-    Fundbook selectByPrimaryKey(@Param("tableName") String tableName,
-                                @Param("bookid") Long bookid);
 
 
 

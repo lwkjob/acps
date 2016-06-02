@@ -5,16 +5,16 @@ package com.yjy.entity;
  */
 public class DelTableName {
 
-    private String tableName;
+    private String tableNameSuffix;//表名后缀
     private String startStr;
     private String endStr;
 
-    public String getTableName() {
-        return tableName;
+    public String getTableNameSuffix() {
+        return tableNameSuffix;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
+    public void setTableNameSuffix(String tableNameSuffix) {
+        this.tableNameSuffix = tableNameSuffix;
     }
 
     public String getStartStr() {
