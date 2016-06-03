@@ -126,11 +126,13 @@ public class FundbookDayService {
                         }
                         fundbookdays.add(fundbookday);
                      }
+                    long memeryRunTime=System.currentTimeMillis();
+                    logger.info("内存计算完"+(float)(memeryRunTime-start)/1000+" "+bookDateStr+" "+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+fundbookdays.size());
                     int startInt = Integer.parseInt(delTableName.getStartStr());
                     int entInt = Integer.parseInt(delTableName.getEndStr());
                     List<Fundbookcode> delBookcode=new ArrayList();
                     delBookcode.add(bookcode);//数据太多只能一个一个账本的删除
-                    logger.info("删除重新统计数据"+bookDateStr+" "+JsonUtils.toJson(bookcode));
+                    logger.info("删除重新统计数据"+bookDateStr + " " + JsonUtils.toJson(bookcode));
                     fundbookdayExtMapper.deleteFundbookDay(
                             delBookcode,
                             users,
@@ -138,9 +140,9 @@ public class FundbookDayService {
                             startInt,
                             entInt
                     );
-                    logger.info("内存计算完"+bookDateStr+" "+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+fundbookdays.size());
+                    long insertRunTime=System.currentTimeMillis();
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
-                    logger.info("插入完成账本"+bookDateStr+" "+JsonUtils.toJson(bookcode));
+                    logger.info("插入完成账本"+(float)(insertRunTime-memeryRunTime)/1000+" "+bookDateStr+" "+JsonUtils.toJson(bookcode));
                 }
                 startDateByTable = getNextDayDate(startDateByTable);
             }

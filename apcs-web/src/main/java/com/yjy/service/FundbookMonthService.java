@@ -54,7 +54,7 @@ public class FundbookMonthService {
     //插入日清数据
     public int insertFundBookMonth(Date startDate, Date endDate, List<Fundbookcode> bookcodes,int typeid,List<UserBasicInfo> users) {
 
-        long start = System.currentTimeMillis();//记录运行时间
+        long startRunTime = System.currentTimeMillis();//记录运行时间
         while (endDate.compareTo(startDate) != -1) {
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
@@ -110,20 +110,22 @@ public class FundbookMonthService {
 
                 List<Fundbookcode> delBookCode=new ArrayList<>();
                 delBookCode.add(bookcode);
-                logger.info("删除重新统计"+bookDateStr+" "+JsonUtils.toJson(bookcode));
+                long memeoryRunTime=System.currentTimeMillis();
+                logger.info("内存计算完用时" + (float)(memeoryRunTime - startRunTime)/1000 + bookDateStr + " " + i + "剩余" + (bookcodes.size() - i) + ",当前数据量:" + FundbookmonthList.size());
+                logger.info("删除重新统计" + bookDateStr + " " + JsonUtils.toJson(bookcode));
                 //1删除需要重新统计的数据
                 fundbookMonthExtMapper.deleteFundbookMonth(
                         delBookCode,
                         users,
                         monthTableName);
-                logger.info("内存计算完"+bookDateStr+" "+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+FundbookmonthList.size());
                 fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
-                logger.info("插入完成账本"+bookDateStr+" "+ JsonUtils.toJson(bookcode));
+                long insertRunTime=System.currentTimeMillis();
+                logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+bookDateStr+" "+ JsonUtils.toJson(bookcode));
             }
             startDate = getNextMonthsDate(startDate);//轮训到下一个月
         }
         long end = System.currentTimeMillis();
-        logger.info("全部计算完了" + (float) (end - start) / 1000 + "秒");
+        logger.info("全部计算完了" + (float) (end - startRunTime) / 1000 + "秒");
         //批量插入
         return 1;
     }
@@ -132,7 +134,6 @@ public class FundbookMonthService {
 
         Date date = null;
         try {
-
             date = simpleDateFormat.parse(dateStr);
         } catch (Exception e) {
             logger.error("日期转换报错", e);

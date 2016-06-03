@@ -1,6 +1,8 @@
 package com.yjy.repository.mapper;
 
 import com.yjy.entity.Fundbook;
+import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.UserBasicInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,11 +26,28 @@ public interface FundbookExtMapper {
 
 
 
+    /**
+     * @param tableName 所有用户当天发生的当前正本数据
+     * @param lastData  上一天的最后一条数据
+     * @return
+     */
+    List<Fundbook> selectByOneDay(
+                                   @Param("tableName") String tableName,
+                                   @Param("usersid")int userid,
+                                   @Param("bookcode") String bookcode,
+                                   @Param("startTime") long startTime,
+                                   @Param("endTime") long endTime,
+                                   @Param("lastData") boolean lastData);
+
+
 
     void batchUpdateByPrimaryKeySelective(@Param("fundbooks") List<Fundbook> fundbooks,
                                           @Param("tableName") String tableName);
 
 
+    //查询当期发生的多有用户id
+  List<Integer>  selectUserids( @Param("tableName") String tableName);
 
+  List<String>  selectBookcodes( @Param("tableName") String tableName,@Param("userid")int userid);
 
 }

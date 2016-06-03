@@ -8,6 +8,7 @@ import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,36 +41,30 @@ public class FundbookService {
      *
      * @param bookcodes
      */
-    public void oneByOneUpdateBalance(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid,List<UserBasicInfo> users) {
+    public void oneByOneUpdateBalance(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid, List<UserBasicInfo> users) {
         // 当期活跃用户
-        if (users==null){
-              users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
-        }
+//        if (users==null){
+//              users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
+//         }
 
         //轮训用户
         //这里可以考虑多线程
-        for (UserBasicInfo userBasicInfo : users) {
 
-            //轮训每一个月
-            while (!(endDate.compareTo(startDate) == -1)) {
-                String preTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + getPreMonthsDateStr(startDate);
-                String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
+        //轮训每一个月
+        while (!(endDate.compareTo(startDate) == -1)) {
+            String preTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + getPreMonthsDateStr(startDate);
+            String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
+            List<Integer> selectUserids = fundbookExtMapper.selectUserids(tableName);
+            int i = 0;
+            for (int userid : selectUserids) {
+                i++;
                 doUpdateBalance(bookcodes,
-                        userBasicInfo.getUserid(),
+                        userid,
                         preTableName,
                         tableName);
-                startDate = getNextMonthsDate(startDate);
+                logger.info("用户顺序" + i + " 余下" + (selectUserids.size() - i));
             }
-        }
-    }
-
-
-    public Date parseDateFromString(String dateStr) {
-        try {
-            return simpleDateFormat_yyyyMM.parse(dateStr);
-        } catch (Exception e) {
-            logger.info("传入的执行时间有错误", e);
-            throw new RuntimeException("传入的执行时间有错误");
+            startDate = getNextMonthsDate(startDate);
         }
     }
 
@@ -98,6 +93,13 @@ public class FundbookService {
         return preDate;
     }
 
+    private boolean isContains(List<Fundbookcode> bookcodes,String bookCode){
+        for (Fundbookcode s:bookcodes){
+            if(s.getBookcode().equals(bookCode))
+                return true;
+        }
+        return false;
+    }
 
     //轮每一个训账本更新余额
     public void doUpdateBalance(List<Fundbookcode> bookcodes,
@@ -108,12 +110,21 @@ public class FundbookService {
 
         //轮每一个训账本
         //这里可以考虑多线程
-        for (Fundbookcode bookcode : bookcodes) {
+        int j = 0;
+        List<Fundbook> insertFunbooks = new ArrayList<>();
 
 
+
+        List<String> bookcodeList = fundbookExtMapper.selectBookcodes(tableName, userId);
+
+            for (String bookcode : bookcodeList) {
+            if (bookcodes != null && bookcodes.size() > 0 && !isContains(bookcodes, bookcode))//如果不要求刷的 就不用刷了
+                continue;
+            j++;
+            logger.info("账本顺序" + j + " 余下" + (bookcodeList.size() - j));
             logger.info(String.format("正在执行是数据信息:bookcodes:%s,userId:%s,preTableName:%s,tableName:%s", JsonUtils.toJson(bookcode), userId, preTableName, tableName));
-            Fundbook fundbook = new Fundbook();
-            fundbook.setBookcode(bookcode.getBookcode());
+            Fundbook fundbook = new Fundbook(); //查询上一个月的(查询条件)
+            fundbook.setBookcode(bookcode);
             fundbook.setUserid(userId);
 
             List<Fundbook> prefundbooks = null;
@@ -121,7 +132,7 @@ public class FundbookService {
                 prefundbooks = fundbookExtMapper.selectByExample(fundbook, preTableName, 0, 0, true);
             } catch (Exception e) {
                 //Table 'ypzdw_fundcapital.fundbook201308' doesn't exist 表不存在
-                logger.error("数据库报错:" + e.getMessage());
+                // logger.error("数据库报错:" + e.getMessage());
             }
 
 
@@ -129,6 +140,7 @@ public class FundbookService {
 
             if (prefundbooks == null || prefundbooks.size() == 0) {
                 preFundbook = new Fundbook();
+                preFundbook.setBalance(new BigDecimal(0));
             } else {
                 preFundbook = prefundbooks.get(0);
             }
@@ -143,29 +155,33 @@ public class FundbookService {
             if (fundbooks != null && fundbooks.size() > 0) {
                 for (int i = 0; i < fundbooks.size(); i++) {
                     Fundbook iFundbook = fundbooks.get(i);
-                    BigDecimal preBalance = preFundbook.getBalance() == null ? new BigDecimal(0) : preFundbook.getBalance();
-                    if (bookcode.getFundtype().intValue()== FundConstant.FUND_TYPE_DEBT){
+                    BigDecimal preBalance = preFundbook.getBalance();
+                    if (Integer.parseInt(StringUtils.substring(bookcode, 0, 4)) == FundConstant.FUND_TYPE_DEBT) {
                         //负债类公式: 上期贷余 + 本期发生贷 - 本期发生借 = 本期贷余
                         BigDecimal credit = iFundbook.getCredit();  //当期发生贷
                         BigDecimal debit = iFundbook.getDebit();  //当期发生借
-                        BigDecimal iBalance = preBalance.add(credit).min(debit);
+                        BigDecimal iBalance = preBalance.add(credit).subtract(debit);
                         iFundbook.setBalance(iBalance);
-                    }else{
+                    } else {
                         BigDecimal credit = iFundbook.getCredit();  //当期发生贷
                         BigDecimal debit = iFundbook.getDebit();  //当期发生借
                         //资产类公式和损益类: 上期借余 + 本期发生借 - 本期发生贷 = 本期借余
-                        BigDecimal iBalance = preBalance.add(debit).min(credit);
+                        BigDecimal iBalance = preBalance.add(debit).subtract(credit);
                         iFundbook.setBalance(iBalance);
                     }
                     //轮训下一个条
                     preFundbook = iFundbook;
                 }
+                insertFunbooks.addAll(fundbooks);
 
-                fundbookExtMapper.batchUpdateByPrimaryKeySelective(fundbooks, tableName);
 
             }
             long endTime = System.currentTimeMillis();
             logger.info("总条数:" + fundbooks.size() + " 执行时间:" + (float) (endTime - startTime) / 1000 + "秒");
+        }
+        if (insertFunbooks != null && insertFunbooks.size() > 0) {
+
+            fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
         }
     }
 
