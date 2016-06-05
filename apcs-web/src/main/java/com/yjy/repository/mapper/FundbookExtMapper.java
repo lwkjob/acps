@@ -1,5 +1,6 @@
 package com.yjy.repository.mapper;
 
+import com.yjy.common.dao.Pagination;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
@@ -48,6 +49,17 @@ public interface FundbookExtMapper {
     //查询当期发生的多有用户id
   List<Integer>  selectUserids( @Param("tableName") String tableName);
 
+    //当期发生数据的账本
   List<String>  selectBookcodes( @Param("tableName") String tableName,@Param("userid")int userid);
+
+
+    //分页查询账本数据
+    List<Fundbook> selectPageListByExample(@Param("fundbook") Fundbook fundbook,
+                                           @Param("tableName") String tableName,
+                                           @Param("startTime") long startTime,
+                                           @Param("endTime") long endTime ,
+                                           @Param("pagination") Pagination pagination
+                                           );
+
 
 }

@@ -87,6 +87,15 @@ public class Pagination<T> implements Serializable {
      */
     private int skipSize;
 
+    private Integer previouspage;// 上一页
+
+    private Integer nextpage;// 下一页
+
+
+    private Integer toppage;// 首页
+
+    private int  buttompage; //尾页
+
     /**
      * 当前快近所在页面
      */
@@ -474,21 +483,35 @@ public class Pagination<T> implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "Pagination{" +
-                "queryString='" + queryString + '\'' +
-                ", pageSizeTarget='" + pageSizeTarget + '\'' +
-                ", skipSizeTarget='" + skipSizeTarget + '\'' +
-                ", currentPageTarget='" + currentPageTarget + '\'' +
-                ", pageSize=" + pageSize +
-                ", pageCount=" + pageCount +
-                ", count=" + count +
-                ", currentPage=" + currentPage +
-                ", begin=" + begin +
-                ", end=" + end +
-                ", skipSize=" + skipSize +
-                ", currentSkip=" + currentSkip +
-                '}';
+    public Integer getPreviouspage() {
+        return currentPage-1;
+    }
+
+    public void setPreviouspage(Integer previouspage) {
+        this.previouspage = previouspage;
+    }
+
+    public Integer getNextpage() {
+        return currentPage+1;
+    }
+
+    public void setNextpage(Integer nextpage) {
+        this.nextpage = nextpage;
+    }
+
+    public Integer getToppage() {
+        return 1;
+    }
+
+    public void setToppage(Integer toppage) {
+        this.toppage = toppage;
+    }
+
+    public int getButtompage() {
+        return pageCount;
+    }
+
+    public void setButtompage(int buttompage) {
+        this.buttompage = buttompage;
     }
 }

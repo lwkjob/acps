@@ -39,9 +39,6 @@ import java.util.Properties;
  * <p>如：<code>mapper.find(Map<String,Object>,Pagination pagination)</code></p>
  * <p>拦截器中会重写SQL语句转换成分页语句。并会根据SQL语句进行count查询注入到pagination对象中。</p>
  * <p>目前支持mysql、oracle</p>
- *
- * @author zhaoyuan
- * @version 1.0, 2012-3-6
  */
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class})})
 public class PaginationInterceptor implements Interceptor {

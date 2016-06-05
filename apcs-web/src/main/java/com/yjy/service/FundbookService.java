@@ -1,13 +1,13 @@
 package com.yjy.service;
 
 
+import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookExtMapper;
-import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 账本刷余逻辑
@@ -26,13 +28,12 @@ import java.util.*;
 @Service("fundbookService")
 public class FundbookService {
 
+    private static Logger logger = LoggerFactory.getLogger(FundbookService.class);
+
+
     @Resource
     private FundbookExtMapper fundbookExtMapper;
 
-    @Resource
-    private UserBasicExtMapper userBasicExtMapper;
-
-    private static Logger logger = LoggerFactory.getLogger(FundbookService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
 
@@ -93,9 +94,9 @@ public class FundbookService {
         return preDate;
     }
 
-    private boolean isContains(List<Fundbookcode> bookcodes,String bookCode){
-        for (Fundbookcode s:bookcodes){
-            if(s.getBookcode().equals(bookCode))
+    private boolean isContains(List<Fundbookcode> bookcodes, String bookCode) {
+        for (Fundbookcode s : bookcodes) {
+            if (s.getBookcode().equals(bookCode))
                 return true;
         }
         return false;
@@ -114,10 +115,9 @@ public class FundbookService {
         List<Fundbook> insertFunbooks = new ArrayList<>();
 
 
-
         List<String> bookcodeList = fundbookExtMapper.selectBookcodes(tableName, userId);
 
-            for (String bookcode : bookcodeList) {
+        for (String bookcode : bookcodeList) {
             if (bookcodes != null && bookcodes.size() > 0 && !isContains(bookcodes, bookcode))//如果不要求刷的 就不用刷了
                 continue;
             j++;
@@ -185,5 +185,17 @@ public class FundbookService {
         }
     }
 
+
+    //分页查询账本数据
+   public List<Fundbook> selectPageListByExample(Fundbook fundbook,
+                                           String tableName,
+                                           long startTime,
+                                           long endTime,
+                                           Pagination pagination
+    ) {
+
+            return fundbookExtMapper.selectPageListByExample(fundbook, tableName, startTime, endTime, pagination);
+
+    }
 
 }

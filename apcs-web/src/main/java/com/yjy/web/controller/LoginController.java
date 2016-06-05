@@ -1,6 +1,8 @@
 package com.yjy.web.controller;
 
+import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
+import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.schedule.DayReportJob;
@@ -31,9 +33,6 @@ public class LoginController {
 
     @Resource
     private FundbookService fundbookService;
-
-    @Resource
-    private UserService userService;
 
     @Resource
     private FundbookcodeService fundbookcodeService;
@@ -118,6 +117,21 @@ public class LoginController {
         return returnUrl;
     }
 
+    @RequestMapping("/fundbooklist")
+    public ModelAndView getFundbookList(@RequestParam(value = "currentPage",defaultValue = "1")int currentPage){
+        ModelAndView mv=new ModelAndView();
+        int pageSize=5;
+        Pagination<Fundbook> pagination=new Pagination(currentPage,pageSize);
+        Fundbook example=new Fundbook();
+        long startTime=0;
+        long endTime=0;
+        String tablename="fundbook201309";
+        List<Fundbook> fundbooks =  fundbookService.selectPageListByExample(example,tablename,startTime,endTime,pagination);
+        pagination.setData(fundbooks);
+        mv.addObject("pagination",pagination);
+        mv.setViewName("fundbooklist");
+        return  mv;
+    }
 
 
 

@@ -28,6 +28,10 @@
     <!-- Bootstrap Error Page -->
     <link rel="stylesheet" media="screen" href="${ctx}/css/bootstrap-error-page.css">
 
+
+    <!-- Datatables -->
+    <link rel="stylesheet" media="screen" href="${ctx}/css/DT_bootstrap.css">
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
     <script type="text/javascript" src="${ctx}/js/html5shiv.js"></script>
@@ -329,7 +333,8 @@
 <script type="text/javascript" src="${ctx}/vendors/bootstrap-wysihtml5-rails-b3/vendor/assets/javascripts/bootstrap-wysihtml5/core-b3.js"></script>
 <script type="text/javascript" src="${ctx}/vendors/twitter-bootstrap-wizard/jquery.bootstrap.wizard-for.bootstrap3.js"></script>
 <script type="text/javascript" src="${ctx}/vendors/boostrap3-typeahead/bootstrap3-typeahead.min.js"></script>
-
+<script type="text/javascript" src="${ctx}/vendors/datatables/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="${ctx}/js/DT_bootstrap.js"></script>
 <script type="text/javascript">
     $(function() {
         $('.datepicker').datepicker();
@@ -341,9 +346,17 @@
                 '${ctx}/vendors/bootstrap-wysihtml5-rails-b3/vendor/assets/stylesheets/bootstrap-wysihtml5/wysiwyg-color.css'
             ]
         });
-
+        $('#pageTable').dataTable( {
+            "sDom": "<'row'<'col-md-6'l><'col-md-6'f>r>t<'row'<'col-md-6'i><'col-md-6'p>>",
+            "sPaginationType": "bootstrap",
+            "oLanguage": {
+                "sLengthMenu": "_MENU_ records per page"
+            }
+        } );
 
     });
+
+
 </script>
 </body>
 </html>
