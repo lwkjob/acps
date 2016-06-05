@@ -221,7 +221,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>7.6.14.v20131031</version>
                 <configuration>
-                    <jvmArgs>-Xmx1024 -Xms2048</jvmArgs>
+                    <jvmArgs>-Xmx2048 -Xms1024</jvmArgs>
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8090</port>

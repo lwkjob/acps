@@ -64,7 +64,7 @@ public class LoginController {
                                 @RequestParam(value = "monthFund",required = false ,defaultValue = "0")int monthFund) {
         String returnUrl = "redirect:/index.shtml";
 
-        List<Fundbookcode> bookcodes = null;
+        List<Fundbookcode>  bookcodes = new ArrayList<>();
 
         Date startDate = null;
         Date endDate = null;
@@ -77,15 +77,11 @@ public class LoginController {
         }
 
         //没传账本 就更新所有账本
-        if (StringUtils.isBlank(updateBalanceVo.getAccBook())) {
-            bookcodes = fundbookcodeService.getFundbookcodes();
-        } else {
-            bookcodes = new ArrayList<>();
-            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "-");
+        if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
+            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "&&");
             Fundbookcode bookcode = new Fundbookcode();
-            bookcode.setBookcodeone(Integer.parseInt(accbookArray[0]));
-            bookcode.setBookcodetwo(Integer.parseInt(accbookArray[1]));
-            bookcode.setBookcodethree(Integer.parseInt(accbookArray[2]));
+            bookcode.setFundtype(Integer.parseInt(accbookArray[0]));
+            bookcode.setBookcode(accbookArray[1]);
             bookcodes.add(bookcode);
         }
 

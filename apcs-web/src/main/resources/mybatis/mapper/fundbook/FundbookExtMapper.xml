@@ -55,7 +55,6 @@
       <if test="!lastData">
          ORDER  BY UserId,HappenTime  ASC
       </if>
-    --  是否查询最后一条
     <if test="lastData">
       ORDER  BY UserId,HappenTime DESC limit 0,1
     </if>
@@ -78,6 +77,48 @@
     </foreach>
 
   </update>
+
+  <select id="selectByOneDay">
+    select
+    <include refid="Base_Column_List" />
+        from  ${tableName}
+     <where>
+       <if test="userid !=0">
+         UserId =#{userid}
+       </if>
+        <if test="bookcode!=null">
+          BookCode=#{bookcode}
+        </if>
+       <if test=" startTime !=0">
+         AND HappenTime &gt;=  #{startTime}
+       </if>
+
+       <if test=" endTime !=0">
+         AND  HappenTime  &lt; #{endTime}
+       </if>
+       <if test="lastData">
+         ORDER  BY UserId,HappenTime DESC limit 0,1
+       </if>
+     </where>
+
+
+  </select>
+
+  <select id="selectUserids" resultType="java.lang.Integer" parameterType="map">
+    select
+     userid
+    from  ${tableName}
+     GROUP by userid;
+
+  </select>
+
+  <select id="selectBookcodes" resultType="java.lang.String" parameterType="map">
+    select
+    bookcode
+    from  ${tableName} where userid=#{userid}
+    GROUP by bookcode;
+
+  </select>
 
 
 </mapper>
