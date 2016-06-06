@@ -24,10 +24,10 @@
                 AND BookDate=#{fundbookday.bookdate}
             </if>
             <if test="fundbookday!=null and fundbookday.userid != null">
-                AND BookDate=#{fundbookday.userid}
+                AND userid=#{fundbookday.userid}
             </if>
             <if test="fundbookday!=null and fundbookday.bookcode != null">
-                AND BookDate=#{fundbookday.bookcode}
+                AND bookcode=#{fundbookday.bookcode}
             </if>
         </where>
     </sql>

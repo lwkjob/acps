@@ -1,6 +1,7 @@
 package com.yjy.service;
 
 
+import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
@@ -38,6 +39,9 @@ public class FundbookMonthService {
 
     @Resource
     private FundbookcodeMapper fundbookcodeMapper;
+
+    @Resource
+    private JedisTemplate jedisTemplate;
 
     private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
 
@@ -91,27 +95,34 @@ public class FundbookMonthService {
                     fundbookmonth.setUserid(userBasicInfo.getUserid());
                     fundbookmonth.setBookdate(Integer.parseInt(bookDateStr));
                     fundbookmonth.setBookcode(bookcode.getBookcode());
-                    String mapkey = String.format("%s|-%s|-%s",
-                            bookDateStr,
-                            bookcode.getBookcode(),
-                            userBasicInfo.getUserid());
+                    String mapkey = String.format("%s|-%s|-%s",  bookDateStr, bookcode.getBookcode(),  userBasicInfo.getUserid());
+                    Date preDate=getPreMonthsDate(startDate);
+                    String preDateStr = simpleDateFormat_yyyyMM.format(preDate);
+                    String mapPrekey = String.format("%s|-%s|-%s", preDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
                     //如果当月有发生数据
-
                     Fundbookmonth fundbookmonthActive = fundbookmonthMap.get(mapkey);
+                  String preBalanceStr=  jedisTemplate.get(mapPrekey);
+                    BigDecimal preBalance=null;
+                    if(StringUtils.isNotBlank(preBalanceStr)){
+                        preBalance=new BigDecimal(preBalanceStr);
+                    }else {
+                        preBalance=new BigDecimal(0);
+                    }
                     if (fundbookmonthActive != null) {
                         fundbookmonth.setAreacode(fundbookmonthActive.getAreacode());
-                        fundbookmonth.setPrevbalance(fundbookmonthActive.getPrevbalance());
+                        fundbookmonth.setPrevbalance(preBalance);
                         fundbookmonth.setBalance(fundbookmonthActive.getBalance());
                         fundbookmonth.setHappendebit(fundbookmonthActive.getHappendebit());
                         fundbookmonth.setHappencredit(fundbookmonthActive.getHappencredit());
                     }else {
                         BigDecimal bigDecimal0=new BigDecimal(0);
                         fundbookmonth.setAreacode(0);
-                        fundbookmonth.setPrevbalance(bigDecimal0);
-                        fundbookmonth.setBalance(bigDecimal0);
+                        fundbookmonth.setPrevbalance(preBalance);
+                        fundbookmonth.setBalance(preBalance);
                         fundbookmonth.setHappendebit(bigDecimal0);
                         fundbookmonth.setHappencredit(bigDecimal0);
                     }
+                    jedisTemplate.set(mapkey,fundbookmonth.getBalance().floatValue()+"");
                     FundbookmonthList.add(fundbookmonth);
                 }
 
@@ -121,10 +132,10 @@ public class FundbookMonthService {
                 logger.info("内存计算完用时" + (float)(memeoryRunTime - startRunTime)/1000 +" "+ bookDateStr + " " + i + "剩余账本个数" + (bookcodes.size() - i) + ",当前数据量:" + FundbookmonthList.size());
                 logger.info("删除重新统计" + bookDateStr + " " + JsonUtils.toJson(bookcode));
                 //1删除需要重新统计的数据
-                fundbookMonthExtMapper.deleteFundbookMonth(
-                        delBookCode,
-                        users,
-                        monthTableName);
+//                fundbookMonthExtMapper.deleteFundbookMonth(
+//                        delBookCode,
+//                        users,
+//                        monthTableName);
                 fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
                 long insertRunTime=System.currentTimeMillis();
                 logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ JsonUtils.toJson(bookcode));
@@ -161,7 +172,7 @@ public class FundbookMonthService {
      * 取出来的数据必须是按照按照用户和发生时间排好序,因为本期余就取最后一条的余记录
      */
     public Map<String, Fundbookmonth> getFundbookMonth(List<Fundbookday> fundbookdays) {
-        Map<String, Fundbookmonth> map = new HashedMap(2000);//一个用户每个月至少账本数量条,用户量很大的情况月统计也很大
+        Map<String, Fundbookmonth> map = new HashedMap();//一个用户每个月至少账本数量条,用户量很大的情况月统计也很大
         for (Fundbookday fundbookday : fundbookdays) {
             String dayStr = StringUtils.substring(fundbookday.getBookdate() + "", 0, 6);
             String key = String.format("%s|-%s|-%s", dayStr, fundbookday.getBookcode(), fundbookday.getUserid());
@@ -174,7 +185,7 @@ public class FundbookMonthService {
                 fundbookmonth.setHappendebit(fundbookday.getHappendebit().add(fundbookmonth.getHappendebit()));
                 fundbookmonth.setBalance(fundbookday.getBalance());   //当期余额永远是取最后一条数据的余
             }
-            fundbookmonth.setPrevbalance(getPrevbalance(key));  //设置上期的余。。。。
+//            fundbookmonth.setPrevbalance(getPrevbalance(key));  //设置上期的余。。。。
             map.put(key, fundbookmonth);
         }
         return map;

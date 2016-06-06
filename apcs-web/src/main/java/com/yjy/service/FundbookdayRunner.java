@@ -1,6 +1,7 @@
 package com.yjy.service;
 
 import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.Fundbookcode;
@@ -43,16 +44,22 @@ public class FundbookdayRunner implements Runnable {
 
     private  String preDateStr;
 
+    private String fundbookDayTableName;
+
     private JedisTemplate jedisTemplate;
     @Override
     public void run() {
 
+
+        if(!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT+bookDateStr,"1")){
+            return;
+        }
         long start=System.currentTimeMillis();
         List<Fundbookday> fundbookdays = new ArrayList<>();
-        String fundbookDayTableName= FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE +StringUtils.substring(bookDateStr,0,6);
-
         int i=0;
         int index=0;
+        String threadname=Thread.currentThread().getName();
+        logger.info(threadname+"开始了");
         for (Fundbookcode bookcode : bookcodes) {//2.每个账本
             i++;
             // 当期活跃用户
@@ -76,7 +83,7 @@ public class FundbookdayRunner implements Runnable {
                 BigDecimal preBalance=null;
                 if(StringUtils.isNotBlank(preBalanceStr)){
                     preBalance=new BigDecimal(preBalanceStr);
-                    jedisTemplate.del(mapPreKey);
+//                    jedisTemplate.del(mapPreKey);
                 }else {
                     preBalance=new BigDecimal("0");
                 }
@@ -98,15 +105,14 @@ public class FundbookdayRunner implements Runnable {
                 fundbookdays.add(fundbookday);
 
 
-                if(fundbookdays.size()%40000==0||index==totalData){
+                if(fundbookdays.size()%30000==0||index==totalData){
                     //每3万条插入一次
                     long memeryRunTime=System.currentTimeMillis();
-
-                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
+                    logger.info(threadname+"内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
                     long insertRunTime=System.currentTimeMillis();
 
-                    logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
+                    logger.info(threadname+"插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
                     fundbookdays=new ArrayList<>();
                     start=System.currentTimeMillis();
                 }
@@ -210,5 +216,13 @@ public class FundbookdayRunner implements Runnable {
 
     public void setJedisTemplate(JedisTemplate jedisTemplate) {
         this.jedisTemplate = jedisTemplate;
+    }
+
+    public String getFundbookDayTableName() {
+        return fundbookDayTableName;
+    }
+
+    public void setFundbookDayTableName(String fundbookDayTableName) {
+        this.fundbookDayTableName = fundbookDayTableName;
     }
 }

@@ -77,10 +77,10 @@ public class LoginController {
 
         //没传账本 就更新所有账本
         if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
-            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "&&");
+            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "-");
             Fundbookcode bookcode = new Fundbookcode();
             bookcode.setFundtype(Integer.parseInt(accbookArray[0]));
-            bookcode.setBookcode(accbookArray[1]);
+            bookcode.setBookcode(updateBalanceVo.getAccBook());
             bookcodes.add(bookcode);
         }
 

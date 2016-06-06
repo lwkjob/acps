@@ -289,7 +289,7 @@
                                                 <option value="">全部</option>
                                                 <c:forEach items="${bookcodes}" var="bookcode">
                                                     <option value="${bookcode.bookcode}">
-                                                            ${bookcode.bookcodedesc}
+                                                            ${bookcode.bookcodedesc}-(${bookcode.bookcode})
                                                     </option>
                                                 </c:forEach>
                                             </select>
