@@ -205,7 +205,6 @@ public class FundbookDayService {
                 fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
                 fundbookDaySum.setBalance(fundbook.getBalance());
             }
-//            fundbookDaySum.setPrevbalance(getPrevbalance(map, key));  //设置上期的余。。。。
             map.put(key, fundbookDaySum);
         }
         return map;

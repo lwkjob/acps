@@ -49,36 +49,27 @@ public class FundbookdayRunner implements Runnable {
     private JedisTemplate jedisTemplate;
     @Override
     public void run() {
-
-
         if(!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT+bookDateStr,"1")){
             return;
         }
         long start=System.currentTimeMillis();
         List<Fundbookday> fundbookdays = new ArrayList<>();
-        int i=0;
-        int index=0;
-        String threadname=Thread.currentThread().getName();
-        logger.info(threadname+"开始了");
-        for (Fundbookcode bookcode : bookcodes) {//2.每个账本
-            i++;
-            // 当期活跃用户
-            if (users==null){
-                users = userBasicExtMapper.getUsers(0, 0, typeid, 0, bookDate.getTime() / 1000);
-            }
-            int totalData=bookcodes.size()*users.size();
-
+        // 当期活跃用户
+        if (users==null){
+            users = userBasicExtMapper.getUsers(0, 0, typeid, 0, bookDate.getTime() / 1000);
+        }
+        for (int i=0;i<bookcodes.size(); i++) {//2.每个账本
+            Fundbookcode  bookcode=bookcodes.get(i);
             for (UserBasicInfo userBasicInfo : users) {
-                index++;
                 //3.4每个账本
                 Fundbookday fundbookday = new Fundbookday();
                 fundbookday.setUserid(userBasicInfo.getUserid());
                 fundbookday.setBookdate(Integer.parseInt(bookDateStr));
                 fundbookday.setBookcode(bookcode.getBookcode());
-                //遍历没个用户今天是否产生账本信息
+
                 String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(), fundbookday.getUserid());
                 String mapPreKey = String.format("%s|-%s|-%s", preDateStr, fundbookday.getBookcode(), fundbookday.getUserid());
-                Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
+
                 String preBalanceStr= jedisTemplate.get(mapPreKey); //查询前一天的余
                 BigDecimal preBalance=null;
                 if(StringUtils.isNotBlank(preBalanceStr)){
@@ -87,6 +78,8 @@ public class FundbookdayRunner implements Runnable {
                 }else {
                     preBalance=new BigDecimal("0");
                 }
+
+                Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
                 if (fundbookdayActive!=null){
                     fundbookday.setPrevbalance(preBalance);
                     fundbookday.setBalance(fundbookdayActive.getBalance());
@@ -103,16 +96,14 @@ public class FundbookdayRunner implements Runnable {
                 }
                 jedisTemplate.set(mapKey,fundbookday.getBalance().floatValue()+"");
                 fundbookdays.add(fundbookday);
-
-
-                if(fundbookdays.size()%30000==0||index==totalData){
+                if(fundbookdays.size()%30000==0||i==bookcodes.size()){
                     //每3万条插入一次
                     long memeryRunTime=System.currentTimeMillis();
-                    logger.info(threadname+"内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
+                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
                     fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
                     long insertRunTime=System.currentTimeMillis();
 
-                    logger.info(threadname+"插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
+                    logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
                     fundbookdays=new ArrayList<>();
                     start=System.currentTimeMillis();
                 }

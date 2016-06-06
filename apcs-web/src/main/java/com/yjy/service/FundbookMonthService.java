@@ -5,6 +5,7 @@ import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
+import com.yjy.repository.dto.SumMonthByBookcode;
 import com.yjy.repository.mapper.FundbookMonthExtMapper;
 import com.yjy.repository.mapper.FundbookcodeMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
@@ -46,6 +47,7 @@ public class FundbookMonthService {
     private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
+    private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
 
     //取前一月
     public Date getPreMonthsDate(Date startDate) {
@@ -66,86 +68,82 @@ public class FundbookMonthService {
         }
 
         long startRunTime = System.currentTimeMillis();//记录运行时间
+        List<Fundbookmonth> fundbookmonthList = new ArrayList<>();
         while (endDate.compareTo(startDate) != -1) {
+
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
+            if (users==null){
+                users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
+            }
+            String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
+            String currentMonthLastDay=getCurrentMonthLastDay(startDate,simpleDateFormat_yyyyMMdd);
+            String preMonthLastDay= getPreMonthLastDay(startDate,simpleDateFormat_yyyyMMdd);
 
+            for (int i=0;i<bookcodes.size();i++) {
+                Fundbookcode bookcode=bookcodes.get(i);
 
+                Map<Integer,SumMonthByBookcode> monthByBookcodeMap=new HashedMap();
+                list2map(dayTableName, bookcode, monthByBookcodeMap);
 
-            int i=0;
-            //3 每个表，每个用户，每月，每个账本一条数据
-            for (Fundbookcode bookcode : bookcodes) {
-                i++;
-                //2 统计当前月每个用户每个账本产生的数据
-                Fundbookday fundbookdayExample = new Fundbookday(); //查询条件
-                fundbookdayExample.setBookcode(bookcode.getBookcode());
-                List<Fundbookday> fundbookdays = getFundbookDays(fundbookdayExample, dayTableName);
-                //当月发发生数据
-                Map<String, Fundbookmonth> fundbookmonthMap = getFundbookMonth(fundbookdays);
-                List<Fundbookmonth> FundbookmonthList = new ArrayList<>();
-
-                String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
-                // 当期活跃用户
-                if (users==null){
-                      users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
-                }
                 for (UserBasicInfo userBasicInfo : users) {
+                  SumMonthByBookcode sumMonthByBookcode =  monthByBookcodeMap.get(userBasicInfo.getUserid());
                     //3.3每个账本
+
+                    String balancekey = String.format("%s|-%s|-%s",  currentMonthLastDay, bookcode.getBookcode(),  userBasicInfo.getUserid());
+
+                    String prebalancekey =  String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
+
+                    String balanceStr =  jedisTemplate.get(balancekey);
+                    String prebalanceStr =  jedisTemplate.get(prebalancekey);
+                    BigDecimal preBalance=null;
+                    BigDecimal balance=null;
+
+                    if(StringUtils.isNotBlank(balanceStr)){
+                        balance=new BigDecimal(balanceStr);
+                    }else {
+                        balance=new BigDecimal(0);
+                    }
+
+                    if(StringUtils.isNotBlank(prebalanceStr)){
+                        preBalance=new BigDecimal(prebalanceStr);
+                    }else {
+                        preBalance=new BigDecimal(0);
+                    }
                     Fundbookmonth fundbookmonth = new Fundbookmonth();
                     fundbookmonth.setUserid(userBasicInfo.getUserid());
                     fundbookmonth.setBookdate(Integer.parseInt(bookDateStr));
                     fundbookmonth.setBookcode(bookcode.getBookcode());
-                    String mapkey = String.format("%s|-%s|-%s",  bookDateStr, bookcode.getBookcode(),  userBasicInfo.getUserid());
-                    Date preDate=getPreMonthsDate(startDate);
-                    String preDateStr = simpleDateFormat_yyyyMM.format(preDate);
-                    String mapPrekey = String.format("%s|-%s|-%s", preDateStr, bookcode.getBookcode(), userBasicInfo.getUserid());
-                    //如果当月有发生数据
-                    Fundbookmonth fundbookmonthActive = fundbookmonthMap.get(mapkey);
-                  String preBalanceStr=  jedisTemplate.get(mapPrekey);
-                    BigDecimal preBalance=null;
-                    if(StringUtils.isNotBlank(preBalanceStr)){
-                        preBalance=new BigDecimal(preBalanceStr);
-                    }else {
-                        preBalance=new BigDecimal(0);
-                    }
-                    if (fundbookmonthActive != null) {
-                        fundbookmonth.setAreacode(fundbookmonthActive.getAreacode());
-                        fundbookmonth.setPrevbalance(preBalance);
-                        fundbookmonth.setBalance(fundbookmonthActive.getBalance());
-                        fundbookmonth.setHappendebit(fundbookmonthActive.getHappendebit());
-                        fundbookmonth.setHappencredit(fundbookmonthActive.getHappencredit());
-                    }else {
-                        BigDecimal bigDecimal0=new BigDecimal(0);
-                        fundbookmonth.setAreacode(0);
-                        fundbookmonth.setPrevbalance(preBalance);
-                        fundbookmonth.setBalance(preBalance);
-                        fundbookmonth.setHappendebit(bigDecimal0);
-                        fundbookmonth.setHappencredit(bigDecimal0);
-                    }
-                    jedisTemplate.set(mapkey,fundbookmonth.getBalance().floatValue()+"");
-                    FundbookmonthList.add(fundbookmonth);
+                    fundbookmonth.setAreacode(0);
+                    fundbookmonth.setPrevbalance(preBalance);
+                    fundbookmonth.setBalance(balance);
+                    fundbookmonth.setHappendebit(sumMonthByBookcode.getDebit());
+                    fundbookmonth.setHappencredit(sumMonthByBookcode.getCredit());
+                    fundbookmonthList.add(fundbookmonth);
                 }
-
-                List<Fundbookcode> delBookCode=new ArrayList<>();
-                delBookCode.add(bookcode);
-                long memeoryRunTime=System.currentTimeMillis();
-                logger.info("内存计算完用时" + (float)(memeoryRunTime - startRunTime)/1000 +" "+ bookDateStr + " " + i + "剩余账本个数" + (bookcodes.size() - i) + ",当前数据量:" + FundbookmonthList.size());
-                logger.info("删除重新统计" + bookDateStr + " " + JsonUtils.toJson(bookcode));
-                //1删除需要重新统计的数据
-//                fundbookMonthExtMapper.deleteFundbookMonth(
-//                        delBookCode,
-//                        users,
-//                        monthTableName);
-                fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
-                long insertRunTime=System.currentTimeMillis();
-                logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ JsonUtils.toJson(bookcode));
+                if(fundbookmonthList.size()%20000==0||i==bookcodes.hashCode()){
+                    long memeoryRunTime=System.currentTimeMillis();
+                    fundbookMonthExtMapper.batchInsert(fundbookmonthList, monthTableName);
+                    long insertRunTime=System.currentTimeMillis();
+                    logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ JsonUtils.toJson(bookcode));
+                    fundbookmonthList=new ArrayList<>();
+                }
             }
+            //3 每个表，每个用户，每月，每个账本一条数据
             startDate = getNextMonthsDate(startDate);//轮训到下一个月
         }
         long end = System.currentTimeMillis();
         logger.info("全部计算完了" + (float) (end - startRunTime) / 1000 + "秒");
         //批量插入
         return 1;
+    }
+
+    private void list2map(String dayTableName, Fundbookcode bookcode, Map<Integer, SumMonthByBookcode> monthByBookcodeMap) {
+        List<SumMonthByBookcode> list=fundbookdayExtMapper.sumMonthByBookcode(dayTableName,bookcode.getBookcode());
+        for (SumMonthByBookcode sumMonthByBookcode:list){
+            monthByBookcodeMap.put(sumMonthByBookcode.getUserid(),sumMonthByBookcode);
+        }
+        list=null;
     }
 
     private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
@@ -230,5 +228,32 @@ public class FundbookMonthService {
         fundbookmonth.setBookdate(Integer.parseInt(dayStr));
         fundbookmonth.setBookid(fundbookday.getBookid());
         fundbookmonth.setUserid(fundbookday.getUserid());
+    }
+
+    public static void main(String[] args) throws Exception{
+
+        SimpleDateFormat simpleDateFormat2=new SimpleDateFormat("yyyyMMdd");
+        Date date=simpleDateFormat2.parse("201604");
+
+
+        date=DateUtils.setDays(date,1);
+        date=DateUtils.addDays(date,-1);
+        String s2= simpleDateFormat2.format(date);
+        logger.info(s2);
+    }
+
+    //获得当月最后一天
+    private String getCurrentMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+        date=DateUtils.addMonths(date,1);
+        date=DateUtils.setDays(date,1);
+        date=DateUtils.addDays(date,-1);
+        return simpleDateFormat.format(date);
+    }
+
+    //获得上个月最后一天
+    private String getPreMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+        date=DateUtils.setDays(date,1);
+        date=DateUtils.addDays(date,-1);
+         return simpleDateFormat.format(date);
     }
 }

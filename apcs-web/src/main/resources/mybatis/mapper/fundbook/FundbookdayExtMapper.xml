@@ -80,4 +80,11 @@
            </foreach>
 
     </insert>
+
+    <select id="sumMonthByBookcode" resultType="com.yjy.repository.dto.SumMonthByBookcode" parameterType="map">
+        select
+        userid,sum(happendebit) debit,sum(happencredit) credit,bookcode
+        from ${tablename}
+         where bookcode=#{bookcode} group by userid;
+    </select>
 </mapper>

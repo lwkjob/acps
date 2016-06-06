@@ -278,7 +278,7 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="userId3">用户编号</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="userId3" type="text" name="userId"/>
+                                            <input class="form-control" id="userId3" type="text" name="userid"/>
                                         </div>
                                     </div>
 

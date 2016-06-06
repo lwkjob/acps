@@ -4,6 +4,7 @@ package com.yjy.repository.mapper;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.UserBasicInfo;
+import com.yjy.repository.dto.SumMonthByBookcode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,4 +25,7 @@ public interface FundbookdayExtMapper {
 
     void batchInsert(@Param("fundbookdays")List<Fundbookday> fundbookdays,
                      @Param("tablename")String tablename);
+
+   List<SumMonthByBookcode> sumMonthByBookcode(@Param("tablename")String tablename,
+                                               @Param("bookcode") String bookcode);
 }
