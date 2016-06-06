@@ -127,7 +127,7 @@
                     <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i> 跑批任务</a>
                 </li>
                 <li>
-                    <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i> 报表</a>
+                    <a href="/fundbooklist.shtml"><i class="glyphicon glyphicon-chevron-right"></i> 报表</a>
                 </li>
                 <li>
                     <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i>汇总报表 </a>
@@ -160,6 +160,7 @@
                             <table class="table table-hover table-striped table-bordered">
                         <c:if test="${pagination.pageCount!=0}">
                                 <thead>
+                                <td>用户id</td>
                                 <td>账单id</td>
                                 <td>借</td>
                                 <td>贷</td>
@@ -171,6 +172,7 @@
                                 <c:forEach items="${pagination.data}" var="fundbook">
                                     <tr>
 
+                                            <td>${fundbook.userid}</td>
                                             <td>${fundbook.bookid}</td>
                                             <td>${fundbook.debit}</td>
                                             <td>${fundbook.credit}</td>

@@ -24,6 +24,7 @@ public class JedisUtils {
 		poolConfig.setMaxIdle(maxIdle);
 		poolConfig.setMaxTotal(maxTotal);
 		poolConfig.setTimeBetweenEvictionRunsMillis(-1);
+
 		return poolConfig;
 	}
 

@@ -230,14 +230,14 @@
                     <jvmArgs>-Xmx2048 -Xms1024</jvmArgs>
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>8090</port>
+                            <port>8080</port>
                             <maxIdleTime>60000</maxIdleTime>
                         </connector>
                     </connectors>
                     <webAppConfig>
                         <contextPath>/</contextPath>
                     </webAppConfig>
-                    <stopPort>9999</stopPort>
+                    <stopPort>8888</stopPort>
                     <stopKey>jetty</stopKey>
                 </configuration>
             </plugin>

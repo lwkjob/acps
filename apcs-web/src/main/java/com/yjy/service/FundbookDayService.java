@@ -1,10 +1,13 @@
 package com.yjy.service;
 
 
+import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
+import com.yjy.repository.mapper.FundbookcodeMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
@@ -19,6 +22,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 日清逻辑
@@ -34,7 +39,13 @@ public class FundbookDayService {
     private FundbookExtMapper fundbookExtMapper;
 
     @Resource
+    private FundbookcodeMapper fundbookcodeMapper;
+
+    @Resource
     private UserBasicExtMapper userBasicExtMapper;
+
+    @Resource
+    private JedisTemplate jedisTemplate;
 
     private static Logger logger = LoggerFactory.getLogger(FundbookDayService.class);
 
@@ -58,6 +69,9 @@ public class FundbookDayService {
 
     //插入日清数据
     public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid,List<UserBasicInfo> users) {
+        if(bookcodes==null || bookcodes.size()==0){
+            bookcodes=fundbookcodeMapper.selectByExample(null);
+        }
 
 
         //delete日清表指定时间之前的数据
@@ -78,40 +92,68 @@ public class FundbookDayService {
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
             Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
-            while (endDateByTable.compareTo(startDateByTable) != -1) {
-                int i=0;
-                for (Fundbookcode bookcode : bookcodes) {
-                    i++;
-                    //2 统计每天每个用户每个账本数据
-                    Fundbook fundbookExample = new Fundbook(); //查询条件
-                    fundbookExample.setBookcode(bookcode.getBookcode());
-                    String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-                    List<Fundbook> fundbooks = getFundbooks(
-                            fundbookExample,
-                            fundbookTableName,
-                            Integer.parseInt(delTableName.getStartStr()),
-                            Integer.parseInt(delTableName.getEndStr()));
-                    //当期月每个用户每个账本每天的业务发生
-                    Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
 
-                    //用户数据量很大目前接近10万
-                    List<Fundbookday> fundbookdays = new ArrayList<>();
-                    String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
+            //2 统计每天每个用户每个账本数据
+            Fundbook fundbookExample = new Fundbook(); //查询条件
+//            fundbookExample.setBookcode(bookcode.getBookcode());
+            String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
+
+            List<Fundbook> fundbooks = getFundbooks(
+                    fundbookExample,
+                    fundbookTableName,
+                    startDateByTable.getTime() / 1000l,
+                    endDateByTable.getTime() / 1000l);
+            //当期月每个用户每个账本每天的业务发生
+            Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
+
+
+
+
+
+            //用户数据量很大目前接近10万
+
+            while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
+//                ExecutorService executorService=Executors.newFixedThreadPool(20);
+//                FundbookdayRunner fundbookdayRunner=    new FundbookdayRunner ();
+//                executorService.execute(fundbookdayRunner);
+                int i=0;
+
+                List<Fundbookday> fundbookdays = new ArrayList<>();
+                Date preDate= getPreDayDate(startDateByTable);
+                String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
+               String preDateStr=simpleDateFormat_yyyyMMdd.format(preDate);
+
+                int totalData = 0;
+                long index=0;
+                for (Fundbookcode bookcode : bookcodes) {//2.每个账本
+                    i++;
                     // 当期活跃用户
                     if (users==null){
                          users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDateByTable.getTime() / 1000);
                     }
+                    totalData = totalData +  bookcodes.size()*users.size();
+
                     for (UserBasicInfo userBasicInfo : users) {
+                        index++;
                         //3.4每个账本
                             Fundbookday fundbookday = new Fundbookday();
                             fundbookday.setUserid(userBasicInfo.getUserid());
                             fundbookday.setBookdate(Integer.parseInt(bookDateStr));
                             fundbookday.setBookcode(bookcode.getBookcode());
                         //遍历没个用户今天是否产生账本信息
-                        String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(),  fundbookday.getUserid());
+                        String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(), fundbookday.getUserid());
+                        String mapPreKey = String.format("%s|-%s|-%s", preDateStr, fundbookday.getBookcode(), fundbookday.getUserid());
                         Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
+                        String preBalanceStr= jedisTemplate.get(mapPreKey); //查询前一天的余
+                        BigDecimal preBalance=null;
+                        if(StringUtils.isNotBlank(preBalanceStr)){
+                            preBalance=new BigDecimal(preBalanceStr);
+                            jedisTemplate.del(mapPreKey);
+                        }else {
+                            preBalance=new BigDecimal("0");
+                        }
                         if (fundbookdayActive!=null){
-                            fundbookday.setPrevbalance(fundbookdayActive.getPrevbalance());
+                            fundbookday.setPrevbalance(preBalance);
                             fundbookday.setBalance(fundbookdayActive.getBalance());
                             fundbookday.setAreacode(fundbookdayActive.getAreacode());
                             fundbookday.setHappencredit(fundbookdayActive.getHappencredit());
@@ -119,30 +161,44 @@ public class FundbookDayService {
                         }else {
                             BigDecimal bigDecimal0 = new BigDecimal(0);
                             fundbookday.setAreacode(0);
-                            fundbookday.setBalance(bigDecimal0);
+                            fundbookday.setBalance(preBalance);
+                            fundbookday.setPrevbalance(preBalance);
                             fundbookday.setHappencredit(bigDecimal0);
                             fundbookday.setHappendebit(bigDecimal0);
-                            fundbookday.setPrevbalance(bigDecimal0);
                         }
+                        jedisTemplate.set(mapKey,fundbookday.getBalance().floatValue()+"");
                         fundbookdays.add(fundbookday);
+
+
+                        if(fundbookdays.size()%40000==0||index==totalData){
+                            //每3万条插入一次
+                            long memeryRunTime=System.currentTimeMillis();
+
+                            logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
+                            fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
+                            long insertRunTime=System.currentTimeMillis();
+
+                            logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
+                            fundbookdays=new ArrayList<>();
+                            start=System.currentTimeMillis();
+                        }
                      }
-                    long memeryRunTime=System.currentTimeMillis();
-                    logger.info("内存计算完"+(float)(memeryRunTime-start)/1000+" "+bookDateStr+" "+i+"剩余"+(bookcodes.size()-i)+",当前数据量:"+fundbookdays.size());
-                    int startInt = Integer.parseInt(delTableName.getStartStr());
-                    int entInt = Integer.parseInt(delTableName.getEndStr());
-                    List<Fundbookcode> delBookcode=new ArrayList();
-                    delBookcode.add(bookcode);//数据太多只能一个一个账本的删除
-                    logger.info("删除重新统计数据"+bookDateStr + " " + JsonUtils.toJson(bookcode));
-                    fundbookdayExtMapper.deleteFundbookDay(
-                            delBookcode,
-                            users,
-                            fundbookDayTableName,
-                            startInt,
-                            entInt
-                    );
-                    long insertRunTime=System.currentTimeMillis();
-                    fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
-                    logger.info("插入完成账本"+(float)(insertRunTime-memeryRunTime)/1000+" "+bookDateStr+" "+JsonUtils.toJson(bookcode));
+
+
+//                    int startInt = Integer.parseInt(delTableName.getStartStr());
+//                    int entInt = Integer.parseInt(delTableName.getEndStr());
+//                    List<Fundbookcode> delBookcode=new ArrayList();
+//                    delBookcode.add(bookcode);       //数据太多只能一个一个账本的删除
+//                    logger.info("删除重新统计数据"+bookDateStr + " " + JsonUtils.toJson(bookcode));
+//                    fundbookdayExtMapper.deleteFundbookDay(
+//                            delBookcode,
+//                            users,
+//                            fundbookDayTableName,
+//                            startInt,
+//                            entInt
+//                    );
+
+
                 }
                 startDateByTable = getNextDayDate(startDateByTable);
             }
@@ -151,6 +207,8 @@ public class FundbookDayService {
         logger.info("计算完了" + (float) (end - start) / 1000 + "秒");
         return 1;
     }
+
+
 
     private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
 
@@ -193,8 +251,8 @@ public class FundbookDayService {
     }
 
     //查询区间内全部账本数据
-    public List<Fundbook> getFundbooks(Fundbook fundbook, String tableName, int startTime, int endTime) {
-        return fundbookExtMapper.selectByExample(fundbook, tableName, startTime, endTime, true);
+    public List<Fundbook> getFundbooks(Fundbook fundbook, String tableName, long startTime, long endTime) {
+        return fundbookExtMapper.selectByExample(fundbook, tableName, startTime, endTime, false);
     }
 
 
@@ -204,8 +262,10 @@ public class FundbookDayService {
      * 取出来的数据必须是按照按照用户和发生时间排好序
      */
     public Map<String, Fundbookday> getFundbookDay(List<Fundbook> fundbooks) {
-        Map<String, Fundbookday> map = new HashedMap(2000);
+        Map<String, Fundbookday> map = new HashedMap();
+        int i=0;
         for (Fundbook fundbook : fundbooks) {
+            i++;
             calendar.setTimeInMillis(fundbook.getHappentime() * 1000l);
             String dayStr = simpleDateFormat_yyyyMMdd.format(calendar.getTime());
             String key = String.format("%s|-%s|-%s", dayStr, fundbook.getBookcode(), fundbook.getUserid());
@@ -219,7 +279,7 @@ public class FundbookDayService {
                 fundbookDaySum.setHappencredit(fundbook.getCredit().add(fundbookDaySum.getHappencredit()));
                 fundbookDaySum.setBalance(fundbook.getBalance());
             }
-            fundbookDaySum.setPrevbalance(getPrevbalance(map, key));  //设置上期的余。。。。
+//            fundbookDaySum.setPrevbalance(getPrevbalance(map, key));  //设置上期的余。。。。
             map.put(key, fundbookDaySum);
         }
         return map;
@@ -254,7 +314,7 @@ public class FundbookDayService {
 
             //取前一天的这个用户的这个账本数据
             List<Fundbookday> fundbookdays = fundbookdayExtMapper.selectByExample(fundbookday1, tableName);
-            if (fundbookdays != null) {
+            if (fundbookdays != null&&fundbookdays.size()>0) {
                 return fundbookdays.get(0).getBalance();
             } else {
                 logger.info("数据库都没找到preKey=" + preKey);

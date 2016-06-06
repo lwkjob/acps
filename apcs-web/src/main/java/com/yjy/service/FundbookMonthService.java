@@ -5,6 +5,7 @@ import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookMonthExtMapper;
+import com.yjy.repository.mapper.FundbookcodeMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
@@ -35,6 +36,9 @@ public class FundbookMonthService {
     @Resource
     private UserBasicExtMapper userBasicExtMapper;
 
+    @Resource
+    private FundbookcodeMapper fundbookcodeMapper;
+
     private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
@@ -53,6 +57,9 @@ public class FundbookMonthService {
 
     //插入日清数据
     public int insertFundBookMonth(Date startDate, Date endDate, List<Fundbookcode> bookcodes,int typeid,List<UserBasicInfo> users) {
+        if(bookcodes==null || bookcodes.size()==0){
+            bookcodes=fundbookcodeMapper.selectByExample(null);
+        }
 
         long startRunTime = System.currentTimeMillis();//记录运行时间
         while (endDate.compareTo(startDate) != -1) {
@@ -111,7 +118,7 @@ public class FundbookMonthService {
                 List<Fundbookcode> delBookCode=new ArrayList<>();
                 delBookCode.add(bookcode);
                 long memeoryRunTime=System.currentTimeMillis();
-                logger.info("内存计算完用时" + (float)(memeoryRunTime - startRunTime)/1000 + bookDateStr + " " + i + "剩余" + (bookcodes.size() - i) + ",当前数据量:" + FundbookmonthList.size());
+                logger.info("内存计算完用时" + (float)(memeoryRunTime - startRunTime)/1000 +" "+ bookDateStr + " " + i + "剩余账本个数" + (bookcodes.size() - i) + ",当前数据量:" + FundbookmonthList.size());
                 logger.info("删除重新统计" + bookDateStr + " " + JsonUtils.toJson(bookcode));
                 //1删除需要重新统计的数据
                 fundbookMonthExtMapper.deleteFundbookMonth(
@@ -120,7 +127,7 @@ public class FundbookMonthService {
                         monthTableName);
                 fundbookMonthExtMapper.batchInsert(FundbookmonthList, monthTableName);
                 long insertRunTime=System.currentTimeMillis();
-                logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+bookDateStr+" "+ JsonUtils.toJson(bookcode));
+                logger.info("插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ JsonUtils.toJson(bookcode));
             }
             startDate = getNextMonthsDate(startDate);//轮训到下一个月
         }

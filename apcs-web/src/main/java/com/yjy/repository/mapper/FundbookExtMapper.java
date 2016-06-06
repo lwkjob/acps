@@ -21,8 +21,8 @@ public interface FundbookExtMapper {
      */
     List<Fundbook> selectByExample(@Param("fundbook") Fundbook fundbook,
                                    @Param("tableName") String tableName,
-                                   @Param("startTime") int startTime,
-                                   @Param("endTime") int endTime,
+                                   @Param("startTime") long startTime,
+                                   @Param("endTime") long endTime,
                                    @Param("lastData") boolean lastData);
 
 

@@ -3,6 +3,7 @@ package com.yjy.common.redis;
 import com.yjy.common.utils.JsonUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -28,10 +29,12 @@ public class JedisTemplate implements Serializable {
 
     public JedisTemplate(String host, int port, int timeout, int threadCount) {
         // 设置Pool大小，设为与线程数等大，并屏蔽掉idle checking
-        JedisPoolConfig poolConfig = JedisUtils.createPoolConfig(threadCount, threadCount);
+        JedisPoolConfig poolConfig = JedisUtils.createPoolConfig(100, 100);
+
 
         // create jedis pool
-        this.jedisPool = new JedisPool(poolConfig, host, port, timeout);
+        this.jedisPool = new JedisPool(poolConfig, host, port, timeout,"123");
+
     }
 
     /**
@@ -645,6 +648,12 @@ public class JedisTemplate implements Serializable {
      */
     public <T> List<T> getListObject(String key, Class<T> clazz) {
         return JsonUtils.readToList(get(key), clazz);
+    }
+
+
+    public static void main(String[] args) {
+        JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.64",6379,5000,1);
+       logger.info( jedisTemplate.get("nimei"));
     }
 
 }

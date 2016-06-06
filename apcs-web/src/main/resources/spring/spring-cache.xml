@@ -2,10 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
     		http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean id="jedisTemplate" class="com.dili.dd.logistics.common.redis.JedisTemplate">
+    <bean id="jedisTemplate" class="com.yjy.common.redis.JedisTemplate">
         <constructor-arg name="host" value="${redis.host}"/>
         <constructor-arg name="port" value="${redis.port}"/>
         <constructor-arg name="timeout" value="${redis.timeout}"/>
-        <constructor-arg name="threadCount" value="${redis.threads}"/>
+        <constructor-arg name="threadCount" value="${redis.threadCount}"/>
     </bean>
 </beans>

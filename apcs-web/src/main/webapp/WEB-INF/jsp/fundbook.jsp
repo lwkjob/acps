@@ -127,7 +127,7 @@
                     <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i> 跑批任务</a>
                 </li>
                 <li>
-                    <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i> 报表</a>
+                    <a href="/fundbooklist.shtml"><i class="glyphicon glyphicon-chevron-right"></i> 报表</a>
                 </li>
                 <li>
                     <a href="about.html"><i class="glyphicon glyphicon-chevron-right"></i>汇总报表 </a>
@@ -153,20 +153,20 @@
                             <div class="text-muted bootstrap-admin-box-title">刷新余额</div>
                         </div>
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
-                            <form class="form-horizontal"  action="/updateBalance.shtml" method="post">
+                            <form class="form-horizontal"  action="${ctx}/updateBalance.shtml" method="post">
                                 <fieldset>
-                                    <legend>Form Horizontal</legend>
+                                    <legend>刷新余额</legend>
 
-                                    <div class="form-group">
+                                    <%--<div class="form-group">
                                         <label class="col-lg-2 control-label" for="date01">开始日期</label>
                                         <div class="col-lg-10">
                                             <input type="text" readonly class="form-control datepicker"  name="date01" id="date01" value="" data-date-format="yyyy-mm-dd">
                                             <p class="help-block">In addition to freeform text, any HTML5 text-based input appears like so.</p>
                                         </div>
-                                    </div>
+                                    </div>--%>
 
                                     <div class="form-group">
-                                        <label class="col-lg-2 control-label" for="startDate">结束日期</label>
+                                        <label class="col-lg-2 control-label" for="startDate">开始日期</label>
                                         <div class="col-lg-10">
                                             <input value="201309" class="form-control" id="startDate" type="text" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
@@ -211,19 +211,19 @@
                             <div class="text-muted bootstrap-admin-box-title">日结统计</div>
                         </div>
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
-                            <form class="form-horizontal"  action="/updateBalance.shtml?monthFund=1" method="post">
+                            <form class="form-horizontal"  action="${ctx}/updateBalance.shtml?monthFund=1" method="post">
                                 <fieldset>
                                     <legend>Form Horizontal</legend>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate2">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate2" type="text" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="startDate2" type="text" value="20130903" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate2">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate2" type="text" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="endDate2" type="text" name="endDate" value="20130903"  readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -260,19 +260,19 @@
                             <div class="text-muted bootstrap-admin-box-title">月结统计</div>
                         </div>
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
-                            <form class="form-horizontal"  action="/updateBalance.shtml?monthFund=2" method="post">
+                            <form class="form-horizontal"  action="${ctx}/updateBalance.shtml?monthFund=2" method="post">
                                 <fieldset>
                                     <legend>Form Horizontal</legend>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate3">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate3" type="text" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input class="form-control" id="startDate3" type="text" value="201309" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate3">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate3" type="text" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input class="form-control" id="endDate3" type="text" value="201312" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">

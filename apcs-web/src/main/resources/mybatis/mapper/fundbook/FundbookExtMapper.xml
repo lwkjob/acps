@@ -125,6 +125,7 @@
     <include refid="Base_Column_List" />
     from ${tableName}
     <include refid="Where_Clause" />
+    ORDER BY userid,happentime,bookcode
   </select>
 
 </mapper>
