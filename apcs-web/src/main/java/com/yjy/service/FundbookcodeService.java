@@ -1,6 +1,7 @@
 package com.yjy.service;
 
 import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.FundbookcodeExample;
 import com.yjy.repository.mapper.FundbookcodeMapper;
 import org.springframework.stereotype.Service;
 
@@ -19,4 +20,10 @@ public class FundbookcodeService {
     public List<Fundbookcode> getFundbookcodes(){
         return     fundbookcodeMapper.selectByExample(null);
     }
+
+    public List<Fundbookcode> getFundbookcodesByExample(FundbookcodeExample fundbookcodeExample){
+        return     fundbookcodeMapper.selectByExample(fundbookcodeExample);
+    }
+
+
 }

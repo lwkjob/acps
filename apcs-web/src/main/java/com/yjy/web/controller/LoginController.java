@@ -2,8 +2,10 @@ package com.yjy.web.controller;
 
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
+import com.yjy.constant.FundConstant;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.FundbookcodeExample;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.schedule.DayReportJob;
 import com.yjy.service.*;
@@ -45,7 +47,7 @@ public class LoginController {
 
 
 
-    private static Logger logger = LoggerFactory.getLogger(DayReportJob.class);
+    private static Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 
 
@@ -75,7 +77,7 @@ public class LoginController {
             return returnUrl;
         }
 
-        //没传账本 就更新所有账本
+
         if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
             String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "-");
             Fundbookcode bookcode = new Fundbookcode();
@@ -91,10 +93,13 @@ public class LoginController {
             //查询所有的用户,(注册时间小于当前时间)
               typeid=updateBalanceVo.getTypeid()==null?0:updateBalanceVo.getTypeid();
         } else {
+            users=new ArrayList<>();
             UserBasicInfo userBasicInfo = new UserBasicInfo();
             userBasicInfo.setUserid(updateBalanceVo.getUserid());
             users.add(userBasicInfo);
         }
+        Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
+
 
         long startTime = System.currentTimeMillis();
 
@@ -102,10 +107,10 @@ public class LoginController {
              case 1:
                  startDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getStartDate(), logger);
                  endDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getEndDate(), logger);
-                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodes, typeid,users);
+                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodes, typeid,users);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
                  break;
              default:
                  fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, typeid,users);
@@ -115,6 +120,24 @@ public class LoginController {
         logger.info("总的执行时间:" + (float) (endTime - startTime) / 1000 + "秒");
 
         return returnUrl;
+    }
+
+    private Map<Integer,List<Fundbookcode>> cacheFndbookcode(){
+        Map<Integer,List<Fundbookcode>> map=new HashedMap();
+        FundbookcodeExample example=new FundbookcodeExample();
+        example.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_BUYER);
+        map.put(FundConstant.TYPEID_BUYER, fundbookcodeService.getFundbookcodesByExample(example));
+
+
+        FundbookcodeExample example2=new FundbookcodeExample();
+        example2.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_SALES);
+        map.put(FundConstant.TYPEID_SALES, fundbookcodeService.getFundbookcodesByExample(example2));
+
+        FundbookcodeExample example3=new FundbookcodeExample();
+        example3.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_PLATFORM);
+        map.put(FundConstant.TYPEID_PLATFORM, fundbookcodeService.getFundbookcodesByExample(example3));
+
+        return map;
     }
 
     @RequestMapping("/fundbooklist")

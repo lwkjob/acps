@@ -3,7 +3,6 @@ package com.yjy.service;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.constant.FundConstant;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.UserBasicInfo;
@@ -23,12 +22,13 @@ import java.util.Map;
  * Created by Administrator on 2016/6/6.
  */
 public class FundbookdayRunner implements Runnable {
+    private Logger logger = LoggerFactory.getLogger(FundbookdayRunner.class);
 
-    private Logger logger= LoggerFactory.getLogger(FundbookdayRunner.class);
 
-    private List<Fundbookcode> bookcodes;
+    private Map<Integer, List<Fundbookcode>> bookcodemap;
 
-    private List<UserBasicInfo> users;
+
+    private long userCreateEndTime;
 
     private Date bookDate;
 
@@ -38,29 +38,35 @@ public class FundbookdayRunner implements Runnable {
 
     private Map<String, Fundbookday> fundbookdayMap;
 
-    private int typeid;
-
     private String bookDateStr;
 
-    private  String preDateStr;
+    private String preDateStr;
 
     private String fundbookDayTableName;
 
     private JedisTemplate jedisTemplate;
+
     @Override
     public void run() {
-        if(!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT+bookDateStr,"1")){
+        if (!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT + bookDateStr, "1")) {
             return;
         }
-        long start=System.currentTimeMillis();
-        List<Fundbookday> fundbookdays = new ArrayList<>();
+        long start = System.currentTimeMillis();
         // 当期活跃用户
-        if (users==null){
-            users = userBasicExtMapper.getUsers(0, 0, typeid, 0, bookDate.getTime() / 1000);
-        }
-        for (int i=0;i<bookcodes.size(); i++) {//2.每个账本
-            Fundbookcode  bookcode=bookcodes.get(i);
-            for (UserBasicInfo userBasicInfo : users) {
+        List<Fundbookday> fundbookdays = new ArrayList<>();
+
+        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, 0, userCreateEndTime);
+
+        for (int j = 0; j <= (users.size() - 1); j++) {
+
+            UserBasicInfo userBasicInfo = users.get(j);
+            //这个用户类型需要些的正本数据
+            List<Fundbookcode> fundbookcodes = bookcodemap.get(userBasicInfo.getTypeId());
+
+            for (int i = 0; i <= (fundbookcodes.size() - 1); i++) {//2.每个账本
+
+                Fundbookcode bookcode = fundbookcodes.get(i);
+
                 //3.4每个账本
                 Fundbookday fundbookday = new Fundbookday();
                 fundbookday.setUserid(userBasicInfo.getUserid());
@@ -70,23 +76,23 @@ public class FundbookdayRunner implements Runnable {
                 String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(), fundbookday.getUserid());
                 String mapPreKey = String.format("%s|-%s|-%s", preDateStr, fundbookday.getBookcode(), fundbookday.getUserid());
 
-                String preBalanceStr= jedisTemplate.get(mapPreKey); //查询前一天的余
-                BigDecimal preBalance=null;
-                if(StringUtils.isNotBlank(preBalanceStr)){
-                    preBalance=new BigDecimal(preBalanceStr);
+                String preBalanceStr = jedisTemplate.get(mapPreKey); //查询前一天的余
+                BigDecimal preBalance = null;
+                if (StringUtils.isNotBlank(preBalanceStr)) {
+                    preBalance = new BigDecimal(preBalanceStr);
 //                    jedisTemplate.del(mapPreKey);
-                }else {
-                    preBalance=new BigDecimal("0");
+                } else {
+                    preBalance = new BigDecimal("0");
                 }
 
                 Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
-                if (fundbookdayActive!=null){
+                if (fundbookdayActive != null) {
                     fundbookday.setPrevbalance(preBalance);
                     fundbookday.setBalance(fundbookdayActive.getBalance());
                     fundbookday.setAreacode(fundbookdayActive.getAreacode());
                     fundbookday.setHappencredit(fundbookdayActive.getHappencredit());
                     fundbookday.setHappendebit(fundbookdayActive.getHappendebit());
-                }else {
+                } else {
                     BigDecimal bigDecimal0 = new BigDecimal(0);
                     fundbookday.setAreacode(0);
                     fundbookday.setBalance(preBalance);
@@ -94,55 +100,22 @@ public class FundbookdayRunner implements Runnable {
                     fundbookday.setHappencredit(bigDecimal0);
                     fundbookday.setHappendebit(bigDecimal0);
                 }
-                jedisTemplate.set(mapKey,fundbookday.getBalance().floatValue()+"");
+                jedisTemplate.set(mapKey, fundbookday.getBalance().floatValue() + "");
                 fundbookdays.add(fundbookday);
-                if(fundbookdays.size()%30000==0||i==bookcodes.size()){
+                if (fundbookdays.size() % 30000 == 0 || (j == (users.size() - 1) && i == (fundbookcodes.size() - 1))) {
                     //每3万条插入一次
-                    long memeryRunTime=System.currentTimeMillis();
-                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " " + i + "剩余账本" + (bookcodes.size() - i) + ",当前数据量:" + fundbookdays.size());
-                    fundbookdayExtMapper.batchInsert(fundbookdays,fundbookDayTableName);
-                    long insertRunTime=System.currentTimeMillis();
+                    long memeryRunTime = System.currentTimeMillis();
+                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总用户数" + users.size() + " 剩余用户数" + (users.size() - (j + 1)) + ",当前数据量:" + fundbookdays.size());
+                    fundbookdayExtMapper.batchInsert(fundbookdays, fundbookDayTableName);
+                    long insertRunTime = System.currentTimeMillis();
 
                     logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
-                    fundbookdays=new ArrayList<>();
-                    start=System.currentTimeMillis();
+                    fundbookdays = new ArrayList<>();
+                    start = System.currentTimeMillis();
                 }
             }
-
-
-//                    int startInt = Integer.parseInt(delTableName.getStartStr());
-//                    int entInt = Integer.parseInt(delTableName.getEndStr());
-//                    List<Fundbookcode> delBookcode=new ArrayList();
-//                    delBookcode.add(bookcode);       //数据太多只能一个一个账本的删除
-//                    logger.info("删除重新统计数据"+bookDateStr + " " + JsonUtils.toJson(bookcode));
-//                    fundbookdayExtMapper.deleteFundbookDay(
-//                            delBookcode,
-//                            users,
-//                            fundbookDayTableName,
-//                            startInt,
-//                            entInt
-//                    );
-
-
         }
 
-    }
-
-
-    public List<Fundbookcode> getBookcodes() {
-        return bookcodes;
-    }
-
-    public void setBookcodes(List<Fundbookcode> bookcodes) {
-        this.bookcodes = bookcodes;
-    }
-
-    public List<UserBasicInfo> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<UserBasicInfo> users) {
-        this.users = users;
     }
 
     public Date getBookDate() {
@@ -177,14 +150,6 @@ public class FundbookdayRunner implements Runnable {
         this.fundbookdayMap = fundbookdayMap;
     }
 
-    public int getTypeid() {
-        return typeid;
-    }
-
-    public void setTypeid(int typeid) {
-        this.typeid = typeid;
-    }
-
     public String getBookDateStr() {
         return bookDateStr;
     }
@@ -215,5 +180,21 @@ public class FundbookdayRunner implements Runnable {
 
     public void setFundbookDayTableName(String fundbookDayTableName) {
         this.fundbookDayTableName = fundbookDayTableName;
+    }
+
+    public Map<Integer, List<Fundbookcode>> getBookcodemap() {
+        return bookcodemap;
+    }
+
+    public void setBookcodemap(Map<Integer, List<Fundbookcode>> bookcodemap) {
+        this.bookcodemap = bookcodemap;
+    }
+
+    public long getUserCreateEndTime() {
+        return userCreateEndTime;
+    }
+
+    public void setUserCreateEndTime(long userCreateEndTime) {
+        this.userCreateEndTime = userCreateEndTime;
     }
 }

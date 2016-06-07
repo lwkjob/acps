@@ -2,7 +2,6 @@ package com.yjy.service;
 
 
 import com.yjy.common.redis.JedisTemplate;
-import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
@@ -39,9 +38,6 @@ public class FundbookDayService {
     private FundbookExtMapper fundbookExtMapper;
 
     @Resource
-    private FundbookcodeMapper fundbookcodeMapper;
-
-    @Resource
     private UserBasicExtMapper userBasicExtMapper;
 
     @Resource
@@ -50,6 +46,9 @@ public class FundbookDayService {
     private static Logger logger = LoggerFactory.getLogger(FundbookDayService.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat simpleDateFormat_yyyyMMddhhmmss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
+
+    private static ExecutorService executorService = Executors.newFixedThreadPool(30);
 
     private static Calendar calendar = Calendar.getInstance();
 
@@ -66,14 +65,13 @@ public class FundbookDayService {
     }
 
 
-
     //插入日清数据
-    public int insertFundBookDay(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid,List<UserBasicInfo> users) {
-        ExecutorService executorService=Executors.newFixedThreadPool(10);
+    public int insertFundBookDay(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users) {
 
-        if(bookcodes==null || bookcodes.size()==0){
-            bookcodes=fundbookcodeMapper.selectByExample(null);
-        }
+
+//        if(bookcodes==null || bookcodes.size()==0){
+//            bookcodes=fundbookcodeMapper.selectByExample(null);
+//        }
         //delete日清表指定时间之前的数据
 
         long start = System.currentTimeMillis();
@@ -82,21 +80,18 @@ public class FundbookDayService {
         Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
 
         for (String key : deleteTableNameMap.keySet()) {
-                    DelTableName delTableName = deleteTableNameMap.get(key);
-                    //1.2删除需要统计的数据
-                    String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-
+            DelTableName delTableName = deleteTableNameMap.get(key);
+            //1.2删除需要统计的数据
+            String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
 
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
-            Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getEndStr());
+            Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, delTableName.getEndStr() + "23:59:59");
 
             //2 统计每天每个用户每个账本数据
             Fundbook fundbookExample = new Fundbook(); //查询条件
-//            fundbookExample.setBookcode(bookcode.getBookcode());
-
             String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
             List<Fundbook> fundbooks = getFundbooks(
@@ -110,30 +105,29 @@ public class FundbookDayService {
             Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
 
             while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
-                Date preDate= getPreDayDate(startDateByTable);
+                Date preDate = getPreDayDate(startDateByTable);
                 String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
-                String preDateStr=simpleDateFormat_yyyyMMdd.format(preDate);
-                    FundbookdayRunner fundbookdayRunner=    new FundbookdayRunner ();
-                    fundbookdayRunner.setBookcodes(bookcodes);
-                    fundbookdayRunner.setUsers(users);
-                    fundbookdayRunner.setBookDate(startDateByTable);
-                    fundbookdayRunner.setUserBasicExtMapper(userBasicExtMapper);
-                    fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
-                    fundbookdayRunner.setFundbookdayMap(fundbookdayMap);
-                    fundbookdayRunner.setTypeid(typeid);
-                    fundbookdayRunner.setBookDateStr(bookDateStr);
-                    fundbookdayRunner.setPreDateStr(preDateStr);
-                    fundbookdayRunner.setFundbookDayTableName(fundbookDayTableName);
-                    fundbookdayRunner.setJedisTemplate(jedisTemplate);
-                    executorService.execute(fundbookdayRunner);
-                    startDateByTable = getNextDayDate(startDateByTable);
+                Date createEndTime =parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, bookDateStr + "23:59:59");
+                String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
+                FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
+                fundbookdayRunner.setBookcodemap(bookcodemap);
+                fundbookdayRunner.setUserCreateEndTime(createEndTime.getTime()/1000l);
+                fundbookdayRunner.setBookDate(startDateByTable);
+                fundbookdayRunner.setUserBasicExtMapper(userBasicExtMapper);
+                fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
+                fundbookdayRunner.setFundbookdayMap(fundbookdayMap);
+                fundbookdayRunner.setBookDateStr(bookDateStr);
+                fundbookdayRunner.setPreDateStr(preDateStr);
+                fundbookdayRunner.setFundbookDayTableName(fundbookDayTableName);
+                fundbookdayRunner.setJedisTemplate(jedisTemplate);
+                executorService.execute(fundbookdayRunner);
+                startDateByTable = getNextDayDate(startDateByTable);
             }
         }
         long end = System.currentTimeMillis();
         logger.info("计算完了" + (float) (end - start) / 1000 + "秒");
         return 1;
     }
-
 
 
     private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
@@ -189,7 +183,7 @@ public class FundbookDayService {
      */
     public Map<String, Fundbookday> getFundbookDay(List<Fundbook> fundbooks) {
         Map<String, Fundbookday> map = new HashedMap();
-        int i=0;
+        int i = 0;
         for (Fundbook fundbook : fundbooks) {
             i++;
             calendar.setTimeInMillis(fundbook.getHappentime() * 1000l);
@@ -239,7 +233,7 @@ public class FundbookDayService {
 
             //取前一天的这个用户的这个账本数据
             List<Fundbookday> fundbookdays = fundbookdayExtMapper.selectByExample(fundbookday1, tableName);
-            if (fundbookdays != null&&fundbookdays.size()>0) {
+            if (fundbookdays != null && fundbookdays.size() > 0) {
                 return fundbookdays.get(0).getBalance();
             } else {
                 logger.info("数据库都没找到preKey=" + preKey);
@@ -258,5 +252,13 @@ public class FundbookDayService {
         fundbookDaySum.setBookdate(Integer.parseInt(dayStr));
         fundbookDaySum.setBookid(fundbook.getBookid()); //这个bookid貌似没有意义
         fundbookDaySum.setUserid(fundbook.getUserid());
+    }
+
+    public static void main(String[] args) throws Exception{
+
+        Date parse = simpleDateFormat_yyyyMMddhhmmss.parse("2013091700:00:00");
+        Date parse2 = simpleDateFormat_yyyyMMddhhmmss.parse("2013091723:59:59");
+        logger.info(parse.getTime()/1000l+"");
+        logger.info(parse2.getTime()/1000l+"");
     }
 }
