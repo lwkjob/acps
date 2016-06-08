@@ -60,7 +60,7 @@ public class FundbookdayRunner implements Runnable {
         for (int j = 0; j <= (users.size() - 1); j++) {
 
             UserBasicInfo userBasicInfo = users.get(j);
-            //这个用户类型需要些的正本数据
+            //这个用户类型需要写的账本数据
             List<Fundbookcode> fundbookcodes = bookcodemap.get(userBasicInfo.getTypeId());
 
             for (int i = 0; i <= (fundbookcodes.size() - 1); i++) {//2.每个账本
@@ -100,7 +100,7 @@ public class FundbookdayRunner implements Runnable {
                     fundbookday.setHappencredit(bigDecimal0);
                     fundbookday.setHappendebit(bigDecimal0);
                 }
-                jedisTemplate.set(mapKey, fundbookday.getBalance().floatValue() + "");
+//                jedisTemplate.set(mapKey, fundbookday.getBalance().doubleValue() + "");
                 fundbookdays.add(fundbookday);
                 if (fundbookdays.size() % 30000 == 0 || (j == (users.size() - 1) && i == (fundbookcodes.size() - 1))) {
                     //每3万条插入一次

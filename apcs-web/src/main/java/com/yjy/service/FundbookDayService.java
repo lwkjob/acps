@@ -6,7 +6,6 @@ import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
-import com.yjy.repository.mapper.FundbookcodeMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
@@ -20,7 +19,10 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -80,6 +82,7 @@ public class FundbookDayService {
         Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
 
         for (String key : deleteTableNameMap.keySet()) {
+            //每个月
             DelTableName delTableName = deleteTableNameMap.get(key);
             //1.2删除需要统计的数据
             String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
@@ -100,18 +103,47 @@ public class FundbookDayService {
                     startDateByTable.getTime() / 1000l,
                     endDateByTable.getTime() / 1000l);
 
+            List<UserBasicInfo> usersssss = userBasicExtMapper.getUsers(0, 0, 0, 0, endDateByTable.getTime()/1000l);
 
             //当期月每个用户每个账本每天的业务发生
             Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
 
             while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
-                Date preDate = getPreDayDate(startDateByTable);
                 String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
-                Date createEndTime =parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, bookDateStr + "23:59:59");
+                Date createEndTime = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, bookDateStr + "23:59:59");
+
+                Date preDate = getPreDayDate(startDateByTable);
                 String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
+
+                logger.info("开始刷cache "+preDateStr);
+                 long cacheStart=System.currentTimeMillis();
+                //刷每天的余额到redis
+                for (UserBasicInfo userBasicInfo : usersssss) {
+                    List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
+                    for (Fundbookcode fundbookcode : bookcodesssss) {
+                        String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
+                        String jedsPrekey = String.format("%s|-%s|-%s", preDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
+                        Fundbookday fundbookdaysss = fundbookdayMap.get(jedskey);
+                        if (fundbookdaysss != null) {
+                            jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
+                        } else {
+                            String preBalanceStr = jedisTemplate.get(jedsPrekey);
+                            BigDecimal preBalance = null;
+                            if (preBalanceStr == null) {
+                                preBalance = new BigDecimal(0);
+                            } else {
+                                preBalance = new BigDecimal(preBalanceStr);
+                            }
+                            jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
+                        }
+                    }
+                }
+
+                long cacheEnd=System.currentTimeMillis();
+                logger.info("Cache刷完了"+(float)(cacheEnd-cacheStart)/1000+" "+preDateStr);
                 FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
                 fundbookdayRunner.setBookcodemap(bookcodemap);
-                fundbookdayRunner.setUserCreateEndTime(createEndTime.getTime()/1000l);
+                fundbookdayRunner.setUserCreateEndTime(createEndTime.getTime() / 1000l);
                 fundbookdayRunner.setBookDate(startDateByTable);
                 fundbookdayRunner.setUserBasicExtMapper(userBasicExtMapper);
                 fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
@@ -183,12 +215,12 @@ public class FundbookDayService {
      */
     public Map<String, Fundbookday> getFundbookDay(List<Fundbook> fundbooks) {
         Map<String, Fundbookday> map = new HashedMap();
-        int i = 0;
         for (Fundbook fundbook : fundbooks) {
-            i++;
             calendar.setTimeInMillis(fundbook.getHappentime() * 1000l);
             String dayStr = simpleDateFormat_yyyyMMdd.format(calendar.getTime());
+
             String key = String.format("%s|-%s|-%s", dayStr, fundbook.getBookcode(), fundbook.getUserid());
+
             Fundbookday fundbookDaySum = map.get(key);
             if (map.get(key) == null) {
                 fundbookDaySum = new Fundbookday();//插入一条新的
@@ -201,6 +233,7 @@ public class FundbookDayService {
             }
             map.put(key, fundbookDaySum);
         }
+
         return map;
     }
 
@@ -254,11 +287,11 @@ public class FundbookDayService {
         fundbookDaySum.setUserid(fundbook.getUserid());
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
-        Date parse = simpleDateFormat_yyyyMMddhhmmss.parse("2013091700:00:00");
-        Date parse2 = simpleDateFormat_yyyyMMddhhmmss.parse("2013091723:59:59");
-        logger.info(parse.getTime()/1000l+"");
-        logger.info(parse2.getTime()/1000l+"");
+        Date parse = simpleDateFormat_yyyyMMddhhmmss.parse("2013092900:00:00");
+        Date parse2 = simpleDateFormat_yyyyMMddhhmmss.parse("2013092923:59:59");
+        logger.info(parse.getTime() / 1000l + "");
+        logger.info(parse2.getTime() / 1000l + "");
     }
 }

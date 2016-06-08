@@ -43,13 +43,6 @@ public class FundbookService {
      * @param bookcodes
      */
     public void oneByOneUpdateBalance(Date startDate, Date endDate, List<Fundbookcode> bookcodes, int typeid, List<UserBasicInfo> users) {
-        // 当期活跃用户
-//        if (users==null){
-//              users = userBasicExtMapper.getUsers(0, 0, typeid, 0, startDate.getTime() / 1000);
-//         }
-
-        //轮训用户
-        //这里可以考虑多线程
 
         //轮训每一个月
         while (!(endDate.compareTo(startDate) == -1)) {
