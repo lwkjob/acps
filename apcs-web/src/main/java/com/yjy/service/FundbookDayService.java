@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -103,7 +104,8 @@ public class FundbookDayService {
                     startDateByTable.getTime() / 1000l,
                     endDateByTable.getTime() / 1000l);
 
-            List<UserBasicInfo> usersssss = userBasicExtMapper.getUsers(0, 0, 0, 0, endDateByTable.getTime()/1000l);
+//            本月的活跃用户数
+            List<UserBasicInfo> userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, endDateByTable.getTime()/1000l);
 
             //当期月每个用户每个账本每天的业务发生
             Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
@@ -114,33 +116,9 @@ public class FundbookDayService {
 
                 Date preDate = getPreDayDate(startDateByTable);
                 String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
+                //刷当天的余额到redis
+                cacheBalance(userOfMonthList,bookcodemap,preDateStr,bookDateStr,fundbookdayMap);
 
-                logger.info("开始刷cache "+preDateStr);
-                 long cacheStart=System.currentTimeMillis();
-                //刷每天的余额到redis
-                for (UserBasicInfo userBasicInfo : usersssss) {
-                    List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
-                    for (Fundbookcode fundbookcode : bookcodesssss) {
-                        String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
-                        String jedsPrekey = String.format("%s|-%s|-%s", preDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
-                        Fundbookday fundbookdaysss = fundbookdayMap.get(jedskey);
-                        if (fundbookdaysss != null) {
-                            jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
-                        } else {
-                            String preBalanceStr = jedisTemplate.get(jedsPrekey);
-                            BigDecimal preBalance = null;
-                            if (preBalanceStr == null) {
-                                preBalance = new BigDecimal(0);
-                            } else {
-                                preBalance = new BigDecimal(preBalanceStr);
-                            }
-                            jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
-                        }
-                    }
-                }
-
-                long cacheEnd=System.currentTimeMillis();
-                logger.info("Cache刷完了"+(float)(cacheEnd-cacheStart)/1000+" "+preDateStr);
                 FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
                 fundbookdayRunner.setBookcodemap(bookcodemap);
                 fundbookdayRunner.setUserCreateEndTime(createEndTime.getTime() / 1000l);
@@ -161,6 +139,60 @@ public class FundbookDayService {
         return 1;
     }
 
+
+    //刷每天的余额到redis
+    private void cacheBalance(final List<UserBasicInfo> userOfMonthList,
+                              final Map<Integer, List<Fundbookcode>> bookcodemap,
+                              final String preDateStr,
+                              final String bookDateStr,
+                             final   Map<String, Fundbookday> fundbookdayMap){
+        logger.info("开始刷cache "+preDateStr);
+        long cacheStart=System.currentTimeMillis();
+
+        final int dataSize=userOfMonthList.size(); //01,23,4;
+        final int pageSize=800;
+        final int cacheThreadCount=(dataSize/pageSize)+1;
+        final   CountDownLatch countDownLatch=new CountDownLatch(cacheThreadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
+        for (int j=1;j<=cacheThreadCount;j++){
+            final int jm=j;
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for ( int i=(jm-1)*pageSize;!(i>(jm*pageSize-1)||i>(dataSize-1));i++){
+                     UserBasicInfo    userBasicInfo=userOfMonthList.get(i);
+                        List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
+                        for (Fundbookcode fundbookcode : bookcodesssss) {
+                            String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
+                            String jedsPrekey = String.format("%s|-%s|-%s", preDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
+                            Fundbookday fundbookdaysss = fundbookdayMap.get(jedskey);
+                            if (fundbookdaysss != null) {
+                                jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
+                            } else {
+                                String preBalanceStr = jedisTemplate.get(jedsPrekey);
+                                BigDecimal preBalance = null;
+                                if (preBalanceStr == null) {
+                                    preBalance = new BigDecimal(0);
+                                } else {
+                                    preBalance = new BigDecimal(preBalanceStr);
+                                }
+                                jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
+                            }
+                        }
+                    }
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        try {
+             countDownLatch.await();
+        }catch (Exception e){
+            logger.error("线程被意外中断");
+        }
+        executorService.shutdown();
+        long cacheEnd=System.currentTimeMillis();
+        logger.info("Cache刷完了"+(float)(cacheEnd-cacheStart)/1000+" "+preDateStr);
+    }
 
     private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
 
@@ -289,9 +321,37 @@ public class FundbookDayService {
 
     public static void main(String[] args) throws Exception {
 
-        Date parse = simpleDateFormat_yyyyMMddhhmmss.parse("2013092900:00:00");
-        Date parse2 = simpleDateFormat_yyyyMMddhhmmss.parse("2013092923:59:59");
-        logger.info(parse.getTime() / 1000l + "");
-        logger.info(parse2.getTime() / 1000l + "");
+//        Date parse = simpleDateFormat_yyyyMMddhhmmss.parse("2013092900:00:00");
+//        Date parse2 = simpleDateFormat_yyyyMMddhhmmss.parse("2013092923:59:59");
+//        logger.info(parse.getTime() / 1000l + "");
+//        logger.info(parse2.getTime() / 1000l + "");
+        FundbookDayService fundbookDayService = new FundbookDayService();
+        fundbookDayService .test();
+        logger.info("第一次调用完成后");
+        fundbookDayService.test();
+
+    }
+
+    private void test() throws Exception{
+        final int dataSize=15; //01,23,4;
+        final int pageSize=10;
+        final int cacheThreadCount=(dataSize/pageSize)+1;
+        logger.info(cacheThreadCount + "页");
+        final   CountDownLatch countDownLatch=new CountDownLatch(cacheThreadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
+        for (int j=1;j<=cacheThreadCount;j++){
+            final int jm=j;
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for ( int i=(jm-1)*pageSize;!(i>(jm*pageSize-1)||i>(dataSize-1));i++){
+                        logger.info(Thread.currentThread().getName()+"  " +i+"");
+                    }
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+        executorService.shutdown();
     }
 }
