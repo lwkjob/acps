@@ -1,7 +1,6 @@
 package com.yjy.service;
 
 import com.yjy.common.redis.JedisTemplate;
-import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
@@ -28,7 +27,9 @@ public class FundbookdayRunner implements Runnable {
     private Map<Integer, List<Fundbookcode>> bookcodemap;
 
 
-    private long userCreateEndTime;
+
+
+    private List<UserBasicInfo> users;
 
     private Date bookDate;
 
@@ -48,14 +49,14 @@ public class FundbookdayRunner implements Runnable {
 
     @Override
     public void run() {
-        if (!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT + bookDateStr, "1")) {
-            return;
-        }
+//        if (!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT + bookDateStr, "1")) {
+//            return;
+//        }
         long start = System.currentTimeMillis();
         // 当期活跃用户
         List<Fundbookday> fundbookdays = new ArrayList<>();
 
-        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, 0, userCreateEndTime);
+//        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, 0, userCreateEndTime);
 
         for (int j = 0; j <= (users.size() - 1); j++) {
 
@@ -190,11 +191,13 @@ public class FundbookdayRunner implements Runnable {
         this.bookcodemap = bookcodemap;
     }
 
-    public long getUserCreateEndTime() {
-        return userCreateEndTime;
+
+
+    public List<UserBasicInfo> getUsers() {
+        return users;
     }
 
-    public void setUserCreateEndTime(long userCreateEndTime) {
-        this.userCreateEndTime = userCreateEndTime;
+    public void setUsers(List<UserBasicInfo> users) {
+        this.users = users;
     }
 }

@@ -7,7 +7,6 @@ import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.FundbookcodeExample;
 import com.yjy.entity.UserBasicInfo;
-import com.yjy.schedule.DayReportJob;
 import com.yjy.service.*;
 import com.yjy.web.vo.UpdateBalanceVo;
 import org.apache.commons.collections.map.HashedMap;
@@ -45,6 +44,8 @@ public class LoginController {
     @Resource
     private FundbookMonthService fundbookMonthService;
 
+    @Resource
+    private UserService userService;
 
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -151,10 +152,21 @@ public class LoginController {
         String tablename="fundbook201309";
         List<Fundbook> fundbooks =  fundbookService.selectPageListByExample(example,tablename,startTime,endTime,pagination);
         pagination.setData(fundbooks);
-        mv.addObject("pagination",pagination);
+        mv.addObject("pagination", pagination);
         mv.setViewName("fundbooklist");
         return  mv;
     }
+
+    @RequestMapping("/cacheUser")
+    public ModelAndView cacheUser(String start,String end){
+        ModelAndView mv=new ModelAndView();
+
+        userService.cacheUsers(start,end);
+
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
 
 
 

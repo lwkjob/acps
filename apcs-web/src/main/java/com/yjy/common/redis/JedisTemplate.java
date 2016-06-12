@@ -1,6 +1,7 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
+import com.yjy.entity.UserBasicInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -44,6 +45,7 @@ public class JedisTemplate implements Serializable {
         Jedis jedis = null;
         boolean broken = false;
         try {
+
             jedis = jedisPool.getResource();
             return jedisAction.action(jedis);
         } catch (JedisConnectionException e) {
@@ -653,7 +655,13 @@ public class JedisTemplate implements Serializable {
 
     public static void main(String[] args) {
         JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
-        jedisTemplate.delByPrefix("FUNDBOOK_DAY*");
+//        jedisTemplate.delByPrefix("FUNDBOOK_DAY*");
+        //logger.info("删完了");
+
+
+
+
     }
+
 
 }

@@ -2,6 +2,7 @@ package com.yjy.service;
 
 
 import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.*;
@@ -51,7 +52,7 @@ public class FundbookDayService {
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
     private static SimpleDateFormat simpleDateFormat_yyyyMMddhhmmss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
 
-    private static ExecutorService executorService = Executors.newFixedThreadPool(30);
+    private static ExecutorService executorService = Executors.newFixedThreadPool(31);
 
     private static Calendar calendar = Calendar.getInstance();
 
@@ -88,40 +89,32 @@ public class FundbookDayService {
             //1.2删除需要统计的数据
             String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
-
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
             Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, delTableName.getEndStr() + "23:59:59");
 
-            //2 统计每天每个用户每个账本数据
-            Fundbook fundbookExample = new Fundbook(); //查询条件
-            String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-
-            List<Fundbook> fundbooks = getFundbooks(
-                    fundbookExample,
-                    fundbookTableName,
-                    startDateByTable.getTime() / 1000l,
-                    endDateByTable.getTime() / 1000l);
-
-//            本月的活跃用户数
-            List<UserBasicInfo> userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, endDateByTable.getTime()/1000l);
-
-            //当期月每个用户每个账本每天的业务发生
-            Map<String, Fundbookday> fundbookdayMap = getFundbookDay(fundbooks);
-
             while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
+
                 String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
                 Date createEndTime = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, bookDateStr + "23:59:59");
+                //今天活跃数据
+                Map<String, Fundbookday> fundbookdayMap=  getStringFundbookdayMap(delTableName.getTableNameSuffix(), startDateByTable, createEndTime);
+                //  今天的活跃用户数
+                List<UserBasicInfo>  userOfMonthList=null;
+                userOfMonthList=  jedisTemplate.getListObject(RedisKey.USERS_OF_DAY+bookDateStr,UserBasicInfo.class);
+                if(userOfMonthList==null){
+                    userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
+                }
 
                 Date preDate = getPreDayDate(startDateByTable);
                 String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
                 //刷当天的余额到redis
-                cacheBalance(userOfMonthList,bookcodemap,preDateStr,bookDateStr,fundbookdayMap);
+                cacheBalance(userOfMonthList, bookcodemap, preDateStr, bookDateStr, fundbookdayMap);
 
                 FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
+                fundbookdayRunner.setUsers(userOfMonthList);
                 fundbookdayRunner.setBookcodemap(bookcodemap);
-                fundbookdayRunner.setUserCreateEndTime(createEndTime.getTime() / 1000l);
                 fundbookdayRunner.setBookDate(startDateByTable);
                 fundbookdayRunner.setUserBasicExtMapper(userBasicExtMapper);
                 fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
@@ -139,6 +132,22 @@ public class FundbookDayService {
         return 1;
     }
 
+    private Map<String, Fundbookday> getStringFundbookdayMap(String table_yyyymm, Date startDateByTable, Date endDateByTable) {
+        Map<String, Fundbookday> fundbookdayMap;//2 统计每天每个用户每个账本数据
+        Fundbook fundbookExample = new Fundbook(); //查询条件
+        String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + table_yyyymm;
+
+        List<Fundbook> fundbooks = getFundbooks(
+                fundbookExample,
+                fundbookTableName,
+                startDateByTable.getTime() / 1000l,
+                endDateByTable.getTime() / 1000l);
+
+        //当期月每个用户每个账本每天的业务发生
+        fundbookdayMap = getFundbookDay(fundbooks);
+        return fundbookdayMap;
+    }
+
 
     //刷每天的余额到redis
     private void cacheBalance(final List<UserBasicInfo> userOfMonthList,
@@ -146,11 +155,11 @@ public class FundbookDayService {
                               final String preDateStr,
                               final String bookDateStr,
                              final   Map<String, Fundbookday> fundbookdayMap){
-        logger.info("开始刷cache "+preDateStr);
+        logger.info("开始刷cache "+bookDateStr);
         long cacheStart=System.currentTimeMillis();
 
-        final int dataSize=userOfMonthList.size(); //01,23,4;
-        final int pageSize=300;
+        final int dataSize=userOfMonthList.size();
+        final int pageSize=800;
         final int cacheThreadCount=(dataSize/pageSize)+1;
         final   CountDownLatch countDownLatch=new CountDownLatch(cacheThreadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
@@ -207,7 +216,7 @@ public class FundbookDayService {
 
 
     /**
-     * 计算需要删除的表明和日期区间
+     * 计算需要删除的表名和日期区间
      *
      * @return
      */
