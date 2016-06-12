@@ -150,7 +150,7 @@ public class FundbookDayService {
         long cacheStart=System.currentTimeMillis();
 
         final int dataSize=userOfMonthList.size(); //01,23,4;
-        final int pageSize=800;
+        final int pageSize=300;
         final int cacheThreadCount=(dataSize/pageSize)+1;
         final   CountDownLatch countDownLatch=new CountDownLatch(cacheThreadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
@@ -191,7 +191,7 @@ public class FundbookDayService {
         }
         executorService.shutdown();
         long cacheEnd=System.currentTimeMillis();
-        logger.info("Cache刷完了"+(float)(cacheEnd-cacheStart)/1000+" "+preDateStr);
+        logger.info(bookDateStr+"Cache刷完了"+(float)(cacheEnd-cacheStart)/1000+" "+preDateStr);
     }
 
     private Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr) {
