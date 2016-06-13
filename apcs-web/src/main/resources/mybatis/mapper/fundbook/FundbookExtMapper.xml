@@ -53,10 +53,10 @@
     from ${tableName}
       <include refid="Where_Clause" />
       <if test="!lastData">
-         ORDER  BY UserId,BookCode,HappenTime,BookId
+         ORDER  BY UserId,HappenTime  ASC
       </if>
     <if test="lastData">
-      ORDER  BY UserId,BookCode,HappenTime DESC,BookId DESC limit 0,1
+      ORDER  BY UserId,HappenTime DESC limit 0,1
     </if>
 
   </select>

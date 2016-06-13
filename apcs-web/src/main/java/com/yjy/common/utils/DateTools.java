@@ -75,4 +75,12 @@ public class DateTools {
         Date preDate = DateUtils.addDays(startDate, 1);
         return preDate;
     }
+
+    //获得当月最后一天
+    public static  String getCurrentMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+        date=DateUtils.addMonths(date,1);
+        date=DateUtils.setDays(date,1);
+        date=DateUtils.addDays(date,-1);
+        return simpleDateFormat.format(date);
+    }
 }

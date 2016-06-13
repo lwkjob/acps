@@ -20,4 +20,5 @@
     </bean>
 
     <import resource="spring/test-dataSource.xml" />
+    <import resource="spring/test-cache.xml" />
 </beans>

@@ -23,7 +23,7 @@ public class Pagination<T> implements Serializable {
     public static final int DEFAULT_SKIP_SIZE = 10;
     public static final int DEFAULT_CURRENT_SKIP = 1;
 
-    public static final int MAX_PAGE_SIZE = 200;
+    public static final int MAX_PAGE_SIZE = 80000;
 
 
     /**

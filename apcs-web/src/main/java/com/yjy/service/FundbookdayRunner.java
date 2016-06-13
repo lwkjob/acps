@@ -1,6 +1,7 @@
 package com.yjy.service;
 
 import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +28,7 @@ public class FundbookdayRunner implements Runnable {
 
     private Map<Integer, List<Fundbookcode>> bookcodemap;
 
-
-
+    private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
 
     private List<UserBasicInfo> users;
 
@@ -49,6 +50,7 @@ public class FundbookdayRunner implements Runnable {
 
     @Override
     public void run() {
+
 //        if (!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT + bookDateStr, "1")) {
 //            return;
 //        }
@@ -58,6 +60,7 @@ public class FundbookdayRunner implements Runnable {
 
 //        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, 0, userCreateEndTime);
 
+        String currentMonthLastDay = DateTools.getCurrentMonthLastDay(DateTools.parseDateFromString_yyyyMMdd(preDateStr, logger), simpleDateFormat_yyyyMMdd);
         for (int j = 0; j <= (users.size() - 1); j++) {
 
             UserBasicInfo userBasicInfo = users.get(j);
@@ -77,11 +80,17 @@ public class FundbookdayRunner implements Runnable {
                 String mapKey = String.format("%s|-%s|-%s", fundbookday.getBookdate(), fundbookday.getBookcode(), fundbookday.getUserid());
                 String mapPreKey = String.format("%s|-%s|-%s", preDateStr, fundbookday.getBookcode(), fundbookday.getUserid());
 
-                String preBalanceStr = jedisTemplate.get(mapPreKey); //查询前一天的余
+                String preBalanceStr = null;
+                if(!preDateStr.equals("20130831")){//201309之前没有数据
+                    preBalanceStr= jedisTemplate.get(mapPreKey); //查询前一天的余
+                }
+
+                if(!currentMonthLastDay.equals(preDateStr)){
+                        jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
+                }
                 BigDecimal preBalance = null;
                 if (StringUtils.isNotBlank(preBalanceStr)) {
                     preBalance = new BigDecimal(preBalanceStr);
-//                    jedisTemplate.del(mapPreKey);
                 } else {
                     preBalance = new BigDecimal("0");
                 }

@@ -22,4 +22,7 @@ public interface FundbookMonthExtMapper {
 
     void batchInsert(@Param("fundbookmonths") List<Fundbookmonth> fundbookmonths,
                      @Param("tablename") String tablename);
+
+    //清空表
+     void deleteAll(@Param("tableName")String tableName);
    }

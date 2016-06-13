@@ -6,8 +6,10 @@ import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.Fundbookday;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookExtMapper;
+import com.yjy.repository.mapper.FundbookdayExtMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -34,6 +36,9 @@ public class FundbookService {
     @Resource
     private FundbookExtMapper fundbookExtMapper;
 
+    @Resource
+    private FundbookdayExtMapper fundbookdayExtMapper;
+
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
 
@@ -46,9 +51,15 @@ public class FundbookService {
 
         //轮训每一个月
         while (!(endDate.compareTo(startDate) == -1)) {
-            String preTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + getPreMonthsDateStr(startDate);
+            String preTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + getPreMonthsDateStr(startDate);
             String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
-            List<Integer> selectUserids = fundbookExtMapper.selectUserids(tableName);
+            List<Integer> selectUserids=null;
+            if(users!=null){
+                selectUserids=new ArrayList<>();
+                selectUserids.add(users.get(0).getUserid());
+            }else {
+                 selectUserids = fundbookExtMapper.selectUserids(tableName);
+            }
             List<Fundbook> insertFunbooks = new ArrayList<>();
             int i = 0;
             for (int userid : selectUserids) {
@@ -64,14 +75,20 @@ public class FundbookService {
                     j++;
                     logger.info("账本顺序" + j + " 余下" + (bookcodeList.size() - j));
                     logger.info(String.format("正在执行是数据信息:bookcodes:%s,userId:%s,preTableName:%s,tableName:%s", JsonUtils.toJson(bookcode), userid, preTableName, tableName));
+
+                    Fundbookday fundbookday = new Fundbookday(); //查询上一个月的(查询条件)
+                    fundbookday.setBookcode(bookcode);
+                    fundbookday.setUserid(userid);
+
                     Fundbook fundbook = new Fundbook(); //查询上一个月的(查询条件)
                     fundbook.setBookcode(bookcode);
                     fundbook.setUserid(userid);
 
-                    List<Fundbook> prefundbooks = null;
+
+                    List<Fundbookday> prefundbooks = null;
                     try {
                         //前一个月最后一条数据
-                        prefundbooks = fundbookExtMapper.selectByExample(fundbook, preTableName, 0, 0, true);
+                        prefundbooks = fundbookdayExtMapper.selectByExample2(fundbookday, preTableName,true);
                     } catch (Exception e) {
                         //Table 'ypzdw_fundcapital.fundbook201308' doesn't exist 表不存在
                         // logger.error("数据库报错:" + e.getMessage());
@@ -84,7 +101,8 @@ public class FundbookService {
                         preFundbook = new Fundbook();
                         preFundbook.setBalance(new BigDecimal(0));
                     } else {
-                        preFundbook = prefundbooks.get(0);
+                        preFundbook = new Fundbook();
+                        preFundbook.setBalance(prefundbooks.get(0).getBalance());
                     }
 
                     //取账本中的数据

@@ -4,10 +4,12 @@ package com.yjy.service;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.constant.FundConstant;
-import com.yjy.entity.*;
+import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.Fundbookday;
+import com.yjy.entity.Fundbookmonth;
+import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.dto.SumMonthByBookcode;
 import com.yjy.repository.mapper.FundbookMonthExtMapper;
-import com.yjy.repository.mapper.FundbookcodeMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.collections.map.HashedMap;
@@ -20,7 +22,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 月结逻辑
@@ -38,11 +43,10 @@ public class FundbookMonthService {
     @Resource
     private UserBasicExtMapper userBasicExtMapper;
 
-    @Resource
-    private FundbookcodeMapper fundbookcodeMapper;
 
     @Resource
-    private JedisTemplate jedisTemplate;
+    JedisTemplate jedisTemplate;
+
 
     private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
 
@@ -65,11 +69,13 @@ public class FundbookMonthService {
 
     public int insertFundBookMonth(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap) {
 
-        long startRunTime = System.currentTimeMillis();//记录运行时间
+        long startRunTime = System.currentTimeMillis();
         List<Fundbookmonth> fundbookmonthList = new ArrayList<>();
         while (endDate.compareTo(startDate) != -1) {
 
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
+            fundbookMonthExtMapper.deleteAll(monthTableName);
+
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
 
             String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
@@ -78,45 +84,48 @@ public class FundbookMonthService {
             //前一个月最后一天
             String preMonthLastDay= getPreMonthLastDay(startDate, simpleDateFormat_yyyyMMdd);
 
-            for(Integer key:bookcodemap.keySet()){
+            for(Integer bookcodetype:bookcodemap.keySet()){
 
-                List<Fundbookcode> bookcodes=bookcodemap.get(key);//账本分类
+                List<Fundbookcode> bookcodes=bookcodemap.get(bookcodetype);//账本分类
 
                 long userCreateEndTime=0;
                 Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, currentMonthLastDay + "23:59:59");
                 //用户注册时间
                 userCreateEndTime=endDateByTable.getTime()/1000l;
 
-                List<UserBasicInfo>    users = userBasicExtMapper.getUsers(0, 0, key, 0, userCreateEndTime);
+                List<UserBasicInfo>    users = userBasicExtMapper.getUsers(0, 0, bookcodetype, 0, userCreateEndTime);
                 for (int i=0;i<=(bookcodes.size()-1);i++) {
                     Fundbookcode bookcode=bookcodes.get(i);
 
                     //日清表的sum数据
                     Map<Integer,SumMonthByBookcode> monthByBookcodeMap=new HashedMap();
                     getSumDayRepoot(dayTableName, bookcode, monthByBookcodeMap);
-
                     for (int j=0;j<=(users.size()-1);j++) {
+
                         UserBasicInfo userBasicInfo=users.get(j);
 
                         SumMonthByBookcode sumMonthByBookcode =  monthByBookcodeMap.get(userBasicInfo.getUserid());
                         //3.3每个账本
 
                         String balancekey = String.format("%s|-%s|-%s",  currentMonthLastDay, bookcode.getBookcode(),  userBasicInfo.getUserid());
-
-                        String prebalancekey =  String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
-
                         String balanceStr =  jedisTemplate.get(balancekey);
-                        String prebalanceStr =  jedisTemplate.get(prebalancekey);
+                        String prebalanceStr =null;
+                        if(!bookDateStr.equals("201309")){//201309之前没有数据
+                            String prebalancekey =  String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
+                            prebalanceStr =  jedisTemplate.get(prebalancekey);
+                            jedisTemplate.del(prebalancekey);
+                        }
+
                         BigDecimal preBalance=null;
                         BigDecimal balance=null;
 
-                        if(StringUtils.isNotBlank(balanceStr)){
+                        if( balanceStr!=null){
                             balance=new BigDecimal(balanceStr);
                         }else {
                             balance=new BigDecimal(0);
                         }
 
-                        if(StringUtils.isNotBlank(prebalanceStr)){
+                        if(prebalanceStr!=null){
                             preBalance=new BigDecimal(prebalanceStr);
                         }else {
                             preBalance=new BigDecimal(0);

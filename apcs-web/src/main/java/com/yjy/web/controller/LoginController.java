@@ -80,10 +80,10 @@ public class LoginController {
 
 
         if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
-            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "-");
+            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "&&");
             Fundbookcode bookcode = new Fundbookcode();
             bookcode.setFundtype(Integer.parseInt(accbookArray[0]));
-            bookcode.setBookcode(updateBalanceVo.getAccBook());
+            bookcode.setBookcode(accbookArray[1]);
             bookcodes.add(bookcode);
         }
 
@@ -161,8 +161,19 @@ public class LoginController {
     public ModelAndView cacheUser(String start,String end){
         ModelAndView mv=new ModelAndView();
 
-        userService.cacheUsers(start,end);
+        userService.cacheUsers(start, end);
 
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
+    @RequestMapping("/deleteCache")
+    public ModelAndView deleteCache(String start,String end){
+        ModelAndView mv=new ModelAndView();
+
+        Map<Integer,List<Fundbookcode>> c= cacheFndbookcode();
+
+        fundbookDayService.deleteRedisData(c, start, end);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }

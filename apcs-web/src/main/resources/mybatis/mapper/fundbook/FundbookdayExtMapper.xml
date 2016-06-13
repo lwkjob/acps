@@ -40,6 +40,7 @@
         <include refid="Example_Where_Clause"/>
     </select>
 
+
     <delete id="deleteFundbookDay" parameterType="map">
         DELETE FROM ${tablename}
         <where>
@@ -87,4 +88,25 @@
         from ${tablename}
          where bookcode=#{bookcode} group by userid;
     </select>
+
+
+    <select id="selectByExample2" resultMap="BaseResultMap" parameterType="map" >
+        select
+        <include refid="Base_Column_List" />
+        from ${tableName}
+        <include refid="Example_Where_Clause" />
+        <if test="!lastData">
+            ORDER  BY UserId,BookCode,BookDate
+        </if>
+        <if test="lastData">
+            ORDER  BY UserId,BookCode,BookDate DESC limit 0,1
+        </if>
+
+    </select>
+
+    <delete id="deleteAll" parameterType="map">
+        TRUNCATE TABLE ${tableName}
+    </delete>
+
+
 </mapper>

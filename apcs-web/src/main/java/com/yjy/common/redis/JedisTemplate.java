@@ -655,11 +655,9 @@ public class JedisTemplate implements Serializable {
 
     public static void main(String[] args) {
         JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
-//        jedisTemplate.delByPrefix("FUNDBOOK_DAY*");
+        //        jedisTemplate.delByPrefix("FUNDBOOK_DAY*");
         //logger.info("删完了");
-
-
-
+        jedisTemplate.set("nimei","121");
 
     }
 

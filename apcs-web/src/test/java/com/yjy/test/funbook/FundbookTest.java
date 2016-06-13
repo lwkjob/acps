@@ -2,6 +2,8 @@ package com.yjy.test.funbook;
 
 import com.yjy.common.dao.Pagination;
 import com.yjy.entity.Fundbook;
+import com.yjy.entity.Fundbookday;
+import com.yjy.service.FundbookDayService;
 import com.yjy.service.FundbookService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,9 @@ public class FundbookTest {
     @Resource
     private FundbookService fundbookService;
 
+     @Resource
+    private FundbookDayService fundbookDayService;
+
     private static Logger logger= LoggerFactory.getLogger(Fundbook.class);
 
     //分页查询账本
@@ -38,5 +43,13 @@ public class FundbookTest {
         for (Fundbook fundbook:list){
             logger.info(""+fundbook.getBookid()+" "+fundbook.getHappentime());
         }
+    }
+
+    //分页查询账本
+    @Test
+    public void getByBookdete(){
+        Fundbookday fundbookday=new Fundbookday();
+        fundbookday.setBookdate(20130930);
+        List<Fundbookday> list=fundbookDayService.getByBookdete(fundbookday);
     }
 }
