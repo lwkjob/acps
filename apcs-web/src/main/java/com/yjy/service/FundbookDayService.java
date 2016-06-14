@@ -203,8 +203,11 @@ public class FundbookDayService {
                             }
                             map.put(jedskey, jedsValue);
                             if (map.size() % 10000 == 0) {
+                                long d1=System.currentTimeMillis();
                                 jedisTemplate.pipset(map);
                                 map = new HashMap<String, String>();
+                                long d2=System.currentTimeMillis();
+                               logger.info((float)(d1-d2)/1000+"插入redis用时");
                             }
                         }
                     }
