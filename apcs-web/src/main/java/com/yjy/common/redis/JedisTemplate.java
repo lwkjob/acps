@@ -8,6 +8,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.util.Pool;
@@ -251,6 +252,19 @@ public class JedisTemplate implements Serializable {
         });
     }
 
+    public void pipset(final Map<String,String> map) {
+        execute(new JedisActionNoResult() {
+
+            @Override
+            public void action(Jedis jedis) {
+                Pipeline pipelined = jedis.pipelined();
+                 for(String key:map.keySet()){
+                     pipelined.set(key,map.get(key));
+                 }
+                pipelined.sync();
+            }
+        });
+    }
     public void setex(final String key, final String value, final int seconds) {
         execute(new JedisActionNoResult() {
 

@@ -172,18 +172,23 @@ public class FundbookDayService {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
+
+                    Map<String, String> map = new HashMap<String, String>();
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
                         UserBasicInfo userBasicInfo = userOfMonthList.get(i);
                         //当前用户需要写的账本
                         List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
+
                         for (Fundbookcode fundbookcode : bookcodesssss) {
                             String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
                             String jedsPrekey = String.format("%s|-%s|-%s", preDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
-
+                            String jedsValue = null;
                             //今天的发生数据
                             Fundbookday fundbookdaysss = fundbookdayMap.get(jedskey);
                             if (fundbookdaysss != null) {
-                                jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
+//                                jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
+                                jedsValue = fundbookdaysss.getBalance().doubleValue() + "";
+//                                map.put(jedskey,fundbookdaysss.getBalance().doubleValue() + "");
                             } else {
                                 String preBalanceStr = jedisTemplate.get(jedsPrekey);
                                 BigDecimal preBalance = null;
@@ -192,10 +197,18 @@ public class FundbookDayService {
                                 } else {
                                     preBalance = new BigDecimal(preBalanceStr);
                                 }
-                                jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
+//                                jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
+//                                map.put(jedskey, preBalance.doubleValue() + "");
+                                jedsValue = preBalance.doubleValue() + "";
+                            }
+                            map.put(jedskey, jedsValue);
+                            if (map.size() % 10000 == 0) {
+                                jedisTemplate.pipset(map);
+                                map = new HashMap<String, String>();
                             }
                         }
                     }
+                    jedisTemplate.pipset(map);
                     countDownLatch.countDown();
                 }
             });
