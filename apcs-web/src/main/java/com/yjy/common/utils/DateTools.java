@@ -83,4 +83,12 @@ public class DateTools {
         date=DateUtils.addDays(date,-1);
         return simpleDateFormat.format(date);
     }
+
+
+    //获得上个月最后一天
+    public static String getPreMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+        date=DateUtils.setDays(date,1);
+        date=DateUtils.addDays(date,-1);
+        return simpleDateFormat.format(date);
+    }
 }

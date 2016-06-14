@@ -1,6 +1,7 @@
 package com.yjy.test.funbook;
 
 import com.yjy.common.dao.Pagination;
+import com.yjy.common.utils.DateTools;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookday;
 import com.yjy.service.FundbookDayService;
@@ -13,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,11 +47,20 @@ public class FundbookTest {
         }
     }
 
-    //分页查询账本
+    //分页耍上月最后一天的余额到redis
     @Test
     public void getByBookdete(){
         Fundbookday fundbookday=new Fundbookday();
-        fundbookday.setBookdate(20130930);
-        List<Fundbookday> list=fundbookDayService.getByBookdete(fundbookday);
+        fundbookday.setBookdate(20141130);
+        fundbookDayService.getByBookdete(fundbookday);
+    }
+
+
+    //更新余额
+    @Test
+    public void oneByOneUpdateBalance(){
+        Date startDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
+        Date endDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
+        fundbookService.oneByOneUpdateBalance(startDate,endDate,null,null);
     }
 }

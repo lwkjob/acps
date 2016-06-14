@@ -114,7 +114,7 @@ public class LoginController {
                  fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
                  break;
              default:
-                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, typeid,users);
+                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
          }
 
         long endTime = System.currentTimeMillis();
@@ -167,6 +167,7 @@ public class LoginController {
         return  mv;
     }
 
+    //暂时不需要
     @RequestMapping("/deleteCache")
     public ModelAndView deleteCache(String start,String end){
         ModelAndView mv=new ModelAndView();

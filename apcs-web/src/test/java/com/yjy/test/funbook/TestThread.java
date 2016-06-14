@@ -18,8 +18,8 @@ public class TestThread {
 
     @Test
     public void test() throws Exception{
-        final int dataSize=15; //01,23,4;
-        final int pageSize=10;
+        final int dataSize=8; //01,23,4;
+        final int pageSize=4;
         final int cacheThreadCount=(dataSize/pageSize)+1;
         logger.info(cacheThreadCount + "页");
         final CountDownLatch countDownLatch=new CountDownLatch(cacheThreadCount);
@@ -29,16 +29,14 @@ public class TestThread {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
+                    int x = 0;
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
-                        if (jm == 1) {
-                            seleeps();
-                        }
-                        String test = "abcdefg" + i;
-                        if (jm == 2) {
-                            test = "nimeiaaa";
-                        }
+                        x++;
 
-                        logger.info(Thread.currentThread().getName() + "  " + i + ""+test);
+                        if (x % 4 == 0 || i == (jm * pageSize - 1) || i == (dataSize - 1)) {
+                            logger.info(Thread.currentThread().getName() + " 索引号 " + i+" list大小"+ x);
+                            x=0;
+                        }
                     }
 
 

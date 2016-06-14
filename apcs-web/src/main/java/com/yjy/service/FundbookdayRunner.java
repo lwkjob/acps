@@ -7,7 +7,6 @@ import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
-import com.yjy.repository.mapper.UserBasicExtMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +33,6 @@ public class FundbookdayRunner implements Runnable {
 
     private Date bookDate;
 
-    private UserBasicExtMapper userBasicExtMapper;
-
     private FundbookdayExtMapper fundbookdayExtMapper;
 
     private Map<String, Fundbookday> fundbookdayMap;
@@ -51,18 +48,19 @@ public class FundbookdayRunner implements Runnable {
     @Override
     public void run() {
 
+        //每天
+
 //        if (!jedisTemplate.setnx(RedisKey.FUNDBOOK_DAY_REPOOT + bookDateStr, "1")) {
 //            return;
 //        }
         long start = System.currentTimeMillis();
-        // 当期活跃用户
-        List<Fundbookday> fundbookdays = new ArrayList<>();
 
-//        List<UserBasicInfo> users = userBasicExtMapper.getUsers(0, 0, 0, 0, userCreateEndTime);
+        List<Fundbookday> insertFundbookdays = new ArrayList<>();
 
         String currentMonthLastDay = DateTools.getCurrentMonthLastDay(DateTools.parseDateFromString_yyyyMMdd(preDateStr, logger), simpleDateFormat_yyyyMMdd);
-        for (int j = 0; j <= (users.size() - 1); j++) {
+        for (int j = 0; j <= (users.size() - 1); j++) { //每个用户
 
+            //当期活跃用户
             UserBasicInfo userBasicInfo = users.get(j);
             //这个用户类型需要写的账本数据
             List<Fundbookcode> fundbookcodes = bookcodemap.get(userBasicInfo.getTypeId());
@@ -111,19 +109,28 @@ public class FundbookdayRunner implements Runnable {
                     fundbookday.setHappendebit(bigDecimal0);
                 }
 //                jedisTemplate.set(mapKey, fundbookday.getBalance().doubleValue() + "");
-                fundbookdays.add(fundbookday);
-                if (fundbookdays.size() % 30000 == 0 || (j == (users.size() - 1) && i == (fundbookcodes.size() - 1))) {
+                insertFundbookdays.add(fundbookday);
+                if (insertFundbookdays.size() % 30000 == 0 ) {
                     //每3万条插入一次
                     long memeryRunTime = System.currentTimeMillis();
-                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总用户数" + users.size() + " 剩余用户数" + (users.size() - (j + 1)) + ",当前数据量:" + fundbookdays.size());
-                    fundbookdayExtMapper.batchInsert(fundbookdays, fundbookDayTableName);
+                    logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总用户数" + users.size() + " 剩余用户数" + (users.size() - (j + 1)) + ",当前数据量:" + insertFundbookdays.size());
+                    fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
                     long insertRunTime = System.currentTimeMillis();
 
                     logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
-                    fundbookdays = new ArrayList<>();
+                    insertFundbookdays = new ArrayList<>();
                     start = System.currentTimeMillis();
                 }
             }
+        }
+
+        if (insertFundbookdays.size()>0) {
+            //每3万条插入一次
+            long memeryRunTime = System.currentTimeMillis();
+            logger.info("最后一次内存计算 " + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总数" + insertFundbookdays.size());
+            fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
+            long insertRunTime = System.currentTimeMillis();
+            logger.info("最后一次插入完成 " + (float) (insertRunTime - memeryRunTime) / 1000);
         }
 
     }
@@ -134,14 +141,6 @@ public class FundbookdayRunner implements Runnable {
 
     public void setBookDate(Date bookDate) {
         this.bookDate = bookDate;
-    }
-
-    public UserBasicExtMapper getUserBasicExtMapper() {
-        return userBasicExtMapper;
-    }
-
-    public void setUserBasicExtMapper(UserBasicExtMapper userBasicExtMapper) {
-        this.userBasicExtMapper = userBasicExtMapper;
     }
 
     public FundbookdayExtMapper getFundbookdayExtMapper() {
