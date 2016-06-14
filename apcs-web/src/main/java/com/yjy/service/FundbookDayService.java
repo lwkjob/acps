@@ -163,7 +163,7 @@ public class FundbookDayService {
 
         //今天的所有用户分多线程刷余额到redis
         final int dataSize = userOfMonthList.size();
-        final int pageSize = 800;
+        final int pageSize = 300;
         final int cacheThreadCount = (dataSize / pageSize) + 1;
         final CountDownLatch countDownLatch = new CountDownLatch(cacheThreadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
@@ -174,6 +174,7 @@ public class FundbookDayService {
                 public void run() {
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
                         UserBasicInfo userBasicInfo = userOfMonthList.get(i);
+                        //当前用户需要写的账本
                         List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
                         for (Fundbookcode fundbookcode : bookcodesssss) {
                             String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());

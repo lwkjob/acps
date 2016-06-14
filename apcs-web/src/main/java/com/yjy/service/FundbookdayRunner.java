@@ -110,7 +110,7 @@ public class FundbookdayRunner implements Runnable {
                 }
 //                jedisTemplate.set(mapKey, fundbookday.getBalance().doubleValue() + "");
                 insertFundbookdays.add(fundbookday);
-                if (insertFundbookdays.size() % 30000 == 0 ) {
+                if (insertFundbookdays.size() % 10000 == 0 ) {
                     //每3万条插入一次
                     long memeryRunTime = System.currentTimeMillis();
                     logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总用户数" + users.size() + " 剩余用户数" + (users.size() - (j + 1)) + ",当前数据量:" + insertFundbookdays.size());
