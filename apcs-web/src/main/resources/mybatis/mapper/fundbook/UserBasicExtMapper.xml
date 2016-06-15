@@ -44,5 +44,23 @@
       </if>
   </select>
 
+  <select id="getUsersByExample" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from
+    <include refid="tables"/>
+
+    <where>
+      <if test="userBasicInfo.typeId!=null and userBasicInfo.typeId!=0">
+        AND   users.typeId=#{userBasicInfo.typeId}
+      </if>
+      <if test="userBasicInfo.userid!=null and userBasicInfo.userid!=0">
+        AND users.userid=#{userBasicInfo.userid}
+      </if>
+    </where>
+
+
+  </select>
+
 
 </mapper>

@@ -3,10 +3,7 @@ package com.yjy.web.controller;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
 import com.yjy.constant.FundConstant;
-import com.yjy.entity.Fundbook;
-import com.yjy.entity.Fundbookcode;
-import com.yjy.entity.FundbookcodeExample;
-import com.yjy.entity.UserBasicInfo;
+import com.yjy.entity.*;
 import com.yjy.service.*;
 import com.yjy.web.vo.UpdateBalanceVo;
 import org.apache.commons.collections.map.HashedMap;
@@ -87,16 +84,15 @@ public class LoginController {
             bookcodes.add(bookcode);
         }
 
-        //判断用户
+
         List<UserBasicInfo> users = null;
-        int typeid=0;
-        if (updateBalanceVo.getUserid() == null || updateBalanceVo.getUserid() <= 0) {
-            //查询所有的用户,(注册时间小于当前时间)
-              typeid=updateBalanceVo.getTypeid()==null?0:updateBalanceVo.getTypeid();
-        } else {
+        if (updateBalanceVo.getUserid()!=null) {
             users=new ArrayList<>();
-            UserBasicInfo userBasicInfo = new UserBasicInfo();
-            userBasicInfo.setUserid(updateBalanceVo.getUserid());
+            UserBasicInfo userBasicInfo =userService.getUsersByUserId(updateBalanceVo.getUserid());
+            if(userBasicInfo==null){
+                logger.error("数据有问题");
+                return returnUrl;
+            }
             users.add(userBasicInfo);
         }
         Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
@@ -163,6 +159,18 @@ public class LoginController {
 
         userService.cacheUsers(start, end);
 
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
+
+    //分页更新上月最后一天的余额到redis,从日结表中查
+    @RequestMapping("/loadPreMonthBalance")
+    public ModelAndView loadPreMonthBalance(int start){
+        ModelAndView mv=new ModelAndView();
+        Fundbookday fundbookday=new Fundbookday();
+        fundbookday.setBookdate(start);
+        fundbookDayService.getByBookdete(fundbookday);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }

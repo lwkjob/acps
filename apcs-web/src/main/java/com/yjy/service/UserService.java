@@ -29,15 +29,7 @@ public class UserService {
     @Resource
     private JedisTemplate jedisTemplate;
 
-    public List<UserBasicInfo> getUsers(int startIndex,
-                                        int endIndex,
-                                        int typeid,
-                                        int startTime,
-                                        int endTime) {
 
-        return userBasicExtMapper.getUsers(startIndex, endIndex, typeid, startTime, endTime);
-
-    }
 
 
     //把每天的活跃用户缓存到redis里
@@ -55,5 +47,12 @@ public class UserService {
             startDate = DateTools.getNextDayDate(startDate);
         }
         return 1;
+    }
+
+    public UserBasicInfo getUsersByUserId(int userid){
+        UserBasicInfo userBasicInfo=new UserBasicInfo();
+        userBasicInfo.setUserid(userid);
+        List<UserBasicInfo> usersByExample = userBasicExtMapper.getUsersByExample(userBasicInfo);
+        return usersByExample.size()>0?usersByExample.get(0):null;
     }
 }

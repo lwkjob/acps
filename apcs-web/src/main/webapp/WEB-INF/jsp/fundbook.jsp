@@ -1,22 +1,22 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" isELIgnored="false"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@include file="/taglib.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <head>
     <title> Bootstrap 3.x Admin Theme</title>
     <!-- 共用css和js -->
-    <jsp:include page="/common/head_css.jsp"/>
+    <%@include file="/common/head_css.jsp"%>
 </head>
 <body class="bootstrap-admin-with-small-navbar">
 <!-- small navbar -->
-<jsp:include page="/common/head.jsp"/>
+<%@include file="/common/head.jsp"%>
 
 <div class="container">
     <!-- left, vertical navbar & content -->
     <div class="row">
         <!-- left, vertical navbar -->
-        <jsp:include page="/common/left.jsp"/>
+        <%@include file="/common/left.jsp"%>
 
         <!-- content -->
         <div class="col-md-10">
@@ -60,9 +60,9 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="col-lg-2 control-label" for="userId">用户编号</label>
+                                        <label class="col-lg-2 control-label" for="userid">用户编号</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="userId" type="text" name="userid"/>
+                                            <input class="form-control" id="userid" type="text" name="userid"/>
                                         </div>
                                     </div>
 
@@ -114,6 +114,7 @@
                                             <input class="form-control" id="userId2" type="text" name="userid"/>
                                         </div>
                                     </div>
+
 
                                     <div class="form-group ">
                                         <label class="col-lg-2 control-label" for="accBook2">选择账本</label>
@@ -212,6 +213,29 @@
                         </div>
                     </div>
                 </div>
+            <div class="col-lg-12">
+                                <div class="panel panel-default bootstrap-admin-no-table-panel">
+                                    <div class="panel-heading">
+                                        <div class="text-muted bootstrap-admin-box-title">加载本月余</div>
+                                    </div>
+                                    <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                                        <form class="form-horizontal"  action="${ctx}/loadPreMonthBalance.shtml" method="post">
+                                            <fieldset>
+                                                <legend>加载本月余</legend>
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label" for="startDate6">开始日期</label>
+                                                    <div class="col-lg-10">
+                                                        <input class="form-control" id="startDate6" type="text" value="20130901" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                                    </div>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-primary">加载</button>
+                                                <button type="reset" class="btn btn-default">Cancel</button>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
 
         <%--        <div class="col-lg-12">
                     <div class="panel panel-default bootstrap-admin-no-table-panel">
@@ -246,7 +270,7 @@
     </div>
 </div>
 <!-- footer -->
-<jsp:include page="/common/foot.jsp"/>
+<%@include file="/common/foot.jsp"%>
 <script type="text/javascript">
     $(function() {
         $('.datepicker').datepicker();

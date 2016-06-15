@@ -13,7 +13,7 @@ public interface UserBasicExtMapper {
 
 
     /**
-     *
+     * 根据注册时间查询用户
      * @param startIndex limit 的开始数
      * @param endIndex
      * @param typeid 用户类型 3平台 2卖家 1买家
@@ -26,4 +26,14 @@ public interface UserBasicExtMapper {
                                  @Param("typeid") int typeid,
                                  @Param("startTime") long startTime,
                                  @Param("endTime") long endTime);
+
+
+    /**
+     * 根据注册时间查询用户
+     * @param userBasicInfo limit 的开始数
+     * @return
+     */
+    List<UserBasicInfo> getUsersByExample(@Param("userBasicInfo")UserBasicInfo userBasicInfo);
+
+
 }

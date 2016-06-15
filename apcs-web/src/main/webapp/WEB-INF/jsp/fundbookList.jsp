@@ -1,20 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" isELIgnored="false"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<c:set var="ctx" value="${pageContext.request.contextPath}"/>
+<%@include file="/taglib.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
     <title>403 error page | Bootstrap 3.x Admin Theme</title>
     <!-- 共用css和js -->
-    <jsp:include page="/common/head_css.jsp"/>
+    <%@include file="/common/head_css.jsp"%>
 </head>
 <body class="bootstrap-admin-with-small-navbar">
     <!-- small navbar -->
-    <jsp:include page="/common/head.jsp"/>
+    <%@include file="/common/head.jsp"%>
 
 <div class="container">
     <!-- left, vertical navbar & content -->
-    <jsp:include page="/common/left.jsp"/>
+    <%@include file="/common/left.jsp"%>
 
         <!-- content -->
         <div class="col-md-10">
@@ -66,7 +65,7 @@
 
                                 </tbody>
                             </table>
-                            <jsp:include page="/common/pagelist.jsp"/>
+                                <%@include file="/common/pagelist.jsp"%>
 
                         </div>
                     </div>
@@ -78,7 +77,7 @@
 </div>
 
 <!-- footer -->
-    <jsp:include page="/common/foot.jsp"/>
+<%@include file="/common/foot.jsp"%>
 
 <script type="text/javascript">
     $(function() {

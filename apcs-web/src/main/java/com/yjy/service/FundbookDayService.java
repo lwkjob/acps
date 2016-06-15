@@ -105,10 +105,15 @@ public class FundbookDayService {
                 Map<String, Fundbookday> fundbookdayMap = getStringFundbookdayMap(delTableName.getTableNameSuffix(), startDateByTable, createEndTime);
                 //  今天的活跃用户数
                 List<UserBasicInfo> userOfMonthList = null;
-                userOfMonthList = jedisTemplate.getListObject(RedisKey.USERS_OF_DAY + bookDateStr, UserBasicInfo.class);
-                if (userOfMonthList == null) {
-                    userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
+                if(users==null||users.size()==0){
+                    userOfMonthList = jedisTemplate.getListObject(RedisKey.USERS_OF_DAY + bookDateStr, UserBasicInfo.class);
+                    if (userOfMonthList == null) {
+                        userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
+                    }
+                }else {
+                    userOfMonthList=users;
                 }
+
 
                 Date preDate = getPreDayDate(startDateByTable);
                 String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
@@ -163,7 +168,7 @@ public class FundbookDayService {
 
         //今天的所有用户分多线程刷余额到redis
         final int dataSize = userOfMonthList.size();
-        final int pageSize = 300;
+        final int pageSize = 1000;
         final int cacheThreadCount = (dataSize / pageSize) + 1;
         final CountDownLatch countDownLatch = new CountDownLatch(cacheThreadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
@@ -202,12 +207,12 @@ public class FundbookDayService {
                                 jedsValue = preBalance.doubleValue() + "";
                             }
                             map.put(jedskey, jedsValue);
-                            if (map.size() % 10000 == 0) {
-                                long d1=System.currentTimeMillis();
+                            if (map.size() % 3000 == 0) {
+//                                long d1=System.currentTimeMillis();
                                 jedisTemplate.pipset(map);
                                 map = new HashMap<String, String>();
-                                long d2=System.currentTimeMillis();
-                               logger.info((float)(d1-d2)/1000+"插入redis用时");
+//                                long d2=System.currentTimeMillis();
+//                               logger.info((float)(d1-d2)/1000+"插入redis用时");
                             }
                         }
                     }

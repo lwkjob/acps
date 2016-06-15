@@ -47,11 +47,11 @@ public class FundbookTest {
         }
     }
 
-    //分页耍上月最后一天的余额到redis
+    //分页更新上月最后一天的余额到redis,从日结表中查
     @Test
     public void getByBookdete(){
         Fundbookday fundbookday=new Fundbookday();
-        fundbookday.setBookdate(20141130);
+        fundbookday.setBookdate(20131031);
         fundbookDayService.getByBookdete(fundbookday);
     }
 
