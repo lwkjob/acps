@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by Administrator on 2016/6/6.
@@ -24,7 +25,7 @@ import java.util.Map;
 public class FundbookdayRunner implements Runnable {
     private Logger logger = LoggerFactory.getLogger(FundbookdayRunner.class);
 
-
+    private CountDownLatch countDownLatch;
     private Map<Integer, List<Fundbookcode>> bookcodemap;
 
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
@@ -117,7 +118,7 @@ public class FundbookdayRunner implements Runnable {
                     fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
                     long insertRunTime = System.currentTimeMillis();
 
-                    logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + JsonUtils.toJson(bookcode));
+                    logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr + " " + bookcode.getBookcode());
                     insertFundbookdays = new ArrayList<>();
                     start = System.currentTimeMillis();
                 }
@@ -132,7 +133,16 @@ public class FundbookdayRunner implements Runnable {
             long insertRunTime = System.currentTimeMillis();
             logger.info("最后一次插入完成 " + (float) (insertRunTime - memeryRunTime) / 1000);
         }
+        countDownLatch.countDown();
 
+    }
+
+    public CountDownLatch getCountDownLatch() {
+        return countDownLatch;
+    }
+
+    public void setCountDownLatch(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
     }
 
     public Date getBookDate() {

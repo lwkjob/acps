@@ -6,7 +6,7 @@ import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.constant.FundConstant;
+import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
@@ -95,8 +95,13 @@ public class FundbookDayService {
             //3.2每个用户
             Date startDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr());
             Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, delTableName.getEndStr() + "23:59:59");
-            ExecutorService executorService = Executors.newFixedThreadPool(31);
 
+            ExecutorService executorService = Executors.newFixedThreadPool(31);
+            Integer d1=Integer.parseInt(delTableName.getStartStr());
+            Integer d2=Integer.parseInt(delTableName.getEndStr());
+            int threadCount=(d2-d1)+1;
+            CountDownLatch countDownLatch=new CountDownLatch(threadCount);
+            long startMonthTime = System.currentTimeMillis();
             while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
 
                 String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
@@ -122,6 +127,7 @@ public class FundbookDayService {
                 cacheBalance(userOfMonthList, bookcodemap, preDateStr, bookDateStr, fundbookdayMap);
 
                 FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
+                fundbookdayRunner.setCountDownLatch(countDownLatch);
                 fundbookdayRunner.setUsers(userOfMonthList);
                 fundbookdayRunner.setBookcodemap(bookcodemap);
                 fundbookdayRunner.setBookDate(startDateByTable);
@@ -133,6 +139,14 @@ public class FundbookDayService {
                 fundbookdayRunner.setJedisTemplate(jedisTemplate);
                 executorService.execute(fundbookdayRunner);
                 startDateByTable = getNextDayDate(startDateByTable);
+            }
+            try {
+
+                countDownLatch.await();
+                long end = System.currentTimeMillis();
+                logger.info(fundbookDayTableName+"日清跑完了"+ (float) (end - startMonthTime) / 1000 + "秒");
+            }catch (Exception e){
+                logger.error("日结报错了"+fundbookDayTableName,e);
             }
         }
         long end = System.currentTimeMillis();
@@ -177,13 +191,11 @@ public class FundbookDayService {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-
                     Map<String, String> map = new HashMap<String, String>();
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
                         UserBasicInfo userBasicInfo = userOfMonthList.get(i);
                         //当前用户需要写的账本
                         List<Fundbookcode> bookcodesssss = bookcodemap.get(userBasicInfo.getTypeId());
-
                         for (Fundbookcode fundbookcode : bookcodesssss) {
                             String jedskey = String.format("%s|-%s|-%s", bookDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
                             String jedsPrekey = String.format("%s|-%s|-%s", preDateStr, fundbookcode.getBookcode(), userBasicInfo.getUserid());
@@ -191,9 +203,7 @@ public class FundbookDayService {
                             //今天的发生数据
                             Fundbookday fundbookdaysss = fundbookdayMap.get(jedskey);
                             if (fundbookdaysss != null) {
-//                                jedisTemplate.set(jedskey, fundbookdaysss.getBalance().doubleValue() + "");
                                 jedsValue = fundbookdaysss.getBalance().doubleValue() + "";
-//                                map.put(jedskey,fundbookdaysss.getBalance().doubleValue() + "");
                             } else {
                                 String preBalanceStr = jedisTemplate.get(jedsPrekey);
                                 BigDecimal preBalance = null;
@@ -202,17 +212,12 @@ public class FundbookDayService {
                                 } else {
                                     preBalance = new BigDecimal(preBalanceStr);
                                 }
-//                                jedisTemplate.set(jedskey, preBalance.doubleValue() + "");
-//                                map.put(jedskey, preBalance.doubleValue() + "");
                                 jedsValue = preBalance.doubleValue() + "";
                             }
                             map.put(jedskey, jedsValue);
                             if (map.size() % 3000 == 0) {
-//                                long d1=System.currentTimeMillis();
                                 jedisTemplate.pipset(map);
                                 map = new HashMap<String, String>();
-//                                long d2=System.currentTimeMillis();
-//                               logger.info((float)(d1-d2)/1000+"插入redis用时");
                             }
                         }
                     }
@@ -228,7 +233,7 @@ public class FundbookDayService {
         }
         executorService.shutdown();
         long cacheEnd = System.currentTimeMillis();
-        logger.info(bookDateStr + "Cache刷完了" + (float) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+        logger.info(bookDateStr + "Cache刷完了" +dataSize+"数据量，"+ (float) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
     }
 
 
@@ -463,7 +468,7 @@ public class FundbookDayService {
     }
 
     public void getByBookdete(final Fundbookday fundbookday) {
-        Integer bookdate = fundbookday.getBookdate();
+        final   Integer bookdate = fundbookday.getBookdate();
         final String tablename = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + StringUtils.substring(bookdate + "", 0, 6);
         final int pagesize = 8000;//一次取
         Pagination pagination = new Pagination(1, pagesize);
@@ -480,7 +485,7 @@ public class FundbookDayService {
                     public void run() {
 
                         Pagination pagination2 = new Pagination(j, pagesize);
-                        logger.info(" 当前页" + pagination2.getCurrentPage());
+                        logger.info(bookdate+" 当前页" + pagination2.getCurrentPage());
                         List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination2);
                         cachePreMonthBalace(list);
                         countDownLatch.countDown();
@@ -495,7 +500,7 @@ public class FundbookDayService {
             }
 
         }
-        logger.info("缓存上月的余执行完了");
+        logger.info("缓存"+bookdate+"的余额执行完了");
 
     }
 

@@ -15,6 +15,7 @@ public class Startup {
     public static void main(String[] args) {
         ApplicationContext xmlApplicationContext = new ClassPathXmlApplicationContext("classpath*:/spring-config.xml");
         try {
+            logger.info("启动完成");
             synchronized (xmlApplicationContext){
                 xmlApplicationContext.wait();
             }

@@ -2,8 +2,9 @@ package com.yjy.service;
 
 
 import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.constant.FundConstant;
+import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.Fundbookmonth;
@@ -70,9 +71,9 @@ public class FundbookMonthService {
     public int insertFundBookMonth(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap) {
 
         long startRunTime = System.currentTimeMillis();
-        List<Fundbookmonth> fundbookmonthList = new ArrayList<>();
-        while (endDate.compareTo(startDate) != -1) {
 
+        while (endDate.compareTo(startDate) != -1) {
+            List<Fundbookmonth> insertfundbookmonthList = new ArrayList<>();
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
             fundbookMonthExtMapper.deleteAll(monthTableName);
 
@@ -145,24 +146,27 @@ public class FundbookMonthService {
                             fundbookmonth.setHappendebit(sumMonthByBookcode.getDebit());
                             fundbookmonth.setHappencredit(sumMonthByBookcode.getCredit());
                         }
-                        fundbookmonthList.add(fundbookmonth);
-                        if(fundbookmonthList.size()%20000==0||(i==(bookcodes.size()-1)&&j==(users.size()-1))){
+                        insertfundbookmonthList.add(fundbookmonth);
+                        if(insertfundbookmonthList.size()%10000==0){
                             long memeoryRunTime=System.currentTimeMillis();
-                            fundbookMonthExtMapper.batchInsert(fundbookmonthList, monthTableName);
+                            fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                             long insertRunTime=System.currentTimeMillis();
-                            logger.info(" 账本总数"+bookcodes.size()+" 账本顺序"+i+"用户总数 "+users.size()+" 用户顺序 "+j+" 插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ JsonUtils.toJson(bookcode));
-                            fundbookmonthList=new ArrayList<>();
+                            logger.info(" 账本总数"+bookcodes.size()+" 账本顺序"+i+"用户总数 "+users.size()+" 用户顺序 "+j+" 插入完成账本用时"+(float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr+" "+ bookcode.getBookcode());
+                            insertfundbookmonthList=new ArrayList<>();
                         }
                     }
-
                 }
             }
-
+            long memeoryRunTime=System.currentTimeMillis();
+            fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
+            long insertRunTime=System.currentTimeMillis();
+            logger.info("本月最后一天数据:"+insertfundbookmonthList.size()+ (float)(insertRunTime-memeoryRunTime)/1000+" "+bookDateStr);
+            insertfundbookmonthList=null;
             //3 每个表，每个用户，每月，每个账本一条数据
             startDate = getNextMonthsDate(startDate);//轮训到下一个月
         }
         long end = System.currentTimeMillis();
-        logger.info("全部计算完了" + (float) (end - startRunTime) / 1000 + "秒");
+        logger.info("月结全部计算完了" + DateTools.formate_yyyyMMdd(endDate)+ " 执行用时:"+ (float) (end - startRunTime) / 1000 + "秒");
         //批量插入
         return 1;
     }

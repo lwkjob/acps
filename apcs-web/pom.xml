@@ -237,7 +237,7 @@
                     <webAppConfig>
                         <contextPath>/</contextPath>
                     </webAppConfig>
-                    <stopPort>9999</stopPort>
+                    <stopPort>9989</stopPort>
                     <stopKey>jetty</stopKey>
                 </configuration>
             </plugin>

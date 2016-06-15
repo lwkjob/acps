@@ -2,7 +2,7 @@
 //
 //import com.yjy.common.utils.DateTools;
 //import com.yjy.common.utils.JsonUtils;
-//import com.yjy.constant.FundConstant;
+//import com.yjy.common.constant.FundConstant;
 //import com.yjy.entity.*;
 //import com.yjy.service.FundbookdayRunner;
 //import org.apache.commons.collections.map.HashedMap;

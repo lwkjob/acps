@@ -1,4 +1,4 @@
-package com.yjy.constant;
+package com.yjy.common.constant;
 
 /**
  * Created by Administrator on 2016/6/1.

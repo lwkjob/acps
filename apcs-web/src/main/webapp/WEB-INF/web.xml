@@ -6,13 +6,8 @@
 		<welcome-file>/index.jsp</welcome-file>
 	</welcome-file-list>
 	<!-- load spring -->
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:spring-config.xml</param-value>
-	</context-param>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
+
+
 	
 	<!-- spring mvc config -->
 	<servlet>
@@ -20,16 +15,19 @@
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
-			<param-value>classpath:spring/spring-config-mvc.xml</param-value>
+			<param-value>classpath:spring-config.xml,classpath:spring/spring-config-mvc.xml</param-value>
 		</init-param>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
+
 	
 	<servlet-mapping>
 		<servlet-name>springmvc</servlet-name>
 		<url-pattern>*.shtml</url-pattern>
 	</servlet-mapping>
-	
+<!--	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>-->
 	<servlet-mapping>
     	<servlet-name>default</servlet-name>
     	<url-pattern>*.jpg</url-pattern>

@@ -2,13 +2,12 @@ package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.UserBasicInfo;
+import com.yjy.jedisPubSub.JedisPubSubImpl;
+import com.yjy.jedisPubSub.SubPubMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 import redis.clients.util.Pool;
@@ -667,11 +666,61 @@ public class JedisTemplate implements Serializable {
     }
 
 
+    /**
+     * 订阅
+     *
+     * @return
+     */
+    public void subscribe(final String key ,final JedisPubSub jedisPubSub) {
+        execute(new JedisActionNoResult() {
+
+            @Override
+            public void action(Jedis jedis) {
+
+                jedis.subscribe(jedisPubSub,key);
+            }
+        });
+    }
+
+    /**
+     * 停止订阅
+     *
+     * @return
+     */
+    public void unsubscribe(final String key ) {
+        execute(new JedisActionNoResult() {
+
+            @Override
+            public void action(Jedis jedis) {
+
+                jedis.pubsubChannels(key);
+            }
+        });
+    }
+
+    /**
+     * 发布
+     *
+     * @return
+     */
+    public void publish(final String key ,final String value){
+        execute(new JedisActionNoResult() {
+
+            @Override
+            public void action(Jedis jedis) {
+
+                jedis.publish(key,value );
+            }
+        });
+    }
+
     public static void main(String[] args) {
-        JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
-        //        jedisTemplate.delByPrefix("FUNDBOOK_DAY*");
-        //logger.info("删完了");
-        jedisTemplate.set("nimei","121");
+        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
+        final  String key=RedisKey.REPORT_OF_DAY;
+
+
+
+
 
     }
 

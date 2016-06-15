@@ -2,7 +2,7 @@ package com.yjy.web.controller;
 
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
-import com.yjy.constant.FundConstant;
+import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.service.*;
 import com.yjy.web.vo.UpdateBalanceVo;
@@ -43,6 +43,9 @@ public class LoginController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private ScheduleService scheduleService;
 
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -183,6 +186,15 @@ public class LoginController {
         Map<Integer,List<Fundbookcode>> c= cacheFndbookcode();
 
         fundbookDayService.deleteRedisData(c, start, end);
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
+   //暂时不需要
+    @RequestMapping("/dayreport")
+    public ModelAndView dayreport(String start,String end){
+        ModelAndView mv=new ModelAndView();
+        scheduleService.dayreport(start,end,null,null);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }

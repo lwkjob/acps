@@ -32,6 +32,34 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default bootstrap-admin-no-table-panel">
                         <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">全部任务</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/dayreport.shtml" method="post">
+                                <fieldset>
+                                    <legend>刷用户缓存</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate7">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate7" type="text" value="20130901" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate7">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate7" type="text" value="20130930" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">开始全部</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
                             <div class="text-muted bootstrap-admin-box-title">刷新余额</div>
                         </div>
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
@@ -213,6 +241,7 @@
                         </div>
                     </div>
                 </div>
+
             <div class="col-lg-12">
                                 <div class="panel panel-default bootstrap-admin-no-table-panel">
                                     <div class="panel-heading">

@@ -4,14 +4,12 @@ package com.yjy.service;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
-import com.yjy.constant.FundConstant;
+import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.mapper.FundbookExtMapper;
-import com.yjy.repository.mapper.FundbookdayExtMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -51,7 +49,7 @@ public class FundbookService {
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
 
     /**
-     * 根据日期段一个月一个月的更新
+     * 根据日期段一个月一个月的更新余额
      *
      * @param bookcodes
      */
@@ -172,7 +170,7 @@ public class FundbookService {
                             }
 
                         }
-                        logger.info(jm+" 本线程最后一次更新" + insertFunbooks.size());
+                        logger.info(jm+" 本线程最后一次更新余额" + insertFunbooks.size());
                         fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
                         insertFunbooks=null;
                         countDownLatch.countDown();
@@ -186,7 +184,7 @@ public class FundbookService {
             }catch (Exception e){
                 logger.error("刷新余额",e);
             }
-            logger.info(tableName+"本月刷完了");
+            logger.info(tableName+"本月余额刷完了");
             executorService.shutdown();
             startDate = getNextMonthsDate(startDate);
 
@@ -304,16 +302,6 @@ public class FundbookService {
                 return true;
         }
         return false;
-    }
-
-    //轮每一个训账本更新余额
-    public void doUpdateBalance(List<Fundbookcode> bookcodes,
-                                Integer userId,
-                                String preTableName,
-                                String tableName) {
-
-
-
     }
 
 
