@@ -1,12 +1,11 @@
 package com.yjy.service;
 
 
+import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
-import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
@@ -80,7 +79,7 @@ public class FundbookDayService {
         long start = System.currentTimeMillis();
 
         //1.1根据时间区间算出所有需要删数据的表名
-        Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
+        Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
 
         for (String key : deleteTableNameMap.keySet()) {
             //每个月
@@ -89,7 +88,7 @@ public class FundbookDayService {
             String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
             //1.2删除需要统计的数据
-            fundbookdayExtMapper.deleteAll(fundbookDayTableName);
+           // fundbookdayExtMapper.deleteAll(fundbookDayTableName);
 
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
@@ -141,8 +140,8 @@ public class FundbookDayService {
                 startDateByTable = getNextDayDate(startDateByTable);
             }
             try {
-
                 countDownLatch.await();
+                executorService.shutdown();
                 long end = System.currentTimeMillis();
                 logger.info(fundbookDayTableName+"日清跑完了"+ (float) (end - startMonthTime) / 1000 + "秒");
             }catch (Exception e){
@@ -228,10 +227,11 @@ public class FundbookDayService {
         }
         try {
             countDownLatch.await();
+            executorService.shutdown();
         } catch (Exception e) {
             logger.error("线程被意外中断");
         }
-        executorService.shutdown();
+
         long cacheEnd = System.currentTimeMillis();
         logger.info(bookDateStr + "Cache刷完了" +dataSize+"数据量，"+ (float) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
     }
@@ -244,14 +244,14 @@ public class FundbookDayService {
         logger.info("开始刷余 " + startDateStr);
         Date startDate = DateTools.parseDateFromString_yyyyMMdd(startDateStr, logger);
         Date endDate = DateTools.parseDateFromString_yyyyMMdd(endDateStr, logger);
-        Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
+        Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
 
 
         for (String key : deleteTableNameMap.keySet()) {
             //每个月
             DelTableName delTableName = deleteTableNameMap.get(key);
 
-            String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
+//            String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
@@ -318,33 +318,7 @@ public class FundbookDayService {
     }
 
 
-    /**
-     * 计算需要删除的表名和日期区间
-     *
-     * @return
-     */
-    public Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate) {
-        Map<String, DelTableName> map = new LinkedHashMap<>();//一定要有顺序
-        while (endDate.compareTo(startDate) != -1) {
-            String startStr = simpleDateFormat_yyyyMMdd.format(startDate);
-            String tableNameSuffix = StringUtils.substring(startStr, 0, 6);//数据库中yyyyMM作为表名的后缀
-            DelTableName delTableName = new DelTableName();
-            if (map.get(tableNameSuffix) != null) {
-                String startStrTemp = map.get(tableNameSuffix).getStartStr();
-                delTableName.setTableNameSuffix(tableNameSuffix);
-                delTableName.setStartStr(startStrTemp);
-                delTableName.setEndStr(startStr);
-            } else {
-                delTableName.setTableNameSuffix(tableNameSuffix);
-                delTableName.setStartStr(startStr);
-                delTableName.setEndStr(startStr);
-            }
-            map.put(tableNameSuffix, delTableName);
-            startDate = getNextDayDate(startDate);
-        }
-        logger.info("需要删除的表名和日期区间:" + JsonUtils.toJson(map));
-        return map;
-    }
+
 
     //查询区间内全部账本数据
     public List<Fundbook> getFundbooks(Fundbook fundbook, String tableName, long startTime, long endTime) {
@@ -439,7 +413,7 @@ public class FundbookDayService {
         logger.info("删除redis中不需要的数据 " + startDateStr);
         Date startDate = DateTools.parseDateFromString_yyyyMMdd(startDateStr, logger);
         Date endDate = DateTools.parseDateFromString_yyyyMMdd(endDateStr, logger);
-        Map<String, DelTableName> deleteTableNameMap = getDeleteTableName(startDate, endDate);
+        Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
 
 
         for (String key : deleteTableNameMap.keySet()) {
@@ -467,6 +441,7 @@ public class FundbookDayService {
         }
     }
 
+    //分页加载上月最后一天的余额到redis,从日结表中查
     public void getByBookdete(final Fundbookday fundbookday) {
         final   Integer bookdate = fundbookday.getBookdate();
         final String tablename = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + StringUtils.substring(bookdate + "", 0, 6);
@@ -487,14 +462,16 @@ public class FundbookDayService {
                         Pagination pagination2 = new Pagination(j, pagesize);
                         logger.info(bookdate+" 当前页" + pagination2.getCurrentPage());
                         List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination2);
-                        cachePreMonthBalace(list);
+                        cachePreMonthBalace(list);//第二组以后的每组数据
                         countDownLatch.countDown();
                     }
                 });
             }
-            cachePreMonthBalace(list);
+            cachePreMonthBalace(list);//第一组分页数据
             try {
+
                 countDownLatch.await();
+                executorService.shutdown();
             } catch (Exception e) {
                 logger.error("被打断",e);
             }
@@ -514,12 +491,14 @@ public class FundbookDayService {
     }
 
     private void cachePreMonthBalace(List<Fundbookday> list) {
-        logger.info("开始存");
         for (Fundbookday fundbookday1 : list) {
             String rediskey = fundbookday1.getBookdate() + "|-" + fundbookday1.getBookcode() + "|-" + fundbookday1.getUserid();
             jedisTemplate.set(rediskey, fundbookday1.getBalance().doubleValue() + "");
         }
-        logger.info("存完了");
         list=null;
+    }
+
+    public void deleteAll(String tablename){
+        fundbookdayExtMapper.deleteAll(tablename);
     }
 }

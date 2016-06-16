@@ -110,7 +110,7 @@ public class LoginController {
                  fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
                  break;
              default:
                  fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
@@ -167,7 +167,7 @@ public class LoginController {
     }
 
 
-    //分页更新上月最后一天的余额到redis,从日结表中查
+    //分页加载上月最后一天的余额到redis,从日结表中查
     @RequestMapping("/loadPreMonthBalance")
     public ModelAndView loadPreMonthBalance(int start){
         ModelAndView mv=new ModelAndView();
@@ -190,7 +190,7 @@ public class LoginController {
         return  mv;
     }
 
-   //暂时不需要
+   //
     @RequestMapping("/dayreport")
     public ModelAndView dayreport(String start,String end){
         ModelAndView mv=new ModelAndView();

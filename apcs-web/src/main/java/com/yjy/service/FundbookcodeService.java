@@ -29,7 +29,7 @@ public class FundbookcodeService {
     }
 
 
-    public Map<Integer,List<Fundbookcode>> cacheFndbookcode(){
+    public Map<Integer,List<Fundbookcode>> cacheFundbookcode(){
         Map<Integer,List<Fundbookcode>> map=new HashedMap();
         FundbookcodeExample example=new FundbookcodeExample();
         example.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_BUYER);

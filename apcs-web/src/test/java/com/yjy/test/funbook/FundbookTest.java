@@ -85,12 +85,12 @@ public class FundbookTest {
     @Test
     public void testSub(){
         SubPubMessage subPubMessage=new SubPubMessage();
-        subPubMessage.setStartDate("20131201");
-        subPubMessage.setEndDate("20131231");
+        subPubMessage.setStartDate("20130101");
+        subPubMessage.setEndDate("20130101");
         subPubMessage.setBookcodes(null);
         subPubMessage.setUsers(null);
         logger.info("主线程");
-        jedisTemplate.publish(RedisKey.REPORT_OF_DAY, JsonUtils.toJson(subPubMessage));
+        jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_KEY, JsonUtils.toJson(subPubMessage));
         logger.info("主线程发布完了");
     }
 

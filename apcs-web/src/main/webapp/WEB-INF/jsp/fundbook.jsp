@@ -37,7 +37,7 @@
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
                             <form class="form-horizontal"  action="${ctx}/dayreport.shtml" method="post">
                                 <fieldset>
-                                    <legend>刷用户缓存</legend>
+                                    <legend>全部任务</legend>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate7">开始日期</label>
                                         <div class="col-lg-10">

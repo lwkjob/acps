@@ -1,10 +1,8 @@
 package com.yjy.service;
 
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
-import com.yjy.jedisPubSub.SubPubMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,7 @@ public class ScheduleService {
 
     public void dayreport(String start ,String end,List<Fundbookcode> fundbookcodes,List<UserBasicInfo> users){
 
-        Map<Integer, List<Fundbookcode>> bookcodemap = fundbookcodeService.cacheFndbookcode();
+        Map<Integer, List<Fundbookcode>> bookcodemap = fundbookcodeService.cacheFundbookcode();
 
         try {
             long startRunTime=System.currentTimeMillis();
@@ -47,7 +45,7 @@ public class ScheduleService {
 
             fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
 
-            fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
+            fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
             long endRunTime=System.currentTimeMillis();
             logger.info((double)(endRunTime-startRunTime)/1000+"秒任务全部跑完了");
         }catch (Exception e){

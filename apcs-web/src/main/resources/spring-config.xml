@@ -18,7 +18,7 @@
             </list>
         </property>
     </bean>
-    <!--<bean id="sublistener" class="com.yjy.listener.Sublistener"/>-->
+    <bean id="sublistener" class="com.yjy.listener.Sublistener"/>
     <import resource="spring/dataSource.xml" />
     <import resource="spring/spring-cache.xml" />
 

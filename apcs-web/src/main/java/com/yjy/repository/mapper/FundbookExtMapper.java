@@ -47,7 +47,7 @@ public interface FundbookExtMapper {
 
 
     //查询当期发生的所有用户id
-  List<Integer>  selectUserids( @Param("tableName") String tableName);
+  List<Integer>  selectUserids( @Param("tableName") String tableName,@Param("users") List<UserBasicInfo> users);
 
     //当期发生数据的账本
   List<String>  selectBookcodes( @Param("tableName") String tableName,
