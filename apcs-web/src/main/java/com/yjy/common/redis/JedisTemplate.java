@@ -1,12 +1,8 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.entity.UserBasicInfo;
-import com.yjy.jedisPubSub.JedisPubSubImpl;
-import com.yjy.jedisPubSub.SubPubMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;

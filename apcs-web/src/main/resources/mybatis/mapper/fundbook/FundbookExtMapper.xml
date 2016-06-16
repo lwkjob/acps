@@ -24,7 +24,7 @@
   <sql id="Where_Clause">
     <where>
       <if test="fundbook!=null and fundbook.bookcode != null ">
-       AND  BookCode=#{fundbook.bookcode}
+        AND  BookCode=#{fundbook.bookcode}
       </if>
 
       <if test="fundbook!=null and fundbook.bookid != null ">
@@ -35,7 +35,7 @@
         AND UserId = #{fundbook.userid}
       </if>
       <if test=" startTime !=0">
-         AND HappenTime &gt;=  #{startTime}
+        AND HappenTime &gt;=  #{startTime}
       </if>
 
       <if test=" endTime !=0">
@@ -49,14 +49,14 @@
 
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
     select
-      <include refid="Base_Column_List" />
+    <include refid="Base_Column_List" />
     from ${tableName}
-      <include refid="Where_Clause" />
-      <if test="!lastData">
-         ORDER  BY UserId,HappenTime  ASC
-      </if>
+    <include refid="Where_Clause" />
+    <if test="!lastData">
+      ORDER  BY UserId,BookCode,HappenTime,bookid  ASC
+    </if>
     <if test="lastData">
-      ORDER  BY UserId,HappenTime DESC limit 0,1
+      ORDER  BY UserId,BookCode,HappenTime DESC,bookid DESC limit 0,1
     </if>
 
   </select>
@@ -66,14 +66,14 @@
   <update id="batchUpdateByPrimaryKeySelective" parameterType="map" >
 
     update ${tableName}
-     SET Balance = CASE  BookId
-          <foreach collection="fundbooks" item="fundbook" index="index" open="" close=" " separator=" ">
-                WHEN  #{fundbook.bookid,jdbcType=BIGINT} THEN #{fundbook.balance,jdbcType=DECIMAL}
-          </foreach>
-          END
+    SET Balance = CASE  BookId
+    <foreach collection="fundbooks" item="fundbook" index="index" open="" close=" " separator=" ">
+      WHEN  #{fundbook.bookid,jdbcType=BIGINT} THEN #{fundbook.balance,jdbcType=DECIMAL}
+    </foreach>
+    END
     WHERE  BookId IN
     <foreach collection="fundbooks" item="fundbook" index="index" open="(" close=")" separator=",">
-        #{fundbook.bookid,jdbcType=BIGINT}
+      #{fundbook.bookid,jdbcType=BIGINT}
     </foreach>
 
   </update>
@@ -81,34 +81,34 @@
   <select id="selectByOneDay">
     select
     <include refid="Base_Column_List" />
-        from  ${tableName}
-     <where>
-       <if test="userid !=0">
-         UserId =#{userid}
-       </if>
-        <if test="bookcode!=null">
-          BookCode=#{bookcode}
-        </if>
-       <if test=" startTime !=0">
-         AND HappenTime &gt;=  #{startTime}
-       </if>
+    from  ${tableName}
+    <where>
+      <if test="userid !=0">
+        UserId =#{userid}
+      </if>
+      <if test="bookcode!=null">
+        BookCode=#{bookcode}
+      </if>
+      <if test=" startTime !=0">
+        AND HappenTime &gt;=  #{startTime}
+      </if>
 
-       <if test=" endTime !=0">
-         AND  HappenTime  &lt; #{endTime}
-       </if>
-       <if test="lastData">
-         ORDER  BY UserId,HappenTime DESC limit 0,1
-       </if>
-     </where>
+      <if test=" endTime !=0">
+        AND  HappenTime  &lt; #{endTime}
+      </if>
+      <if test="lastData">
+        ORDER  BY UserId,HappenTime DESC limit 0,1
+      </if>
+    </where>
 
 
   </select>
 
   <select id="selectUserids" resultType="java.lang.Integer" parameterType="map">
     select
-     userid
+    userid
     from  ${tableName}
-     GROUP by userid;
+    GROUP by userid;
 
   </select>
 
@@ -125,7 +125,7 @@
     <include refid="Base_Column_List" />
     from ${tableName}
     <include refid="Where_Clause" />
-    ORDER BY userid,happentime,bookcode
+    ORDER BY userid,bookcode,happentime,bookid
   </select>
 
 </mapper>

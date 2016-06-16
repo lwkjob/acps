@@ -1,11 +1,15 @@
 package com.yjy.common.utils;
 
 
+import com.yjy.entity.DelTableName;
+import org.apache.commons.lang3.*;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2016/6/2.
@@ -90,5 +94,34 @@ public class DateTools {
         date=DateUtils.setDays(date,1);
         date=DateUtils.addDays(date,-1);
         return simpleDateFormat.format(date);
+    }
+
+
+    /**
+     * 计算需要执行统计的月和月内的天
+     *
+     * @return
+     */
+    public static Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate,Logger logger) {
+        Map<String, DelTableName> map = new LinkedHashMap<>();//一定要有顺序
+        while (endDate.compareTo(startDate) != -1) {
+            String startStr = simpleDateFormat_yyyyMMdd.format(startDate);
+            String tableNameSuffix = org.apache.commons.lang3.StringUtils.substring(startStr, 0, 6);//数据库中yyyyMM作为表名的后缀
+            DelTableName delTableName = new DelTableName();
+            if (map.get(tableNameSuffix) != null) {
+                String startStrTemp = map.get(tableNameSuffix).getStartStr();
+                delTableName.setTableNameSuffix(tableNameSuffix);
+                delTableName.setStartStr(startStrTemp);
+                delTableName.setEndStr(startStr);
+            } else {
+                delTableName.setTableNameSuffix(tableNameSuffix);
+                delTableName.setStartStr(startStr);
+                delTableName.setEndStr(startStr);
+            }
+            map.put(tableNameSuffix, delTableName);
+            startDate = getNextDayDate(startDate);
+        }
+        logger.info("计算需要执行统计的月和月内的天:" + JsonUtils.toJson(map));
+        return map;
     }
 }

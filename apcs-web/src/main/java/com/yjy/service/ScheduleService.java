@@ -1,15 +1,15 @@
 package com.yjy.service;
 
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
+import com.yjy.entity.DelTableName;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
-import com.yjy.jedisPubSub.SubPubMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +31,9 @@ public class ScheduleService {
     @Resource
     private FundbookcodeService fundbookcodeService;
 
+    private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+    private static SimpleDateFormat simpleDateFormat_yyyyMMddHHmmss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
+
     private static final Logger logger = LoggerFactory.getLogger(ScheduleService.class);
 
     public void dayreport(String start ,String end,List<Fundbookcode> fundbookcodes,List<UserBasicInfo> users){
@@ -39,15 +42,31 @@ public class ScheduleService {
 
         try {
             long startRunTime=System.currentTimeMillis();
+            //1.1根据时间区间算出所有需要删数据的表名
             Date startDate= DateTools.parseDateFromString_yyyyMMdd(start, logger);
 
-            Date endDate= DateTools.parseDateFromString_yyyyMMdd(end,logger);
+            Date endDate= DateTools.parseDateFromString_yyyyMMdd(end, logger);
 
-            fundbookService.oneByOneUpdateBalance(startDate, endDate, fundbookcodes, users);
+            Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
 
-            fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
+            for (String key : deleteTableNameMap.keySet()) {
 
-            fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
+                long startRunTimes=System.currentTimeMillis();
+                //每个月
+                DelTableName delTableName = deleteTableNameMap.get(key);
+                Date startDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(),logger);
+                Date endDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59",logger);
+
+                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
+
+                fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
+
+                fundbookMonthService.insertFundBookMonth(startDateByTable, endDateByTable, bookcodemap);
+                long endRunTime=System.currentTimeMillis();
+                logger.info((double) (endRunTime - startRunTimes) / 1000 + "秒任务全部跑完了,"+delTableName.getTableNameSuffix());
+
+            }
+
             long endRunTime=System.currentTimeMillis();
             logger.info((double)(endRunTime-startRunTime)/1000+"秒任务全部跑完了");
         }catch (Exception e){

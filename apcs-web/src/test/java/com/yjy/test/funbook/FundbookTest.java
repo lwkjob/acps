@@ -1,20 +1,15 @@
 package com.yjy.test.funbook;
 
-import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.Fundbook;
-import com.yjy.entity.Fundbookcode;
-import com.yjy.entity.FundbookcodeExample;
 import com.yjy.entity.Fundbookday;
-import com.yjy.jedisPubSub.SubPubMessage;
 import com.yjy.service.FundbookDayService;
 import com.yjy.service.FundbookService;
 import com.yjy.service.FundbookcodeService;
-import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -25,7 +20,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by liwenke on 16/6/5.
@@ -79,19 +73,6 @@ public class FundbookTest {
         Date startDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
         Date endDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
         fundbookService.oneByOneUpdateBalance(startDate, endDate, null, null);
-    }
-
-
-    @Test
-    public void testSub(){
-        SubPubMessage subPubMessage=new SubPubMessage();
-        subPubMessage.setStartDate("20131201");
-        subPubMessage.setEndDate("20131231");
-        subPubMessage.setBookcodes(null);
-        subPubMessage.setUsers(null);
-        logger.info("主线程");
-        jedisTemplate.publish(RedisKey.REPORT_OF_DAY, JsonUtils.toJson(subPubMessage));
-        logger.info("主线程发布完了");
     }
 
 

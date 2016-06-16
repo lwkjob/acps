@@ -29,14 +29,11 @@ public class TestThread {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    int x = 0;
-                    for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
-                        x++;
 
-                        if (x % 4 == 0 || i == (jm * pageSize - 1) || i == (dataSize - 1)) {
-                            logger.info(Thread.currentThread().getName() + " 索引号 " + i+" list大小"+ x);
-                            x=0;
-                        }
+                    for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
+
+                            logger.info(Thread.currentThread().getName() + " 索引号 " + i);
+
                     }
 
 
