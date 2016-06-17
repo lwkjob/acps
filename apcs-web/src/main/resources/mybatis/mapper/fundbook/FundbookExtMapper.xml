@@ -128,4 +128,11 @@
     ORDER BY userid,bookcode,happentime,bookid
   </select>
 
+
+  <select id="sumMonthByBookcode" resultType="com.yjy.repository.dto.SumMonthByBookcode" parameterType="map">
+    select
+    userid,sum(debit) debit,sum(credit) credit,bookcode
+    from ${tablename}
+    where bookcode=#{bookcode} group by userid;
+  </select>
 </mapper>

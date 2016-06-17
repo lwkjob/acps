@@ -33,6 +33,8 @@ public class LoginController {
     private FundbookService fundbookService;
 
     @Resource
+    private FundbookServiceNew fundbookServiceNew;
+    @Resource
     private FundbookcodeService fundbookcodeService;
 
     @Resource
@@ -40,6 +42,9 @@ public class LoginController {
 
     @Resource
     private FundbookMonthService fundbookMonthService;
+
+    @Resource
+    private FundbookMonthServiceNew fundbookMonthServiceNew;
 
     @Resource
     private UserService userService;
@@ -110,10 +115,12 @@ public class LoginController {
                  fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+//                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+                 fundbookMonthServiceNew.insertFundBookMonth(startDate, endDate, bookcodemap,users);
                  break;
              default:
-                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+//                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+                 fundbookServiceNew.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
          }
 
         long endTime = System.currentTimeMillis();

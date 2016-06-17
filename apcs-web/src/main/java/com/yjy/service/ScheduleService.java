@@ -61,7 +61,8 @@ public class ScheduleService {
 
                 fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
 
-//                fundbookMonthService.insertFundBookMonth(startDateByTable, endDateByTable, bookcodemap);
+                fundbookMonthService.insertFundBookMonth(startDateByTable, endDateByTable, bookcodemap,users);
+
                 long endRunTime=System.currentTimeMillis();
                 logger.info((double) (endRunTime - startRunTimes) / 1000 + "秒任务全部跑完了,"+delTableName.getTableNameSuffix());
 

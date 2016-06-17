@@ -4,6 +4,7 @@ import com.yjy.common.dao.Pagination;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
+import com.yjy.repository.dto.SumMonthByBookcode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -62,5 +63,7 @@ public interface FundbookExtMapper {
                                            @Param("pagination") Pagination pagination
                                            );
 
+    List<SumMonthByBookcode> sumMonthByBookcode(@Param("tablename")String tablename,
+                                                @Param("bookcode") String bookcode);
 
 }
