@@ -96,8 +96,11 @@ public class FundbookMonthService {
                 Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, currentMonthLastDay + "23:59:59");
                 //用户注册时间
                 userCreateEndTime=endDateByTable.getTime()/1000l;
+                List<UserBasicInfo>    users2=new ArrayList<>();
                 if(users==null||users.size()<=0){
-                     users = userBasicExtMapper.getUsers(0, 0, bookcodetype, 0, userCreateEndTime);
+                        users2 = userBasicExtMapper.getUsers(0, 0, bookcodetype, 0, userCreateEndTime);
+                }else {
+                    users2=users;
                 }
                 for (int i=0;i<=(bookcodes.size()-1);i++) {
                     Fundbookcode bookcode=bookcodes.get(i);
@@ -105,9 +108,9 @@ public class FundbookMonthService {
                     //日清表的sum数据
                     Map<Integer,SumMonthByBookcode> monthByBookcodeMap=new HashedMap();
                     getSumDayRepoot(dayTableName, bookcode, monthByBookcodeMap);
-                    for (int j=0;j<=(users.size()-1);j++) {
+                    for (int j=0;j<=(users2.size()-1);j++) {
 
-                        UserBasicInfo userBasicInfo=users.get(j);
+                        UserBasicInfo userBasicInfo=users2.get(j);
 
                         SumMonthByBookcode sumMonthByBookcode =  monthByBookcodeMap.get(userBasicInfo.getUserid());
                         //3.3每个账本
