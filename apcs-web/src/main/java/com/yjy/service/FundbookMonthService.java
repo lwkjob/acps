@@ -118,9 +118,10 @@ public class FundbookMonthService {
                         if(!bookDateStr.equals("201309")){//201309之前没有数据
                             String prebalancekey =  String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
                             prebalanceStr =  jedisTemplate.get(prebalancekey);
-                            jedisTemplate.del(prebalancekey);
+                            if(prebalanceStr!=null){
+                                jedisTemplate.del(prebalancekey);
+                            }
                         }
-
                         BigDecimal preBalance=null;
                         BigDecimal balance=null;
 

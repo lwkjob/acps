@@ -32,8 +32,7 @@ public class LoginController {
     @Resource
     private FundbookService fundbookService;
 
-    @Resource
-    private FundbookServiceNew fundbookServiceNew;
+
     @Resource
     private FundbookcodeService fundbookcodeService;
 
@@ -43,14 +42,15 @@ public class LoginController {
     @Resource
     private FundbookMonthService fundbookMonthService;
 
-    @Resource
-    private FundbookMonthServiceNew fundbookMonthServiceNew;
 
     @Resource
     private UserService userService;
 
     @Resource
     private ScheduleService scheduleService;
+
+    @Resource
+    private ScheduleServiceNew scheduleServiceNew;
 
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -115,12 +115,10 @@ public class LoginController {
                  fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-//                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
-                 fundbookMonthServiceNew.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
                  break;
              default:
-//                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
-                 fundbookServiceNew.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+                 fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
          }
 
         long endTime = System.currentTimeMillis();
@@ -197,11 +195,20 @@ public class LoginController {
         return  mv;
     }
 
-   //暂时不需要
+   //
     @RequestMapping("/dayreport")
     public ModelAndView dayreport(String start,String end){
         ModelAndView mv=new ModelAndView();
-        scheduleService.dayreport(start,end,null,null);
+        scheduleService.dayreport(start, end, null, null);
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
+    //
+    @RequestMapping("/dayreport2")
+    public ModelAndView dayreport2(String start,String end){
+        ModelAndView mv=new ModelAndView();
+        scheduleServiceNew.dayreport(start,end,null,null);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }
