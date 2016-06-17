@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * 日清逻辑
  * Created by Administrator on 2016/5/31.
  */
-@Service("fundbookDayService")
+@Service("fundbookDayServiceNew")
 public class FundbookDayServiceNew {
 
     @Resource
