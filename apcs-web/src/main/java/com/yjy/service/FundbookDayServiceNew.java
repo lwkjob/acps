@@ -230,17 +230,19 @@ public class FundbookDayServiceNew {
                             if (setJedisVos.size() % 8000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipset(setJedisVos);
-                                setJedisVos=new ArrayList<JedisVo>();
+
                                 long cacheEnd = System.currentTimeMillis();
                                 logger.info(bookDateStr + "批量set" +setJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                setJedisVos=new ArrayList<JedisVo>();
                             }
 
                             if (delJedisVos.size() % 8000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipdel(delJedisVos);
-                                delJedisVos=new ArrayList<JedisVo>();
+
                                 long cacheEnd = System.currentTimeMillis();
                                 logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                delJedisVos=new ArrayList<JedisVo>();
 
                             }
                         }

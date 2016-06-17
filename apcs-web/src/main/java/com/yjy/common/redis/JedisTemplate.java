@@ -743,11 +743,11 @@ public class JedisTemplate implements Serializable {
             logger.info(jedisTemplate.get("key3"));
 
 
-//        jedisTemplate.pipdel(jedisVos);
+        jedisTemplate.pipdel(jedisVos);
 
-//        logger.info(jedisTemplate.get("key1"));
-//        logger.info(jedisTemplate.get("key2"));
-//        logger.info(jedisTemplate.get("key3"));
+        logger.info(jedisTemplate.get("key1"));
+        logger.info(jedisTemplate.get("key2"));
+        logger.info(jedisTemplate.get("key3"));
 
 
 
