@@ -1,6 +1,7 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
+import com.yjy.web.vo.JedisVo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.*;
@@ -247,19 +248,34 @@ public class JedisTemplate implements Serializable {
         });
     }
 
-    public void pipset(final Map<String,String> map) {
+    public void pipset(final List<JedisVo> jedisVos) {
         execute(new JedisActionNoResult() {
 
             @Override
             public void action(Jedis jedis) {
                 Pipeline pipelined = jedis.pipelined();
-                 for(String key:map.keySet()){
-                     pipelined.set(key,map.get(key));
+                 for(JedisVo jedisVo:jedisVos){
+                     pipelined.set(jedisVo.getKey(),jedisVo.getValue());
                  }
                 pipelined.sync();
             }
         });
     }
+
+    public void pipdel(final List<JedisVo> jedisVos) {
+        execute(new JedisActionNoResult() {
+
+            @Override
+            public void action(Jedis jedis) {
+                Pipeline pipelined = jedis.pipelined();
+                for(JedisVo jedisVo:jedisVos){
+                    pipelined.del(jedisVo.getKey());
+                }
+                pipelined.sync();
+            }
+        });
+    }
+
     public void setex(final String key, final String value, final int seconds) {
         execute(new JedisActionNoResult() {
 
@@ -713,7 +729,25 @@ public class JedisTemplate implements Serializable {
     public static void main(String[] args) {
         final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
         final  String key=RedisKey.REPORT_OF_DAY;
+                List<JedisVo> jedisVos=new ArrayList<>();
+                JedisVo jedisVo1=    new JedisVo("key1","va1");
+                JedisVo jedisVo2=    new JedisVo("key2","va2");
+                JedisVo jedisVo3=    new JedisVo("key3","va3");
+            jedisVos.add(jedisVo1);
+            jedisVos.add(jedisVo2);
+            jedisVos.add(jedisVo3);
 
+            jedisTemplate.pipset(jedisVos);
+            logger.info(jedisTemplate.get("key1"));
+            logger.info(jedisTemplate.get("key2"));
+            logger.info(jedisTemplate.get("key3"));
+
+
+//        jedisTemplate.pipdel(jedisVos);
+
+//        logger.info(jedisTemplate.get("key1"));
+//        logger.info(jedisTemplate.get("key2"));
+//        logger.info(jedisTemplate.get("key3"));
 
 
 
