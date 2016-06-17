@@ -89,8 +89,12 @@ public class FundbookDayService {
 
             String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
 
-            //1.2删除需要统计的数据
-            fundbookdayExtMapper.deleteAll(fundbookDayTableName);
+            if(users==null||users.size()<=0){
+                //1.2删除需要统计的数据
+                fundbookdayExtMapper.deleteAll(fundbookDayTableName);
+            }else {
+                fundbookdayExtMapper.deleteFundbookDay(null,users,fundbookDayTableName,0,0);
+            }
 
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户

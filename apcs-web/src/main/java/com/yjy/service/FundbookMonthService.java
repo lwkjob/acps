@@ -68,14 +68,18 @@ public class FundbookMonthService {
     }
 
 
-    public int insertFundBookMonth(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap) {
+    public int insertFundBookMonth(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo>    users) {
 
         long startRunTime = System.currentTimeMillis();
 
         while (endDate.compareTo(startDate) != -1) {
             List<Fundbookmonth> insertfundbookmonthList = new ArrayList<>();
             String monthTableName = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
-            fundbookMonthExtMapper.deleteAll(monthTableName);
+            if(users==null||users.size()<=0){
+                fundbookMonthExtMapper.deleteFundbookMonth(null,users,monthTableName);
+            }else {
+                fundbookMonthExtMapper.deleteAll(monthTableName);
+            }
 
             String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
 
@@ -93,8 +97,9 @@ public class FundbookMonthService {
                 Date endDateByTable = parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, currentMonthLastDay + "23:59:59");
                 //用户注册时间
                 userCreateEndTime=endDateByTable.getTime()/1000l;
-
-                List<UserBasicInfo>    users = userBasicExtMapper.getUsers(0, 0, bookcodetype, 0, userCreateEndTime);
+                if(users==null||users.size()<=0){
+                     users = userBasicExtMapper.getUsers(0, 0, bookcodetype, 0, userCreateEndTime);
+                }
                 for (int i=0;i<=(bookcodes.size()-1);i++) {
                     Fundbookcode bookcode=bookcodes.get(i);
 

@@ -110,7 +110,7 @@ public class LoginController {
                  fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
                  break;
              default:
                  fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
