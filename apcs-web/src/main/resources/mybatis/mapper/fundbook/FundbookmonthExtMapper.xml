@@ -60,4 +60,27 @@
     TRUNCATE TABLE ${tableName}
 
   </delete>
+
+
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List" />
+    from ${tableName}
+
+    <where>
+
+      <if test="fundbookmonth.userid!=null and fundbookmonth.userid!=0">
+        and userid=#{fundbookmonth.userid}
+      </if>
+
+      <if test="fundbookmonth.bookcode!=null">
+        and bookcode=#{fundbookmonth.bookcode}
+      </if>
+
+    </where>
+
+  </select>
+
+
 </mapper>

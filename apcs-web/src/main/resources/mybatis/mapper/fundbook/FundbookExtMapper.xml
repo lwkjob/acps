@@ -50,7 +50,7 @@
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="map" >
     select
       <include refid="Base_Column_List" />
-    from ${tableName}
+          from ${tableName}
       <include refid="Where_Clause" />
       <if test="!lastData">
          ORDER  BY UserId,BookCode,HappenTime,bookid  ASC
@@ -78,31 +78,6 @@
 
   </update>
 
-  <select id="selectByOneDay">
-    select
-    <include refid="Base_Column_List" />
-        from  ${tableName}
-     <where>
-       <if test="userid !=0">
-         UserId =#{userid}
-       </if>
-        <if test="bookcode!=null">
-          BookCode=#{bookcode}
-        </if>
-       <if test=" startTime !=0">
-         AND HappenTime &gt;=  #{startTime}
-       </if>
-
-       <if test=" endTime !=0">
-         AND  HappenTime  &lt; #{endTime}
-       </if>
-       <if test="lastData">
-         ORDER  BY UserId,HappenTime DESC limit 0,1
-       </if>
-     </where>
-
-
-  </select>
 
   <select id="selectUserids" resultType="java.lang.Integer" parameterType="map">
     select
@@ -133,6 +108,21 @@
     from ${tableName}
     <include refid="Where_Clause" />
     ORDER BY userid,bookcode,happentime,bookid
+  </select>
+
+
+  <select id="sumMonthByBookcode" resultType="com.yjy.repository.dto.SumMonthByBookcode" parameterType="map">
+    select
+    userid,sum(debit) debit,sum(credit) credit,bookcode
+    from ${tablename}
+    where bookcode=#{bookcode} group by userid;
+  </select>
+
+  <select id="sumMonthByUserid" resultType="com.yjy.repository.dto.SumMonthByBookcode" parameterType="map">
+    select
+    bookcode,sum(debit) debit,sum(credit) credit
+    from ${tablename}
+    where userid=#{userid} group by bookcode;
   </select>
 
 </mapper>

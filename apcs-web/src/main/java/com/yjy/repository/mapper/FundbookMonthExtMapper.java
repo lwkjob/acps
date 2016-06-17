@@ -25,4 +25,6 @@ public interface FundbookMonthExtMapper {
 
     //清空表
      void deleteAll(@Param("tableName")String tableName);
+
+
    }

@@ -32,6 +32,7 @@ public interface FundbookdayExtMapper {
    List<SumMonthByBookcode> sumMonthByBookcode(@Param("tablename")String tablename,
                                                @Param("bookcode") String bookcode);
 
+
     /**
      * @param fundbookday
      * @param tableName  刷余额的时候取前一个月的最后一条数据

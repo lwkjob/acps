@@ -4,6 +4,7 @@ import com.yjy.common.dao.Pagination;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
+import com.yjy.repository.dto.SumMonthByBookcode;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,20 +28,6 @@ public interface FundbookExtMapper {
 
 
 
-    /**
-     * @param tableName 所有用户当天发生的当前正本数据
-     * @param lastData  上一天的最后一条数据
-     * @return
-     */
-    List<Fundbook> selectByOneDay(
-                                   @Param("tableName") String tableName,
-                                   @Param("usersid")int userid,
-                                   @Param("bookcode") String bookcode,
-                                   @Param("startTime") long startTime,
-                                   @Param("endTime") long endTime,
-                                   @Param("lastData") boolean lastData);
-
-
 
     void batchUpdateByPrimaryKeySelective(@Param("fundbooks") List<Fundbook> fundbooks,
                                           @Param("tableName") String tableName);
@@ -61,6 +48,13 @@ public interface FundbookExtMapper {
                                            @Param("endTime") long endTime ,
                                            @Param("pagination") Pagination pagination
                                            );
+
+
+    List<SumMonthByBookcode> sumMonthByBookcode(@Param("tablename")String tablename,
+                                                @Param("bookcode") String bookcode);
+
+    List<SumMonthByBookcode> sumMonthByUserid(@Param("tablename")String tablename,
+                                              @Param("userid") int userid);
 
 
 }
