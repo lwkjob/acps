@@ -88,7 +88,7 @@ public class FundbookMonthService {
             //前一个月最后一天
             String preMonthLastDay= getPreMonthLastDay(startDate, simpleDateFormat_yyyyMMdd);
 
-            if(users==null||users.size()<=0){
+            if(users!=null&&users.size()>0){
                 for (UserBasicInfo userBasicInfo:users){
                     List<Fundbookcode> bookcodes=bookcodemap.get(userBasicInfo.getTypeId());
                     Map<String,SumMonthByBookcode> monthByBookcodeMap=new HashedMap();
