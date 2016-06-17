@@ -197,6 +197,54 @@
                 <div class="col-lg-12">
                     <div class="panel panel-default bootstrap-admin-no-table-panel">
                         <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">月结统计new</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/updateBalance2.shtml?monthFund=2" method="post">
+                                <fieldset>
+                                    <legend>Form Horizontal</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate9">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate9" type="text" value="201310" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate9">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate9" type="text" value="201310" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="userId9">用户编号</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="userId9" type="text" name="userid"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="accBook9">选择账本</label>
+                                        <div class="col-lg-10">
+                                            <select id="accBook9" class="form-control "  name="accBook">
+                                                <option value="">全部</option>
+                                                <c:forEach items="${bookcodes}" var="bookcode">
+                                                    <option value="${bookcode.bookcode}">
+                                                            ${bookcode.bookcodedesc}-(${bookcode.bookcode})
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <span class="help-block">选择一个账本统计</span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">月结统计</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>   </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
                             <div class="text-muted bootstrap-admin-box-title">月结统计</div>
                         </div>
                         <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">

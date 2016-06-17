@@ -38,6 +38,8 @@ public class LoginController {
 
     @Resource
     private FundbookDayService fundbookDayService;
+    @Resource
+    private FundbookDayServiceNew fundbookDayServiceNew;
 
     @Resource
     private FundbookMonthService fundbookMonthService;
@@ -118,11 +120,72 @@ public class LoginController {
                  fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
                  break;
              case 2:
-                 fundbookMonthServiceNew.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+                 fundbookMonthService.insertFundBookMonth(startDate, endDate, bookcodemap,users);
                  break;
              default:
                  fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
          }
+
+        long endTime = System.currentTimeMillis();
+        logger.info("总的执行时间:" + (float) (endTime - startTime) / 1000 + "秒");
+
+        return returnUrl;
+    }
+
+    @RequestMapping("/updateBalance2")
+    public String updateBalance2(UpdateBalanceVo updateBalanceVo,
+                                @RequestParam(value = "monthFund",required = false ,defaultValue = "0")int monthFund) {
+        String returnUrl = "redirect:/index.shtml";
+
+        List<Fundbookcode>  bookcodes = new ArrayList<>();
+
+        Date startDate = null;
+        Date endDate = null;
+        startDate = DateTools.parseDateFromString_yyyyMM(updateBalanceVo.getStartDate(),logger);
+        endDate = DateTools.parseDateFromString_yyyyMM(updateBalanceVo.getEndDate(),logger);
+
+        if (startDate.compareTo(endDate) == 1) {//startDate > endDate
+            logger.info("日期填写错误,开始日期" + updateBalanceVo.getStartDate() + ">结束日期" + updateBalanceVo.getEndDate() + "");
+            return returnUrl;
+        }
+
+
+        if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
+            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "&&");
+            Fundbookcode bookcode = new Fundbookcode();
+            bookcode.setFundtype(Integer.parseInt(accbookArray[0]));
+            bookcode.setBookcode(accbookArray[1]);
+            bookcodes.add(bookcode);
+        }
+
+
+        List<UserBasicInfo> users = null;
+        if (updateBalanceVo.getUserid()!=null) {
+            users=new ArrayList<>();
+            UserBasicInfo userBasicInfo =userService.getUsersByUserId(updateBalanceVo.getUserid());
+            if(userBasicInfo==null){
+                logger.error("数据有问题");
+                return returnUrl;
+            }
+            users.add(userBasicInfo);
+        }
+        Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
+
+
+        long startTime = System.currentTimeMillis();
+
+        switch (monthFund){
+            case 1:
+                startDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getStartDate(), logger);
+                endDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getEndDate(), logger);
+                fundbookDayServiceNew.insertFundBookDay(startDate, endDate, bookcodemap, users);
+                break;
+            case 2:
+                fundbookMonthServiceNew.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+                break;
+            default:
+                fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+        }
 
         long endTime = System.currentTimeMillis();
         logger.info("总的执行时间:" + (float) (endTime - startTime) / 1000 + "秒");
