@@ -83,7 +83,7 @@ public class FundbookMonthServiceNew {
             } else {
                 fundbookMonthExtMapper.deleteFundbookMonth(null, users, monthTableName);
             }
-            String dayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
+            String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + simpleDateFormat_yyyyMM.format(startDate);
 
             String bookDateStr = simpleDateFormat_yyyyMM.format(startDate);
             //本月最后一天
@@ -95,7 +95,7 @@ public class FundbookMonthServiceNew {
                 for (UserBasicInfo userBasicInfo : users) {
                     List<Fundbookcode> bookcodes = bookcodemap.get(userBasicInfo.getTypeId());
                     Map<String, SumMonthByBookcode> monthByBookcodeMap = new HashedMap();
-                    getSumMonthGroupBookcodeWhereUserid(dayTableName, userBasicInfo, monthByBookcodeMap);
+                    getSumMonthGroupBookcodeWhereUserid(fundbookTableName, userBasicInfo, monthByBookcodeMap);
                     for (int i = 0; i <= (bookcodes.size() - 1); i++) {
                         Fundbookcode bookcode = bookcodes.get(i);
                         //日清表的sum数据
@@ -174,7 +174,7 @@ public class FundbookMonthServiceNew {
 
                         //日清表的sum数据
                         Map<Integer, SumMonthByBookcode> monthByBookcodeMap = new HashedMap();
-                        getSumDayRepoot(dayTableName, bookcode, monthByBookcodeMap);
+                        getSumDayRepoot(fundbookTableName, bookcode, monthByBookcodeMap);
                         for (int j = 0; j <= (users2.size() - 1); j++) {
 
                             UserBasicInfo userBasicInfo = users2.get(j);
