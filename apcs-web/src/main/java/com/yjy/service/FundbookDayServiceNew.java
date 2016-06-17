@@ -218,15 +218,26 @@ public class FundbookDayServiceNew {
                                 jedsValue = preBalanceStr == null ? "0.0" : preBalanceStr;
                             }
 
-                            JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
-                            setJedisVos.add(jedisVo);
 
                             if (!preMonthLastDay.equals(preDateStr)) {
                                 JedisVo deljedisVo = new JedisVo(jedsPrekey);
                                 delJedisVos.add(deljedisVo);
 //                                jedisTemplate.del(jedsPrekey);  //用了就删了他,留下每月的最后一条数据
+                                if (delJedisVos.size() % 8000 == 0) {
+                                    long cacheStart = System.currentTimeMillis();
+                                    jedisTemplate.pipdel(delJedisVos);
+                                    long cacheEnd = System.currentTimeMillis();
+                                    logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                    delJedisVos=new ArrayList<JedisVo>();
+
+                                }
                             }
 //                            jedisTemplate.set(jedskey,jedsValue);
+
+
+                            JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
+                            setJedisVos.add(jedisVo);
+
                             if (setJedisVos.size() % 8000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipset(setJedisVos);
@@ -236,15 +247,7 @@ public class FundbookDayServiceNew {
                                 setJedisVos=new ArrayList<JedisVo>();
                             }
 
-                            if (delJedisVos.size() % 8000 == 0) {
-                                long cacheStart = System.currentTimeMillis();
-                                jedisTemplate.pipdel(delJedisVos);
 
-                                long cacheEnd = System.currentTimeMillis();
-                                logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
-                                delJedisVos=new ArrayList<JedisVo>();
-
-                            }
                         }
                     }
                     if (setJedisVos.size()!= 0) {

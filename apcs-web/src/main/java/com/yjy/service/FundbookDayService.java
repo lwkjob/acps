@@ -11,6 +11,7 @@ import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
+import com.yjy.web.vo.JedisVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -196,6 +197,8 @@ public class FundbookDayService {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
+                    List<JedisVo> delJedisVos = new ArrayList<JedisVo>();
+                    List<JedisVo> setJedisVos = new ArrayList<JedisVo>();
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
                         UserBasicInfo userBasicInfo = userOfMonthList.get(i);
                         //当前用户需要写的账本
@@ -212,7 +215,18 @@ public class FundbookDayService {
                                 String preBalanceStr = jedisTemplate.get(jedsPrekey);
                                 jedsValue = preBalanceStr==null?"0.0":preBalanceStr;
                             }
-                            jedisTemplate.set(jedskey,jedsValue);
+//                            jedisTemplate.set(jedskey,jedsValue);
+                            JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
+                            setJedisVos.add(jedisVo);
+
+                            if (setJedisVos.size() % 8000 == 0) {
+                                long cacheStart = System.currentTimeMillis();
+                                jedisTemplate.pipset(setJedisVos);
+
+                                long cacheEnd = System.currentTimeMillis();
+                                logger.info(bookDateStr + "批量set" +setJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                setJedisVos=new ArrayList<JedisVo>();
+                            }
                         }
                     }
                     countDownLatch.countDown();
