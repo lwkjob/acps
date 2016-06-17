@@ -229,6 +229,10 @@ public class FundbookDayService {
                             }
                         }
                     }
+                    if (setJedisVos.size()!= 0) {
+                        jedisTemplate.pipset(setJedisVos);
+                        logger.info(bookDateStr + "批量set最后一次" + setJedisVos.size() + "数据量" + preDateStr);
+                    }
                     countDownLatch.countDown();
                 }
             });
