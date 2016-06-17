@@ -27,6 +27,35 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">全部任务不写日清</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/dayreport2.shtml" method="post">
+                                <fieldset>
+                                    <legend>全部任务</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate8">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate8" type="text" value="20160901" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate8">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate8" type="text" value="20160901" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">不写日清</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
             <div class="row">
                 <div class="col-lg-12">
