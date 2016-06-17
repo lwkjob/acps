@@ -1,15 +1,15 @@
 package com.yjy.service;
 
 
+import com.yjy.common.constant.FundConstant;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
-import com.yjy.common.constant.FundConstant;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.Fundbookday;
 import com.yjy.entity.Fundbookmonth;
 import com.yjy.entity.UserBasicInfo;
 import com.yjy.repository.dto.SumMonthByBookcode;
+import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookMonthExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
@@ -32,14 +32,17 @@ import java.util.Map;
  * 月结逻辑
  * Created by Administrator on 2016/5/31.
  */
-@Service("fundbookMonthService")
-public class FundbookMonthService {
+@Service("fundbookMonthServiceNew")
+public class FundbookMonthServiceNew {
 
     @Resource
     private FundbookMonthExtMapper fundbookMonthExtMapper;
 
     @Resource
     private FundbookdayExtMapper fundbookdayExtMapper;
+
+    @Resource
+    private FundbookExtMapper fundbookExtMapper;
 
     @Resource
     private UserBasicExtMapper userBasicExtMapper;
@@ -49,7 +52,7 @@ public class FundbookMonthService {
     JedisTemplate jedisTemplate;
 
 
-    private static Logger logger = LoggerFactory.getLogger(FundbookMonthService.class);
+    private static Logger logger = LoggerFactory.getLogger(FundbookMonthServiceNew.class);
 
     private static SimpleDateFormat simpleDateFormat_yyyyMM = new SimpleDateFormat("yyyyMM");
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
@@ -244,14 +247,14 @@ public class FundbookMonthService {
     }
 
     private void getSumDayRepoot(String dayTableName, Fundbookcode bookcode, Map<Integer, SumMonthByBookcode> monthByBookcodeMap) {
-        List<SumMonthByBookcode> list=fundbookdayExtMapper.sumMonthByBookcode(dayTableName, bookcode.getBookcode());
+        List<SumMonthByBookcode> list=fundbookExtMapper.sumMonthByBookcode(dayTableName, bookcode.getBookcode());
         for (SumMonthByBookcode sumMonthByBookcode:list){
             monthByBookcodeMap.put(sumMonthByBookcode.getUserid(),sumMonthByBookcode);
         }
         list=null;
     }
     private void getSumMonthGroupBookcodeWhereUserid(String dayTableName, UserBasicInfo userBasicInfo, Map<String, SumMonthByBookcode> monthByBookcodeMap) {
-        List<SumMonthByBookcode> list=fundbookdayExtMapper.getSumMonthGroupBookcodeWhereUserid(dayTableName, userBasicInfo.getUserid());
+        List<SumMonthByBookcode> list=fundbookExtMapper.getSumMonthGroupBookcodeWhereUserid(dayTableName, userBasicInfo.getUserid());
         for (SumMonthByBookcode sumMonthByBookcode:list){
             monthByBookcodeMap.put(sumMonthByBookcode.getBookcode(),sumMonthByBookcode);
         }

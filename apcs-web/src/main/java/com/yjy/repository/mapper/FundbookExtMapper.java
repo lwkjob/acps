@@ -66,4 +66,7 @@ public interface FundbookExtMapper {
     List<SumMonthByBookcode> sumMonthByBookcode(@Param("tablename")String tablename,
                                                 @Param("bookcode") String bookcode);
 
+    List<SumMonthByBookcode> getSumMonthGroupBookcodeWhereUserid(@Param("tablename")String tablename,
+                                                                 @Param("userid") Integer userid);
+
 }
