@@ -223,7 +223,7 @@ public class FundbookMonthService {
                                 long memeoryRunTime = System.currentTimeMillis();
                                 fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                                 long insertRunTime = System.currentTimeMillis();
-                                logger.info(" 账本总数" + bookcodes.size() + " 账本顺序" + i + "用户总数 " + users.size() + " 用户顺序 " + j + " 插入完成账本用时" + (float) (insertRunTime - memeoryRunTime) / 1000 + " " + bookDateStr + " " + bookcode.getBookcode());
+                                logger.info(" 账本总数" + bookcodes.size() + " 账本顺序" + i +  " 用户顺序 " + j + " 插入完成账本用时" + (float) (insertRunTime - memeoryRunTime) / 1000 + " " + bookDateStr + " " + bookcode.getBookcode());
                                 insertfundbookmonthList = new ArrayList<>();
                             }
                         }
