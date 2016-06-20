@@ -51,7 +51,7 @@ public class FundbookService {
      *
      * @param bookcodes
      */
-    public void oneByOneUpdateBalance(Date startDate, Date endDate, final List<Fundbookcode> bookcodes, List<UserBasicInfo> users) {
+    public void oneByOneUpdateBalance(Date startDate, Date endDate, final List<Fundbookcode> bookcodes,  List<Integer> userids) {
 
         //轮训每一个月
 
@@ -61,10 +61,10 @@ public class FundbookService {
             final String startStr_yyyyMM = simpleDateFormat_yyyyMM.format(startDate);
             final String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + startStr_yyyyMM;
             List<Integer> selectUserids = null;
-            if (users != null) {
-                selectUserids = new ArrayList<>();
-                selectUserids.add(users.get(0).getUserid());
+            if (userids != null) {
+                selectUserids = userids;
             } else {
+                //发生数据的用户
                 selectUserids = fundbookExtMapper.selectUserids(tableName);
             }
             final int dataSize = selectUserids.size(); //01,23,4;
@@ -144,8 +144,10 @@ public class FundbookService {
                             }
 
                         }
-                        logger.info(jm + " 本线程最后一次更新余额" + insertFunbooks.size());
-                        fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
+                        if(insertFunbooks.size()>0){
+                            logger.info(jm + " 本线程最后一次更新余额" + insertFunbooks.size());
+                            fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
+                        }
                         insertFunbooks = null;
                         countDownLatch.countDown();
                     }

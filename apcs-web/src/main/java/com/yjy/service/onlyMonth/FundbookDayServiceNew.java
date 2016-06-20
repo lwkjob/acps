@@ -1,4 +1,4 @@
-package com.yjy.service;
+package com.yjy.service.onlyMonth;
 
 
 import com.yjy.common.constant.FundConstant;
@@ -484,7 +484,7 @@ public class FundbookDayServiceNew {
         final String tablename = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + StringUtils.substring(bookdate + "", 0, 6);
         final int pagesize = 8000;//一次取
         Pagination pagination = new Pagination(1, pagesize);
-        List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination);
+        List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination,null );
         logger.info(bookdate+" 总页数" + pagination.getPageCount());
         if (list != null && list.size() > 0) {
             ExecutorService executorService = Executors.newFixedThreadPool(30);
@@ -498,8 +498,8 @@ public class FundbookDayServiceNew {
 
                         Pagination pagination2 = new Pagination(j, pagesize);
 
-                        List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination2);
-                        cachePreMonthBalace(list);
+//                        List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination2, );
+//                        cachePreMonthBalace(list);
                         countDownLatch.countDown();
                     }
                 });

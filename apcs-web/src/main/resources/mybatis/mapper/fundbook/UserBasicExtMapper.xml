@@ -62,5 +62,23 @@
 
   </select>
 
+  <select id="getUsersByUserids" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    from
+    <include refid="tables"/>
+
+    <where>
+      <if test="userids!=null and userids.size>0">
+        userbasic.userid in
+        <foreach collection="userids" item="userid" separator="," open="(" close=")">
+            #{userid}
+        </foreach>
+       </if>
+    </where>
+
+
+  </select>
+
 
 </mapper>

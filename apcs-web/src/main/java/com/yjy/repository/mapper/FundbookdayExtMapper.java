@@ -51,7 +51,8 @@ public interface FundbookdayExtMapper {
 
     List<Fundbookday> selectByExample(@Param("fundbookday") Fundbookday fundbookday,
                                       @Param("tablename") String tablename,
-                                      @Param("pagination") Pagination pagination);
+                                      @Param("pagination") Pagination pagination,
+                                      @Param("userids") List<Integer> userids);
 
 
 

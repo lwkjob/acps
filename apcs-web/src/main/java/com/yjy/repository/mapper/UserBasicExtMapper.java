@@ -35,5 +35,5 @@ public interface UserBasicExtMapper {
      */
     List<UserBasicInfo> getUsersByExample(@Param("userBasicInfo")UserBasicInfo userBasicInfo);
 
-
+    List<UserBasicInfo> getUsersByUserids(@Param("userids")List<Integer> userids);
 }

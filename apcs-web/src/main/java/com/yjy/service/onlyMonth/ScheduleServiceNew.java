@@ -1,9 +1,11 @@
-package com.yjy.service;
+package com.yjy.service.onlyMonth;
 
 import com.yjy.common.utils.DateTools;
 import com.yjy.entity.DelTableName;
 import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.UserBasicInfo;
+import com.yjy.service.FundbookService;
+import com.yjy.service.FundbookcodeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,7 +59,7 @@ public class ScheduleServiceNew {
                 Date startDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(),logger);
                 Date endDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59",logger);
 
-                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
+//                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
 
                 fundbookDayServiceNew.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
 

@@ -5,6 +5,9 @@ import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
 import com.yjy.entity.*;
 import com.yjy.service.*;
+import com.yjy.service.onlyMonth.FundbookDayServiceNew;
+import com.yjy.service.onlyMonth.FundbookMonthServiceNew;
+import com.yjy.service.onlyMonth.ScheduleServiceNew;
 import com.yjy.web.vo.UpdateBalanceVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -26,20 +29,28 @@ import java.util.Map;
  */
 
 @Controller
-public class LoginController {
+@RequestMapping("/new")
+public class LoginControllerNew {
 
 
     @Resource
     private FundbookService fundbookService;
+
 
     @Resource
     private FundbookcodeService fundbookcodeService;
 
     @Resource
     private FundbookDayService fundbookDayService;
+    @Resource
+    private FundbookDayServiceNew fundbookDayServiceNew;
 
     @Resource
     private FundbookMonthService fundbookMonthService;
+
+    @Resource
+    private FundbookMonthServiceNew fundbookMonthServiceNew;
+
 
     @Resource
     private UserService userService;
@@ -47,8 +58,11 @@ public class LoginController {
     @Resource
     private ScheduleService scheduleService;
 
+    @Resource
+    private ScheduleServiceNew scheduleServiceNew;
 
-    private static Logger logger = LoggerFactory.getLogger(LoginController.class);
+
+    private static Logger logger = LoggerFactory.getLogger(LoginControllerNew.class);
 
 
 
@@ -129,8 +143,63 @@ public class LoginController {
         return useridList;
     }
 
+    //不写日清
+    @RequestMapping("/updateBalance2")
+    public String updateBalance2(UpdateBalanceVo updateBalanceVo,
+                                @RequestParam(value = "monthFund",required = false ,defaultValue = "0")int monthFund) {
+        String returnUrl = "redirect:/index.shtml";
 
-    //缓存账本到内存中
+        List<Fundbookcode>  bookcodes = new ArrayList<>();
+
+        Date startDate = null;
+        Date endDate = null;
+        startDate = DateTools.parseDateFromString_yyyyMM(updateBalanceVo.getStartDate(),logger);
+        endDate = DateTools.parseDateFromString_yyyyMM(updateBalanceVo.getEndDate(),logger);
+
+        if (startDate.compareTo(endDate) == 1) {//startDate > endDate
+            logger.info("日期填写错误,开始日期" + updateBalanceVo.getStartDate() + ">结束日期" + updateBalanceVo.getEndDate() + "");
+            return returnUrl;
+        }
+
+
+        if (!StringUtils.isBlank(updateBalanceVo.getAccBook())) {
+            String[] accbookArray = StringUtils.split(updateBalanceVo.getAccBook(), "&&");
+            Fundbookcode bookcode = new Fundbookcode();
+            bookcode.setFundtype(Integer.parseInt(accbookArray[0]));
+            bookcode.setBookcode(accbookArray[1]);
+            bookcodes.add(bookcode);
+        }
+
+
+        List<UserBasicInfo> users = null;
+        if (updateBalanceVo.getUserids()!=null) {
+            List<Integer> userids = getUserids(updateBalanceVo.getUserids());
+            users =userService.getUsersByUserids(userids);
+        }
+        Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
+
+
+        long startTime = System.currentTimeMillis();
+
+        switch (monthFund){
+            case 1:
+                startDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getStartDate(), logger);
+                endDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getEndDate(), logger);
+                fundbookDayServiceNew.insertFundBookDay(startDate, endDate, bookcodemap, users);
+                break;
+            case 2:
+                fundbookMonthServiceNew.insertFundBookMonth(startDate, endDate, bookcodemap,users);
+                break;
+            default:
+//                fundbookService.oneByOneUpdateBalance(startDate, endDate, bookcodes, users);
+        }
+
+        long endTime = System.currentTimeMillis();
+        logger.info("总的执行时间:" + (float) (endTime - startTime) / 1000 + "秒");
+
+        return returnUrl;
+    }
+
     private Map<Integer,List<Fundbookcode>> cacheFndbookcode(){
         Map<Integer,List<Fundbookcode>> map=new HashedMap();
         FundbookcodeExample example=new FundbookcodeExample();
@@ -149,9 +218,8 @@ public class LoginController {
         return map;
     }
 
-    //查询账本列表
     @RequestMapping("/fundbooklist")
-    public ModelAndView getFundbookList(@RequestParam(value = "currentPage",defaultValue = "1",required = false)int currentPage){
+    public ModelAndView getFundbookList(@RequestParam(value = "currentPage",defaultValue = "1")int currentPage){
         ModelAndView mv=new ModelAndView();
         int pageSize=5;
         Pagination<Fundbook> pagination=new Pagination(currentPage,pageSize);
@@ -166,7 +234,6 @@ public class LoginController {
         return  mv;
     }
 
-    //缓存用户
     @RequestMapping("/cacheUser")
     public ModelAndView cacheUser(String start,String end){
         ModelAndView mv=new ModelAndView();
@@ -194,7 +261,7 @@ public class LoginController {
     }
 
 
-    //全部任务
+    //
     @RequestMapping("/dayreport")
     public ModelAndView dayreport(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
         List<Integer> useridList=null;
@@ -207,6 +274,16 @@ public class LoginController {
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }
+
+    //
+    @RequestMapping("/dayreport2")
+    public ModelAndView dayreport2(String start,String end){
+        ModelAndView mv=new ModelAndView();
+        scheduleServiceNew.dayreport(start,end,null,null);
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
 
 
 

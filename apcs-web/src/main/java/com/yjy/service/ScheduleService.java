@@ -57,7 +57,7 @@ public class ScheduleService {
                 Date startDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(),logger);
                 Date endDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59",logger);
 
-                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
+//                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
 
                 fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
 

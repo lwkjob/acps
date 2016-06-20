@@ -27,7 +27,35 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">全部任务不写日清</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/dayreport2.shtml" method="post">
+                                <fieldset>
+                                    <legend>全部任务</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate8">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate8" type="text" value="20120601" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate8">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate8" type="text" value="20120601" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">不写日清</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
             <div class="row">
                 <div class="col-lg-12">
@@ -73,6 +101,15 @@
                             <form class="form-horizontal"  action="${ctx}/updateBalance.shtml" method="post">
                                 <fieldset>
                                     <legend>刷新余额</legend>
+
+                                    <%--<div class="form-group">
+                                        <label class="col-lg-2 control-label" for="date01">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input type="text" readonly class="form-control datepicker"  name="date01" id="date01" value="" data-date-format="yyyy-mm-dd">
+                                            <p class="help-block">In addition to freeform text, any HTML5 text-based input appears like so.</p>
+                                        </div>
+                                    </div>--%>
+
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate">开始日期</label>
                                         <div class="col-lg-10">
@@ -140,6 +177,8 @@
                                            <textarea class="form-control" rows="5" cols="100" name="userids" id="userids2"> </textarea>
                                         </div>
                                     </div>
+
+
                                     <div class="form-group ">
                                         <label class="col-lg-2 control-label" for="accBook2">选择账本</label>
                                         <div class="col-lg-10">
@@ -161,7 +200,54 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">月结统计new</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/updateBalance2.shtml?monthFund=2" method="post">
+                                <fieldset>
+                                    <legend>Form Horizontal</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate9">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate9" type="text" value="201206" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate9">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate9" type="text" value="201206" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="userids9">用户编号</label>
+                                        <div class="col-lg-10">
+                                            <textarea class="form-control" rows="5" cols="100" name="userids" id="userids9"></textarea>
+                                        </div>
+                                    </div>
 
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="accBook9">选择账本</label>
+                                        <div class="col-lg-10">
+                                            <select id="accBook9" class="form-control "  name="accBook">
+                                                <option value="">全部</option>
+                                                <c:forEach items="${bookcodes}" var="bookcode">
+                                                    <option value="${bookcode.bookcode}">
+                                                            ${bookcode.bookcodedesc}-(${bookcode.bookcode})
+                                                    </option>
+                                                </c:forEach>
+                                            </select>
+                                            <span class="help-block">选择一个账本统计</span>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">月结统计</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>   </div>
+                </div>
                 <div class="col-lg-12">
                     <div class="panel panel-default bootstrap-admin-no-table-panel">
                         <div class="panel-heading">
@@ -269,6 +355,34 @@
                                 </div>
                             </div>
 
+        <%--        <div class="col-lg-12">
+                    <div class="panel panel-default bootstrap-admin-no-table-panel">
+                        <div class="panel-heading">
+                            <div class="text-muted bootstrap-admin-box-title">删除redis缓存</div>
+                        </div>
+                        <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                            <form class="form-horizontal"  action="${ctx}/deleteCache.shtml" method="post">
+                                <fieldset>
+                                    <legend>删除redis缓存</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="startDate5">开始日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="startDate5" type="text" value="20130901" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label" for="endDate5">结束日期</label>
+                                        <div class="col-lg-10">
+                                            <input class="form-control" id="endDate5" type="text" value="20130930" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">删除redis缓存</button>
+                                    <button type="reset" class="btn btn-default">Cancel</button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>--%>
             </div>
         </div>
     </div>

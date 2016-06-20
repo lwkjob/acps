@@ -37,7 +37,23 @@
         select
         <include refid="Base_Column_List"/>
         from ${tablename}
-        <include refid="Example_Where_Clause"/>
+        <where>
+            <if test="fundbookday!=null and fundbookday.bookdate != null">
+                AND BookDate=#{fundbookday.bookdate}
+            </if>
+            <if test="fundbookday!=null and fundbookday.userid != null">
+                AND userid=#{fundbookday.userid}
+            </if>
+            <if test="fundbookday!=null and fundbookday.bookcode != null">
+                AND bookcode=#{fundbookday.bookcode}
+            </if>
+            <if test="userids!=null and userids.size>0">
+              AND  userid in
+                <foreach collection="userids" item="userid" separator="," open="(" close=")">
+                    #{userid}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 

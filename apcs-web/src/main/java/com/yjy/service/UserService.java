@@ -55,4 +55,8 @@ public class UserService {
         List<UserBasicInfo> usersByExample = userBasicExtMapper.getUsersByExample(userBasicInfo);
         return usersByExample.size()>0?usersByExample.get(0):null;
     }
+
+    public  List<UserBasicInfo> getUsersByUserids(List<Integer> userids){
+       return userBasicExtMapper.getUsersByUserids(userids);
+    }
 }
