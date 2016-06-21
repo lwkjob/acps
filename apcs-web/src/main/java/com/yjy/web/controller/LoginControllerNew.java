@@ -261,19 +261,7 @@ public class LoginControllerNew {
     }
 
 
-    //
-    @RequestMapping("/dayreport")
-    public ModelAndView dayreport(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
-        List<Integer> useridList=null;
-        if(useridsStr!=null){
-            useridList=getUserids(useridsStr);
-        }
-        List<UserBasicInfo> users = userService.getUsersByUserids(useridList);
-        ModelAndView mv=new ModelAndView();
-        scheduleService.dayreport(start, end, null, users);
-        mv.setViewName("redirect:/index.shtml");
-        return  mv;
-    }
+
 
     //
     @RequestMapping("/dayreport2")

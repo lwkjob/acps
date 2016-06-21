@@ -188,7 +188,7 @@ public class LoginController {
         ModelAndView mv=new ModelAndView();
         Fundbookday fundbookday=new Fundbookday();
         fundbookday.setBookdate(start);
-        fundbookDayService.getByBookdete(fundbookday,userids);
+        fundbookDayService.getByBookdete(fundbookday, userids);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }
@@ -198,12 +198,13 @@ public class LoginController {
     @RequestMapping("/dayreport")
     public ModelAndView dayreport(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
         List<Integer> useridList=null;
+        List<UserBasicInfo> users=null;
         if(useridsStr!=null){
             useridList=getUserids(useridsStr);
+            users=userService.getUsersByUserids(useridList);
         }
-        List<UserBasicInfo> users = userService.getUsersByUserids(useridList);
         ModelAndView mv=new ModelAndView();
-        scheduleService.dayreport(start, end, null, users);
+        scheduleService.dayreport(start, end, null, users,useridList);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }

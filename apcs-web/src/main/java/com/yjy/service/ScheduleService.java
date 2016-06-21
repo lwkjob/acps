@@ -36,7 +36,7 @@ public class ScheduleService {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleService.class);
 
-    public void dayreport(String start ,String end,List<Fundbookcode> fundbookcodes,List<UserBasicInfo> users){
+    public void dayreport(String start ,String end,List<Fundbookcode> fundbookcodes,List<UserBasicInfo> users,List<Integer> userids){
 
         Map<Integer, List<Fundbookcode>> bookcodemap = fundbookcodeService.cacheFndbookcode();
 
@@ -57,7 +57,7 @@ public class ScheduleService {
                 Date startDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(),logger);
                 Date endDateByTable =  DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59",logger);
 
-//                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, users);
+                fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, userids);
 
                 fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
 
@@ -65,7 +65,6 @@ public class ScheduleService {
 
                 long endRunTime=System.currentTimeMillis();
                 logger.info((double) (endRunTime - startRunTimes) / 1000 + "秒任务全部跑完了,"+delTableName.getTableNameSuffix());
-
             }
 
             long endRunTime=System.currentTimeMillis();

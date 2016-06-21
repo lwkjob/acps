@@ -42,13 +42,13 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate7">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate7" type="text" value="20120601" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="startDate7" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate7">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate7" type="text" value="20120601" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="endDate7" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -76,13 +76,13 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input value="201206" class="form-control" id="startDate" type="text" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input value="" class="form-control" id="startDate" type="text" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input value="201206" class="form-control" id="endDate" type="text" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input value="" class="form-control" id="endDate" type="text" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -125,13 +125,13 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate2">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate2" type="text" value="20120601" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="startDate2" type="text" value="" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate2">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate2" type="text" name="endDate" value="20120601"  readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="endDate2" type="text" name="endDate" value=""  readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -174,13 +174,13 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate3">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate3" type="text" value="201206" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input class="form-control" id="startDate3" type="text" value="" name="startDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate3">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate3" type="text" value="201206" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                            <input class="form-control" id="endDate3" type="text" value="" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -222,13 +222,13 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="startDate4">开始日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="startDate4" type="text" value="20120601" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="startDate4" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="endDate4">结束日期</label>
                                         <div class="col-lg-10">
-                                            <input class="form-control" id="endDate4" type="text" value="20120601" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                            <input class="form-control" id="endDate4" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary">刷用户</button>
@@ -251,7 +251,7 @@
                                                 <div class="form-group">
                                                     <label class="col-lg-2 control-label" for="startDate6">开始日期</label>
                                                     <div class="col-lg-10">
-                                                        <input class="form-control" id="startDate6" type="text" value="20120601" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                                        <input class="form-control" id="startDate6" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
