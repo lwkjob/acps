@@ -199,7 +199,7 @@ public class LoginController {
     public ModelAndView dayreport(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
         List<Integer> useridList=null;
         List<UserBasicInfo> users=null;
-        if(useridsStr!=null){
+        if(StringUtils.isNotBlank(useridsStr)){
             useridList=getUserids(useridsStr);
             users=userService.getUsersByUserids(useridList);
         }

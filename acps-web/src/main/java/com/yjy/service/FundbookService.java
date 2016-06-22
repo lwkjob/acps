@@ -61,7 +61,7 @@ public class FundbookService {
             final String startStr_yyyyMM = simpleDateFormat_yyyyMM.format(startDate);
             final String tableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + startStr_yyyyMM;
             List<Integer> selectUserids = null;
-            if (userids != null) {
+            if (userids != null&&userids.size()!=0) {
                 selectUserids = userids;
             } else {
                 //发生数据的用户
