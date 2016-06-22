@@ -63,7 +63,7 @@ public class FundbookTest {
     public void getByBookdete(){
         Fundbookday fundbookday=new Fundbookday();
         fundbookday.setBookdate(20131031);
-        fundbookDayService.getByBookdete(fundbookday);
+//        fundbookDayService.getByBookdete(fundbookday);
     }
 
 
@@ -72,7 +72,7 @@ public class FundbookTest {
     public void oneByOneUpdateBalance(){
         Date startDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
         Date endDate= DateTools.parseDateFromString_yyyyMM("201511",logger);
-        fundbookService.oneByOneUpdateBalance(startDate, endDate, null, null);
+        //fundbookService.oneByOneUpdateBalance(startDate, endDate, null, null);
     }
 
 
