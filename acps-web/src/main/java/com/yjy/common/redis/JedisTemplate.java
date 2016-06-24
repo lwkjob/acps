@@ -25,13 +25,13 @@ public class JedisTemplate implements Serializable {
 
     private Pool<Jedis> jedisPool;
 
-    public JedisTemplate(String host, int port, int timeout, int threadCount) {
+    public JedisTemplate(String host, int port, int timeout, int threadCount,String password,int database) {
         // 设置Pool大小，设为与线程数等大，并屏蔽掉idle checking
-        JedisPoolConfig poolConfig = JedisUtils.createPoolConfig(100, 100);
+        JedisPoolConfig poolConfig = JedisUtils.createPoolConfig(threadCount, threadCount);
 
 
         // create jedis pool
-        this.jedisPool = new JedisPool(poolConfig, host, port, timeout,"123");
+        this.jedisPool = new JedisPool(poolConfig, host, port, timeout,password,database);
 
     }
 
@@ -727,7 +727,7 @@ public class JedisTemplate implements Serializable {
     }
 
     public static void main(String[] args) {
-        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5);
+        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5,"123",1);
         final  String key=RedisKey.REPORT_OF_DAY;
                 List<JedisVo> jedisVos=new ArrayList<>();
                 JedisVo jedisVo1=    new JedisVo("key1","va1");
@@ -743,11 +743,11 @@ public class JedisTemplate implements Serializable {
             logger.info(jedisTemplate.get("key3"));
 
 
-        jedisTemplate.pipdel(jedisVos);
+        //jedisTemplate.pipdel(jedisVos);
 
-        logger.info(jedisTemplate.get("key1"));
-        logger.info(jedisTemplate.get("key2"));
-        logger.info(jedisTemplate.get("key3"));
+//        logger.info(jedisTemplate.get("key1"));
+//        logger.info(jedisTemplate.get("key2"));
+//        logger.info(jedisTemplate.get("key3"));
 
 
 

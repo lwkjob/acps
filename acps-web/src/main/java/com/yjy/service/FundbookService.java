@@ -51,7 +51,7 @@ public class FundbookService {
      *
      * @param bookcodes
      */
-    public void oneByOneUpdateBalance(Date startDate, Date endDate, final List<Fundbookcode> bookcodes,  List<Integer> userids) {
+    public void oneByOneUpdateBalance(Date startDate, final Date endDate, final List<Fundbookcode> bookcodes,  List<Integer> userids) {
 
         //轮训每一个月
 
@@ -89,9 +89,9 @@ public class FundbookService {
                                 if (bookcodes != null && bookcodes.size() > 0 && !isContains(bookcodes, bookcode))//如果不要求刷的 就不用刷了
                                     continue;
 
-                                Fundbookday fundbookday = new Fundbookday(); //查询上一个月的(查询条件)
-                                fundbookday.setBookcode(bookcode);
-                                fundbookday.setUserid(userid);
+//                                Fundbookday fundbookday = new Fundbookday(); //查询上一个月的(查询条件)
+//                                fundbookday.setBookcode(bookcode);
+//                                fundbookday.setUserid(userid);
                                 //前一个月 这个用户 这个账本 最后一条数据
                                 String prebalanceStr = null;
                                 if (!startStr_yyyyMM.equals("201309")) {//201309之前没有数据
@@ -131,10 +131,13 @@ public class FundbookService {
                                         }
                                         insertFunbooks.add(iFundbook);
                                         if (insertFunbooks.size() % 10000 == 0) {
+                                            long startupdate=System.currentTimeMillis();
                                             logger.info(jm + " 准备更新数量" + insertFunbooks.size());
                                             fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
+                                            long endupdate=System.currentTimeMillis();
+                                            logger.info(jm+" "+(double)(endupdate-startupdate)/1000 +  " 更新完成一次");
                                             insertFunbooks = new ArrayList<>();
-                                            logger.info(jm + " " + i + " 更新完成一次");
+
                                         }
                                         //轮训下一个条
                                         preFundbook = iFundbook;

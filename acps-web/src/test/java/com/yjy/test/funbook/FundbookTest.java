@@ -10,6 +10,8 @@ import com.yjy.entity.Fundbookday;
 import com.yjy.service.FundbookDayService;
 import com.yjy.service.FundbookService;
 import com.yjy.service.FundbookcodeService;
+import com.yjy.service.UserService;
+import com.yjy.web.vo.JedisVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,12 +34,16 @@ public class FundbookTest {
     @Resource
     private FundbookService fundbookService;
 
+
      @Resource
     private FundbookDayService fundbookDayService;
 
 
     @Resource
     private FundbookcodeService fundbookcodeService;
+
+    @Resource
+    private UserService userService;
 
     @Resource
     private JedisTemplate jedisTemplate;
@@ -75,5 +82,31 @@ public class FundbookTest {
         //fundbookService.oneByOneUpdateBalance(startDate, endDate, null, null);
     }
 
+
+    @Test
+    public void testRedis(){
+
+        List<JedisVo> jedisVos=new ArrayList<>();
+        JedisVo jedisVo1=    new JedisVo("key1","va1");
+        JedisVo jedisVo2=    new JedisVo("key2","va2");
+        JedisVo jedisVo3=    new JedisVo("key3","va3");
+        jedisVos.add(jedisVo1);
+        jedisVos.add(jedisVo2);
+        jedisVos.add(jedisVo3);
+
+        jedisTemplate.pipset(jedisVos);
+        logger.info(jedisTemplate.get("key1"));
+        logger.info(jedisTemplate.get("key2"));
+        logger.info(jedisTemplate.get("key3"));
+
+    }
+
+    //缓存每天的活跃用户到redis
+    @Test
+    public void cacheUsers(){
+        String start="20160301";
+        String end="20160331";
+        userService.cacheUsers(start, end);
+    }
 
 }

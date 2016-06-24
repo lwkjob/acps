@@ -7,5 +7,7 @@
         <constructor-arg name="port" value="${redis.port}"/>
         <constructor-arg name="timeout" value="${redis.timeout}"/>
         <constructor-arg name="threadCount" value="${redis.threadCount}"/>
+        <constructor-arg name="password" value="${redis.password}"/>
+        <constructor-arg name="database" value="${redis.database}"/>
     </bean>
 </beans>
