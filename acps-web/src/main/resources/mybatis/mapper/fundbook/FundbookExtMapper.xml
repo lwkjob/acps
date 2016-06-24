@@ -61,6 +61,28 @@
 
   </select>
 
+  <select id="selectByExampleInUserids" resultMap="BaseResultMap" parameterType="map" >
+    select
+    <include refid="Base_Column_List" />
+    from ${tableName}
+    <where>
+      userid IN
+      <foreach collection="users" item="user"  open="(" close=")" separator=",">
+           #{user.userid}
+      </foreach>
+      <if test=" startTime !=0">
+        AND HappenTime &gt;=  #{startTime}
+      </if>
+
+      <if test=" endTime !=0">
+        AND  HappenTime  &lt;= #{endTime}
+      </if>
+
+    </where>
+
+
+  </select>
+
 
 
   <update id="batchUpdateByPrimaryKeySelective" parameterType="map" >

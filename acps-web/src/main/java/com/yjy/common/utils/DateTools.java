@@ -58,6 +58,11 @@ public class DateTools {
         return date;
     }
 
+    //取前一天
+    public static Date getPreDayDate(Date startDate) {
+        Date preDate = DateUtils.addDays(startDate, -1);
+        return preDate;
+    }
 
     public static  String formate_yyyyMM( Date date) {
 

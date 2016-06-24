@@ -343,6 +343,17 @@ public class JedisTemplate implements Serializable {
         });
     }
 
+    public String lpop(final String key) {
+        return execute(new JedisAction<String>() {
+
+            @Override
+            public String action(Jedis jedis) {
+                return jedis.lpop(key);
+            }
+        });
+    }
+
+
     public void rpush(final String key, final String... values) {
         execute(new JedisActionNoResult() {
             @Override

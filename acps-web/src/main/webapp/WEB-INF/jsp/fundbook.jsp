@@ -269,6 +269,37 @@
                                 </div>
                             </div>
 
+
+                <div class="col-lg-12">
+                                <div class="panel panel-default bootstrap-admin-no-table-panel">
+                                    <div class="panel-heading">
+                                        <div class="text-muted bootstrap-admin-box-title">scheduleServiceDayNew</div>
+                                    </div>
+                                    <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                                        <form class="form-horizontal"  action="${ctx}/scheduleServiceDayNew.shtml" method="post">
+                                            <fieldset>
+                                                <legend>scheduleServiceDayNew</legend>
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label" for="startDate14">开始</label>
+                                                    <div class="col-lg-10">
+                                                        <input class="form-control" id="startDate14" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label" for="endDate14">结束</label>
+                                                    <div class="col-lg-10">
+                                                        <input class="form-control" id="endDate14" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
+                                                    </div>
+                                                </div>
+
+                                                <button type="submit" class="btn btn-primary">走</button>
+                                                <button type="reset" class="btn btn-default">Cancel</button>
+                                            </fieldset>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
             </div>
         </div>
     </div>

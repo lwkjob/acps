@@ -21,5 +21,7 @@ public class FundConstant {
     public static  final String FUNDBOOKDAY_TABLE_NAME_PRE ="fundbookday"; //日清表名前缀+yyyyMM
     public static  final String FUNDBOOKMONTH_TABLE_NAME_PRE ="fundbookmonth"; //月结表名前缀+yyyyMM
 
+    public static final String ZK_LOCK="ZK_LOCK";
+
 
 }

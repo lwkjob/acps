@@ -29,6 +29,20 @@ public interface FundbookExtMapper {
 
 
     /**
+     *
+     * @param tableName 要查询的账本表如:fundbook201309
+     * @return
+     */
+    List<Fundbook> selectByExampleInUserids(
+                                    @Param("tableName") String tableName,
+                                    @Param("startTime") long startTime,
+                                    @Param("endTime") long endTime,
+                                    @Param("users")List<UserBasicInfo> users);
+
+
+
+
+    /**
      * @param tableName 所有用户当天发生的当前正本数据
      * @param lastData  上一天的最后一条数据
      * @return

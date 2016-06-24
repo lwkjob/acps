@@ -5,6 +5,7 @@ import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
 import com.yjy.entity.*;
 import com.yjy.service.*;
+import com.yjy.service.distributed.ScheduleServiceDayNew;
 import com.yjy.web.vo.UpdateBalanceVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,9 @@ public class LoginController {
     @Resource
     private ScheduleService scheduleService;
 
+    @Resource
+    private ScheduleServiceDayNew scheduleServiceDayNew;
+
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
 
@@ -60,6 +64,7 @@ public class LoginController {
         modelAndView.addObject("bookcodes", bookcodes);
         return modelAndView;
     }
+
 
     @RequestMapping("/updateBalance")
     public String updateBalance(UpdateBalanceVo updateBalanceVo,
@@ -90,7 +95,7 @@ public class LoginController {
 
         List<UserBasicInfo> users = null;
         List<Integer> userids =null;
-        if (updateBalanceVo.getUserids()!=null) {
+        if (StringUtils.isNotBlank(updateBalanceVo.getUserids())) {
              userids = getUserids(updateBalanceVo.getUserids());
             users =userService.getUsersByUserids(userids);
         }
@@ -182,7 +187,7 @@ public class LoginController {
     @RequestMapping("/loadPreMonthBalance")
     public ModelAndView loadPreMonthBalance(int start,@RequestParam(value = "userids",required = false)String useridsStr){
         List<Integer> userids=null;
-        if(useridsStr!=null){
+        if(StringUtils.isNotBlank(useridsStr)){
             userids=getUserids(useridsStr);
         }
         ModelAndView mv=new ModelAndView();
@@ -204,7 +209,18 @@ public class LoginController {
             users=userService.getUsersByUserids(useridList);
         }
         ModelAndView mv=new ModelAndView();
-        scheduleService.dayreport(start, end, null, users,useridList);
+        scheduleService.dayreport(start, end, null, users, useridList);
+        mv.setViewName("redirect:/index.shtml");
+        return  mv;
+    }
+
+
+    //全部任务
+    @RequestMapping("/scheduleServiceDayNew")
+    public ModelAndView scheduleServiceDayNew(String start,String end){
+        ModelAndView mv=new ModelAndView();
+        Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
+        scheduleServiceDayNew.dayReportSchedule(start, end, bookcodemap);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }
