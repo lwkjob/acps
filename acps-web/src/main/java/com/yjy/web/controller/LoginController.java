@@ -220,8 +220,6 @@ public class LoginController {
     @RequestMapping("/scheduleServiceDayNew")
     public ModelAndView scheduleServiceDayNew(String start,String end){
         ModelAndView mv=new ModelAndView();
-
-
         scheduleServiceDayNew.scheduleCreate(start, end);
         mv.setViewName("redirect:/index.shtml");
         return  mv;

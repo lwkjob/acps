@@ -1,5 +1,6 @@
 package com.yjy.test.funbook;
 
+import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
@@ -11,11 +12,15 @@ import com.yjy.service.FundbookDayService;
 import com.yjy.service.FundbookService;
 import com.yjy.service.FundbookcodeService;
 import com.yjy.service.UserService;
+import com.yjy.service.distributed.ScheduleServiceDayNew;
+import com.yjy.service.subandpub.PubLisstener;
+import com.yjy.service.subandpub.SubLisstener;
 import com.yjy.web.vo.JedisVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -47,6 +52,23 @@ public class FundbookTest {
 
     @Resource
     private JedisTemplate jedisTemplate;
+
+
+    @Resource
+    private ScheduleServiceDayNew scheduleServiceDayNew;
+
+    @Value("${redis.host}")
+    private String host;
+    @Value("${redis.port}")
+    private int port;
+    @Value("${redis.timeout}")
+    private int timeout;
+    @Value("${redis.threadCount}")
+    private int threadCount;
+    @Value("${redis.password}")
+    private String password;
+    @Value("${redis.database}")
+    private int database;
 
     private static Logger logger= LoggerFactory.getLogger(Fundbook.class);
 
@@ -109,4 +131,35 @@ public class FundbookTest {
         userService.cacheUsers(start, end);
     }
 
+
+    @Test
+    public void lisstenerStart() throws  Exception{
+
+                new Thread(new Runnable() {
+
+                    public void run() {
+                          jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
+                        PubLisstener pubLisstener = new PubLisstener();
+                        pubLisstener.setJedisTemplate(jedisTemplate);
+                        pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
+                        logger.info("开始监听子任务完成状态");
+                        jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
+                    }
+                },"子任务完成状态监听线程").start();
+
+
+        new Thread(new Runnable() {
+
+            public void run() {
+                logger.info("开始监听接收任务");
+                 jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
+                SubLisstener subLisstener = new SubLisstener();
+                subLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
+                jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,subLisstener);
+
+            }
+        },"接收任务监听线程").start();
+
+        Thread.sleep(1000000);
+    }
 }

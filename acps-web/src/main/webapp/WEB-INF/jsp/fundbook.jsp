@@ -273,7 +273,7 @@
                 <div class="col-lg-12">
                                 <div class="panel panel-default bootstrap-admin-no-table-panel">
                                     <div class="panel-heading">
-                                        <div class="text-muted bootstrap-admin-box-title">scheduleServiceDayNew</div>
+                                        <div class="text-muted bootstrap-admin-box-title">分布式执行任务</div>
                                     </div>
                                     <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
                                         <form class="form-horizontal"  action="${ctx}/scheduleServiceDayNew.shtml" method="post">

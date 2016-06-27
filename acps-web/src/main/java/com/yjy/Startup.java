@@ -14,9 +14,10 @@ public class Startup {
     private static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
     public static void main(String[] args) {
+        System.setProperty(FundConstant.IS_MASTER,"0");
         ApplicationContext xmlApplicationContext = new ClassPathXmlApplicationContext("classpath*:/spring-config.xml");
         try {
-            System.setProperty(FundConstant.IS_MASTER,"0");
+
             logger.info("启动完成");
             synchronized (xmlApplicationContext){
                 xmlApplicationContext.wait();
