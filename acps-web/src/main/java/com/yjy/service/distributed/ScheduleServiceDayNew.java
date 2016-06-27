@@ -5,20 +5,16 @@ import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.common.zk.DayNodeCacheListener;
 import com.yjy.common.zk.ZkTemplate;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
 import com.yjy.repository.mapper.UserBasicExtMapper;
 import com.yjy.service.*;
+import com.yjy.service.subandpub.PubLisstener;
 import com.yjy.web.vo.JedisVo;
 import org.apache.commons.collections.map.HashedMap;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.NodeCache;
-import org.apache.curator.framework.recipes.cache.NodeCacheListener;
-import org.apache.zookeeper.CreateMode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,18 +31,9 @@ import java.util.concurrent.Executors;
  */
 @Service("scheduleServiceDayNew")
 public class ScheduleServiceDayNew {
-    @Resource
-    private FundbookService fundbookService;
-
-    @Resource
-    private FundbookDayService fundbookDayService;
-
-    @Resource
-    private FundbookMonthService fundbookMonthService;
 
     @Resource
     private FundbookcodeService fundbookcodeService;
-
 
     @Resource
     private UserBasicExtMapper userBasicExtMapper;
@@ -59,9 +46,6 @@ public class ScheduleServiceDayNew {
 
     @Resource
     private JedisTemplate jedisTemplate;
-
-    @Resource
-    private ZkTemplate zkTemplate;
 
     private static Calendar calendar = Calendar.getInstance();
 
@@ -78,7 +62,6 @@ public class ScheduleServiceDayNew {
 
     private Map<String, Fundbookday> getStringFundbookdayMapUsers(String table_yyyymm, Date startDateByTable, Date endDateByTable,List<UserBasicInfo> users) {
         Map<String, Fundbookday> fundbookdayMap;//2 统计每天每个用户每个账本数据
-//        Fundbook fundbookExample = new Fundbook(); //查询条件
         String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + table_yyyymm;
 
         List<Fundbook> fundbooks = getFundbooksUsers(
@@ -131,80 +114,55 @@ public class ScheduleServiceDayNew {
         fundbookDaySum.setUserid(fundbook.getUserid());
     }
 
+    //缓存账本到内存中
+    private Map<Integer,List<Fundbookcode>> cacheFndbookcode(){
+        Map<Integer,List<Fundbookcode>> map=new HashedMap();
+        FundbookcodeExample example=new FundbookcodeExample();
+        example.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_BUYER);
+        map.put(FundConstant.TYPEID_BUYER, fundbookcodeService.getFundbookcodesByExample(example));
 
-    //分布式日清
-    public void dayReportSchedule(String start, String end, final Map<Integer, List<Fundbookcode>> bookcodemap) {
-        try {
-            long startRunTime = System.currentTimeMillis();
-            //1.1根据时间区间算出所有需要删数据的表名
-            Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
 
-            Date endDate = DateTools.parseDateFromString_yyyyMMdd(end, logger);
+        FundbookcodeExample example2=new FundbookcodeExample();
+        example2.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_SALES);
+        map.put(FundConstant.TYPEID_SALES, fundbookcodeService.getFundbookcodesByExample(example2));
 
-            Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
+        FundbookcodeExample example3=new FundbookcodeExample();
+        example3.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_PLATFORM);
+        map.put(FundConstant.TYPEID_PLATFORM, fundbookcodeService.getFundbookcodesByExample(example3));
 
-            for (String key : deleteTableNameMap.keySet()) {
-                long startRunTimes = System.currentTimeMillis();
-                //每个月
-                DelTableName delTableName = deleteTableNameMap.get(key);
-                String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-                Date startDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(), logger);
-                Date endDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59", logger);
-                while (endDateByTable.compareTo(startDateByTable) != -1) {
-                    //每天
-                    String bookDateStr = DateTools.formate_yyyyMMdd(startDateByTable);
-                    //今天的活跃用户
-                    String currentDayStr = DateTools.formate_yyyyMMdd(startDateByTable);
-                    Date createEndTime = DateTools.parseDateFormat_yyyyMMddHHmmss(currentDayStr + "23:59:59", logger);
-                    //  今天的活跃用户数
-                    final List<UserBasicInfo> userListObject = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
-                    final int dataSize = userListObject.size(); //01,23,4;
-                    final int pageSize = 2000;
-                    final int cacheThreadCount = (dataSize / pageSize) + 1;
-                    final CountDownLatch countDownLatch = new CountDownLatch(cacheThreadCount);
-                    ExecutorService executorService = Executors.newFixedThreadPool(3);
-                    logger.info(cacheThreadCount + "页");
-                     Date preDate = DateTools.getPreDayDate(startDateByTable);
-                    String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
-                    for (int j = 1; j <= cacheThreadCount; j++) {
+        return map;
+    }
+    //分布式执行日清任务
+    public void dayReportSchedule(String start, List<UserBasicInfo> users) {
+        long startRunTime = System.currentTimeMillis();
+        Date startDate=DateTools.parseDateFromString_yyyyMMdd(start,logger);
+        Date endDate=DateTools.parseDateFormat_yyyyMMddHHmmss(start+"23:59:59",logger);
+        Date preDate = DateTools.getPreDayDate(startDate);
+        String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
 
-                        List<UserBasicInfo> tempUserList = new ArrayList<>();
-                        for (int i = (j - 1) * pageSize; !(i > (j * pageSize - 1) || i > (dataSize - 1)); i++) {
-                            tempUserList.add(userListObject.get(i));
-                        }
-                        final Map<String, Fundbookday> fundbookdayMap = getStringFundbookdayMapUsers(delTableName.getTableNameSuffix(), startDateByTable, createEndTime,tempUserList);
-                        //多线程刷当天的余额到redis
-                        cacheBalance(tempUserList, bookcodemap, preDateStr, bookDateStr, fundbookdayMap);
-                        FundbookdayRunner fundbookdayRunner = new FundbookdayRunner();
-                        fundbookdayRunner.setCountDownLatch(countDownLatch);
-                        fundbookdayRunner.setUsers(tempUserList);
-                        fundbookdayRunner.setBookcodemap(bookcodemap);
-                        fundbookdayRunner.setBookDate(startDateByTable);
-                        fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
-                        fundbookdayRunner.setFundbookdayMap(fundbookdayMap);
-                        fundbookdayRunner.setBookDateStr(bookDateStr);
-                        fundbookdayRunner.setPreDateStr(preDateStr);
-                        fundbookdayRunner.setFundbookDayTableName(fundbookDayTableName);
-                        fundbookdayRunner.setJedisTemplate(jedisTemplate);
-                        executorService.execute(fundbookdayRunner);
-
-                        logger.info(j + "跑完一次4000");
-
-                    }
-                    countDownLatch.await();
-                    executorService.shutdown();
-                    startDateByTable = DateTools.getNextDayDate(startDateByTable);
-                }
-                long endRunTime = System.currentTimeMillis();
-                logger.info((double) (endRunTime - startRunTimes) / 1000 + "秒任务全部跑完了," + delTableName.getTableNameSuffix());
-            }
-
-            long endRunTime = System.currentTimeMillis();
-            logger.info((double) (endRunTime - startRunTime) / 1000 + "秒任务全部跑完了");
-        } catch (Exception e) {
-            logger.error("报错了异常被吃了继续监听", e);
-        }
-
+        String bookcodemapJson= jedisTemplate.get(RedisKey.BOOKCODEMAP);
+        final Map<Integer, List<Fundbookcode>> bookcodemap=JsonUtils.readToMapList(bookcodemapJson);
+        String tableName=FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE+ StringUtils.substring(start,0,6);
+        final Map<String, Fundbookday> fundbookdayMap = getStringFundbookdayMapUsers(tableName, startDate, endDate,users);
+        //多线程刷当天的余额到redis
+        cacheBalance(users, bookcodemap, preDateStr, start, fundbookdayMap);
+        FundbookdayRunnerNew fundbookdayRunner = new FundbookdayRunnerNew();
+        fundbookdayRunner.setUsers(users);
+        fundbookdayRunner.setBookcodemap(bookcodemap);
+        fundbookdayRunner.setBookDate(startDate);
+        fundbookdayRunner.setFundbookdayExtMapper(fundbookdayExtMapper);
+        fundbookdayRunner.setFundbookdayMap(fundbookdayMap);
+        fundbookdayRunner.setBookDateStr(start);
+        fundbookdayRunner.setPreDateStr(preDateStr);
+        fundbookdayRunner.setFundbookDayTableName(tableName);
+        fundbookdayRunner.setJedisTemplate(jedisTemplate);
+        fundbookdayRunner.runJob();
+        long endRunTime = System.currentTimeMillis();
+        //执行完了 完成数+1,并通知主线程
+        jedisTemplate.incr(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL+start);
+        //通知任务中心,我干完了
+        jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER,start);
+        logger.info((double) (endRunTime - startRunTime) / 1000 + "秒任务全部跑完了");
     }
 
     //刷每天的余额到redis
@@ -278,7 +236,10 @@ public class ScheduleServiceDayNew {
     //创建任务
     public void scheduleCreate(String start, String end) {
         try {
+
             long startRunTime = System.currentTimeMillis();
+            Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
+            jedisTemplate.set(RedisKey.BOOKCODEMAP,JsonUtils.toJson(bookcodemap));
             //1.1根据时间区间算出所有需要删数据的表名
             Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
 
@@ -293,6 +254,7 @@ public class ScheduleServiceDayNew {
                 Date startDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(), logger);
                 Date endDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59", logger);
                 while (endDateByTable.compareTo(startDateByTable) != -1) {
+
                     //每天
                     String bookDateStr = DateTools.formate_yyyyMMdd(startDateByTable);
                     //今天的活跃用户
@@ -311,10 +273,15 @@ public class ScheduleServiceDayNew {
                         for (int i = (j - 1) * pageSize; !(i > (j * pageSize - 1) || i > (dataSize - 1)); i++) {
                             tempUserList.add(userListObject.get(i));
                         }
-                        jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_QUEUE+bookDateStr, JsonUtils.toJson(tempUserList));
+                        //创建每天的子任务
+                        jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_SUB_QUEUE +bookDateStr, JsonUtils.toJson(tempUserList));
                     }
+                    //创建每天日结任务
+                    jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_QUEUE,bookDateStr);
                     startDateByTable = DateTools.getNextDayDate(startDateByTable);
                 }
+                //任务创建完了开始分配任务
+                scheduleDispatcher();
                 long endRunTime = System.currentTimeMillis();
                 logger.info((double) (endRunTime - startRunTimes) / 1000 + "秒任务全部跑完了," + delTableName.getTableNameSuffix());
             }
@@ -327,10 +294,34 @@ public class ScheduleServiceDayNew {
     }
 
     //分配任务
-    public void scheduleDispatcher(String bookdateStr){
-        String userJson=  jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_QUEUE + bookdateStr);
-        List<UserBasicInfo> tempUserList=JsonUtils.readToList(userJson,UserBasicInfo.class);
-         //多线程刷当天的余额到redis
+    public void scheduleDispatcher(){
+        //取一个任务,然后通知子线程观察者
+        String bookDateStr=  jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_QUEUE);
+        if(StringUtils.isNotBlank(bookDateStr)){
+           long totalTask=jedisTemplate.llen(RedisKey.REPORT_OF_DAY_SUB_QUEUE+bookDateStr);
+            jedisTemplate.set(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP,bookDateStr+"|-"+totalTask);
+            jedisTemplate.publish(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,bookDateStr);
+        }
+    }
+
+    //领任务
+    public void getSchedule(){
+        boolean taskIsNull=false;
+        while (!taskIsNull){
+            String userJsons=null;
+            String bookdateAndTotal=jedisTemplate.get(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP);
+            String bookdate=null;
+            if(StringUtils.isNotBlank(bookdateAndTotal)){
+                bookdate=StringUtils.substring(bookdateAndTotal,0,6);
+                userJsons=jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_SUB_QUEUE+bookdate);
+            }else {
+                taskIsNull=true;
+                logger.info("没任务了");
+                continue;
+            }
+            List<UserBasicInfo> users= JsonUtils.readToList(userJsons,UserBasicInfo.class);
+            dayReportSchedule(bookdate,users);
+        }
 
     }
 }

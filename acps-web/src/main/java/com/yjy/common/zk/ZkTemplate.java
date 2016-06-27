@@ -4,7 +4,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Administrator on 2016/6/24.
@@ -25,5 +28,14 @@ public class ZkTemplate {
 
     public CuratorFramework getCuratorClient(){
         return this.curatorFramework;
+    }
+
+    public static void main(String[] args) throws Exception{
+        ZkTemplate zkTemplate= new ZkTemplate("localhost:2181");
+        CuratorFramework curatorFramework= zkTemplate.getCuratorClient();
+        curatorFramework.start();
+        InterProcessMutex mutex=new InterProcessMutex(curatorFramework,"/com/yjy/acps/lock/master");
+        mutex.acquire(10, TimeUnit.SECONDS);
+        Thread.sleep(1000000);
     }
 }

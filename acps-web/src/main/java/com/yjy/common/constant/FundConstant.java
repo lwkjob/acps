@@ -23,5 +23,7 @@ public class FundConstant {
 
     public static final String ZK_LOCK="ZK_LOCK";
 
+    public static final String IS_MASTER="IS_MASTER";
+
 
 }

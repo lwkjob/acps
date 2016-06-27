@@ -1,7 +1,12 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
+import com.yjy.entity.Fundbookcode;
+import com.yjy.service.subandpub.PubLisstener;
+import com.yjy.service.subandpub.SubLisstener;
 import com.yjy.web.vo.JedisVo;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.*;
@@ -32,6 +37,15 @@ public class JedisTemplate implements Serializable {
 
         // create jedis pool
         this.jedisPool = new JedisPool(poolConfig, host, port, timeout,password,database);
+
+    }
+    public JedisTemplate(String host, int port, int timeout, int threadCount,int database) {
+        // 设置Pool大小，设为与线程数等大，并屏蔽掉idle checking
+        JedisPoolConfig poolConfig = JedisUtils.createPoolConfig(threadCount, threadCount);
+
+
+        // create jedis pool
+        this.jedisPool = new JedisPool(poolConfig, host);
 
     }
 
@@ -737,8 +751,9 @@ public class JedisTemplate implements Serializable {
         });
     }
 
-    public static void main(String[] args) {
-        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5,"123",1);
+    public static void main(String[] args) throws  Exception{
+//        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5,"123",1);
+        final   JedisTemplate jedisTemplate=new JedisTemplate("127.0.0.1",6379,15000,5,1);
         final  String key=RedisKey.REPORT_OF_DAY;
                 List<JedisVo> jedisVos=new ArrayList<>();
                 JedisVo jedisVo1=    new JedisVo("key1","va1");
@@ -759,11 +774,48 @@ public class JedisTemplate implements Serializable {
 //        logger.info(jedisTemplate.get("key1"));
 //        logger.info(jedisTemplate.get("key2"));
 //        logger.info(jedisTemplate.get("key3"));
+            logger.info(jedisTemplate.llen("lwk"));
+
+//        Map<Integer,List<Fundbookcode>> fundbookMap=new HashedMap();
+//        Map<Integer,List<Fundbookcode>> fundbookMap2=new HashedMap();
+//        Fundbookcode fundbookcode=new Fundbookcode();
+//        fundbookcode.setBookcode("1");
+//        fundbookcode.setBookcodedesc("11");
+//        Fundbookcode fundbookcode2=new Fundbookcode();
+//        fundbookcode2.setBookcode("2");
+//        fundbookcode2.setBookcodedesc("22");
+//        Fundbookcode fundbookcode3=new Fundbookcode();
+//        fundbookcode3.setBookcode("3");
+//        fundbookcode3.setBookcodedesc("33");
+//        List<Fundbookcode> fundbookcodes=new ArrayList<>();
+//        fundbookcodes.add(fundbookcode);
+//        fundbookcodes.add(fundbookcode2);
+//        fundbookcodes.add(fundbookcode3);
+//        fundbookMap.put(2,fundbookcodes);
+//        jedisTemplate.set("nimei",JsonUtils.toJson(fundbookMap));
+//        String mmd=jedisTemplate.get("nimei");
+//        logger.info(mmd);
+//        fundbookMap2=  JsonUtils.readToMapList(mmd);
+//
+//        logger.info(fundbookMap2.get(2).get(0).getBookcodedesc());
 
 
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                jedisTemplate.subscribe("lwk",new SubLisstener());
+            }
+        }).start();
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                jedisTemplate.subscribe("lwk2",new PubLisstener());
+            }
+        }).start();
+        logger.info("完事");
+
+        Thread.sleep(Integer.MAX_VALUE);
     }
-
-
 }

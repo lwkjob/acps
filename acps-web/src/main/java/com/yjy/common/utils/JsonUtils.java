@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import com.yjy.entity.Fundbookcode;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
@@ -21,6 +22,7 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.codehaus.jackson.type.JavaType;
+import org.codehaus.jackson.type.TypeReference;
 
 /**
  * Json处理类
@@ -113,6 +115,35 @@ public class JsonUtils {
         }
         return Collections.EMPTY_MAP;
     }
+
+    /**
+     * 返回JSON数据构造成的Map
+     *
+     * @param jsonText
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public static   Map<Integer,List<Fundbookcode>> readToMapList(String jsonText) {
+        ObjectMapper o = new ObjectMapper();
+        o.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+        o.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        o.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+        o.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        o.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+        Map maps = null;
+        try {
+            maps = o.readValue(jsonText, new TypeReference<Map<Integer, List<Fundbookcode>>>()  {});
+            return maps;
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Collections.EMPTY_MAP;
+    }
+
 
 
     public static <T> List<T> readToList(String jsonText, Class<T> clazz) {

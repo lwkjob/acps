@@ -2,6 +2,7 @@ package com.yjy.web.controller;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
+import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
 import com.yjy.entity.*;
 import com.yjy.service.*;
@@ -219,8 +220,9 @@ public class LoginController {
     @RequestMapping("/scheduleServiceDayNew")
     public ModelAndView scheduleServiceDayNew(String start,String end){
         ModelAndView mv=new ModelAndView();
-        Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
-        scheduleServiceDayNew.dayReportSchedule(start, end, bookcodemap);
+
+
+        scheduleServiceDayNew.scheduleCreate(start, end);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }
