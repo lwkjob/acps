@@ -63,7 +63,6 @@ public class ScheduleServiceDayNew {
     private int database;
 
 
-
     private static Calendar calendar = Calendar.getInstance();
 
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
@@ -74,10 +73,10 @@ public class ScheduleServiceDayNew {
 
     //查询区间内全部账本数据
     public List<Fundbook> getFundbooksUsers(String tableName, long startTime, long endTime, List<UserBasicInfo> users) {
-        return fundbookExtMapper.selectByExampleInUserids( tableName, startTime,endTime, users);
+        return fundbookExtMapper.selectByExampleInUserids(tableName, startTime, endTime, users);
     }
 
-    private Map<String, Fundbookday> getStringFundbookdayMapUsers(String table_yyyymm, Date startDateByTable, Date endDateByTable,List<UserBasicInfo> users) {
+    private Map<String, Fundbookday> getStringFundbookdayMapUsers(String table_yyyymm, Date startDateByTable, Date endDateByTable, List<UserBasicInfo> users) {
         Map<String, Fundbookday> fundbookdayMap;//2 统计每天每个用户每个账本数据
         String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + table_yyyymm;
 
@@ -90,12 +89,13 @@ public class ScheduleServiceDayNew {
         fundbookdayMap = getFundbookDay(fundbooks);
         return fundbookdayMap;
     }
+
     /**
      * 统计每天的发生数据
      * 计算范围时间内:每天-每个账本-每个用户 的sum(借),sum(贷),余
      * 取出来的数据必须是按照按照用户和发生时间排好序
      */
-    
+
     public Map<String, Fundbookday> getFundbookDay(List<Fundbook> fundbooks) {
         Map<String, Fundbookday> map = new HashedMap();
         for (Fundbook fundbook : fundbooks) {
@@ -133,37 +133,38 @@ public class ScheduleServiceDayNew {
     }
 
     //缓存账本到内存中
-    private Map<Integer,List<Fundbookcode>> cacheFndbookcode(){
-        Map<Integer,List<Fundbookcode>> map=new HashedMap();
-        FundbookcodeExample example=new FundbookcodeExample();
+    private Map<Integer, List<Fundbookcode>> cacheFndbookcode() {
+        Map<Integer, List<Fundbookcode>> map = new HashedMap();
+        FundbookcodeExample example = new FundbookcodeExample();
         example.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_BUYER);
         map.put(FundConstant.TYPEID_BUYER, fundbookcodeService.getFundbookcodesByExample(example));
 
 
-        FundbookcodeExample example2=new FundbookcodeExample();
+        FundbookcodeExample example2 = new FundbookcodeExample();
         example2.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_SALES);
         map.put(FundConstant.TYPEID_SALES, fundbookcodeService.getFundbookcodesByExample(example2));
 
-        FundbookcodeExample example3=new FundbookcodeExample();
+        FundbookcodeExample example3 = new FundbookcodeExample();
         example3.createCriteria().andRolecodeEqualTo(FundConstant.ROLECODE_PLATFORM);
         map.put(FundConstant.TYPEID_PLATFORM, fundbookcodeService.getFundbookcodesByExample(example3));
 
         return map;
     }
+
     //分布式执行日清任务
     public void dayReportSchedule(String start, List<UserBasicInfo> users) {
-        logger.info("领导任务 开始搞"+start);
+        logger.info("领导任务 开始搞" + start);
         long startRunTime = System.currentTimeMillis();
-        Date startDate=DateTools.parseDateFromString_yyyyMMdd(start, logger);
-        Date endDate=DateTools.parseDateFormat_yyyyMMddHHmmss(start + "23:59:59", logger);
+        Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
+        Date endDate = DateTools.parseDateFormat_yyyyMMddHHmmss(start + "23:59:59", logger);
         Date preDate = DateTools.getPreDayDate(startDate);
         String preDateStr = simpleDateFormat_yyyyMMdd.format(preDate);
 
-        String bookcodemapJson= jedisTemplate.get(RedisKey.BOOKCODEMAP);
-        final Map<Integer, List<Fundbookcode>> bookcodemap=JsonUtils.readToMapList(bookcodemapJson);
-        String table_yyyymm=StringUtils.substring(start, 0, 6);
-        String tableName=FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE+StringUtils.substring(start, 0,6);
-        final Map<String, Fundbookday> fundbookdayMap = getStringFundbookdayMapUsers(table_yyyymm, startDate, endDate,users);
+        String bookcodemapJson = jedisTemplate.get(RedisKey.BOOKCODEMAP);
+        final Map<Integer, List<Fundbookcode>> bookcodemap = JsonUtils.readToMapList(bookcodemapJson);
+        String table_yyyymm = StringUtils.substring(start, 0, 6);
+        String tableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + StringUtils.substring(start, 0, 6);
+        final Map<String, Fundbookday> fundbookdayMap = getStringFundbookdayMapUsers(table_yyyymm, startDate, endDate, users);
         //多线程刷当天的余额到redis
         cacheBalance(users, bookcodemap, preDateStr, start, fundbookdayMap);
         FundbookdayRunnerNew fundbookdayRunner = new FundbookdayRunnerNew();
@@ -179,9 +180,9 @@ public class ScheduleServiceDayNew {
         fundbookdayRunner.runJob();
         long endRunTime = System.currentTimeMillis();
         //执行完了 完成数+1,并通知主线程
-        jedisTemplate.incr(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL+start);
+        jedisTemplate.incr(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL + start);
         //通知任务中心,我干完了
-        jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER,start);
+        jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, start);
         logger.info((double) (endRunTime - startRunTime) / 1000 + "秒任务全部跑完了");
     }
 
@@ -203,7 +204,7 @@ public class ScheduleServiceDayNew {
         for (int j = 1; j <= cacheThreadCount; j++) {
             final int jm = j;
             executorService.execute(new Runnable() {
-                
+
                 public void run() {
                     List<JedisVo> setJedisVos = new ArrayList<JedisVo>();
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
@@ -220,7 +221,7 @@ public class ScheduleServiceDayNew {
                                 jedsValue = fundbookdaysss.getBalance().doubleValue() + "";
                             } else {
                                 String preBalanceStr = jedisTemplate.get(jedsPrekey);
-                                jedsValue = preBalanceStr==null?"0.0":preBalanceStr;
+                                jedsValue = preBalanceStr == null ? "0.0" : preBalanceStr;
                             }
                             JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
                             setJedisVos.add(jedisVo);
@@ -229,12 +230,12 @@ public class ScheduleServiceDayNew {
                                 jedisTemplate.pipset(setJedisVos);
 
                                 long cacheEnd = System.currentTimeMillis();
-                                logger.info(bookDateStr + "批量set" +setJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
-                                setJedisVos=new ArrayList<JedisVo>();
+                                logger.info(bookDateStr + "批量set" + setJedisVos.size() + "数据量，" + (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                setJedisVos = new ArrayList<JedisVo>();
                             }
                         }
                     }
-                    if (setJedisVos.size()!= 0) {
+                    if (setJedisVos.size() != 0) {
                         jedisTemplate.pipset(setJedisVos);
                         logger.info(bookDateStr + "批量set最后一次" + setJedisVos.size() + "数据量" + preDateStr);
                     }
@@ -255,126 +256,127 @@ public class ScheduleServiceDayNew {
 
     //创建任务
     public void scheduleCreate(String start, String end) {
-            Map<Integer,List<Fundbookcode>>  bookcodemap=  cacheFndbookcode();
-            jedisTemplate.set(RedisKey.BOOKCODEMAP,JsonUtils.toJson(bookcodemap));
-            //1.1根据时间区间算出所有需要删数据的表名
-            Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
+        Map<Integer, List<Fundbookcode>> bookcodemap = cacheFndbookcode();
+        jedisTemplate.set(RedisKey.BOOKCODEMAP, JsonUtils.toJson(bookcodemap));
+        //1.1根据时间区间算出所有需要删数据的表名
+        Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
 
-            Date endDate = DateTools.parseDateFromString_yyyyMMdd(end, logger);
+        Date endDate = DateTools.parseDateFromString_yyyyMMdd(end, logger);
 
-            Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
+        Map<String, DelTableName> deleteTableNameMap = DateTools.getDeleteTableName(startDate, endDate, logger);
 
-            for (String key : deleteTableNameMap.keySet()) {
-                //每个月
-                DelTableName delTableName = deleteTableNameMap.get(key);
-                Date startDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(), logger);
-                Date endDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59", logger);
-                while (endDateByTable.compareTo(startDateByTable) != -1) {
+        for (String key : deleteTableNameMap.keySet()) {
+            //每个月
+            DelTableName delTableName = deleteTableNameMap.get(key);
+            Date startDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(), logger);
+            Date endDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59", logger);
+            while (endDateByTable.compareTo(startDateByTable) != -1) {
 
-                    //每天
-                    String bookDateStr = DateTools.formate_yyyyMMdd(startDateByTable);
-                    //今天的活跃用户
-                    String currentDayStr = DateTools.formate_yyyyMMdd(startDateByTable);
-                    Date createEndTime = DateTools.parseDateFormat_yyyyMMddHHmmss(currentDayStr + "23:59:59", logger);
-                    //  今天的活跃用户数
-                    final List<UserBasicInfo> userListObject = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
-                    final int dataSize = userListObject.size(); //01,23,4;
-                    final int pageSize = 2000;
-                    final int cacheThreadCount = (dataSize / pageSize) + 1;
+                //每天
+                String bookDateStr = DateTools.formate_yyyyMMdd(startDateByTable);
+                //今天的活跃用户
+                String currentDayStr = DateTools.formate_yyyyMMdd(startDateByTable);
+                Date createEndTime = DateTools.parseDateFormat_yyyyMMddHHmmss(currentDayStr + "23:59:59", logger);
+                //  今天的活跃用户数
+                final List<UserBasicInfo> userListObject = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
+                final int dataSize = userListObject.size(); //01,23,4;
+                final int pageSize = 2000;
+                final int cacheThreadCount = (dataSize / pageSize) + 1;
 
-                    logger.info(bookDateStr+" "+cacheThreadCount + "页");
-                    jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
-                    for (int j = 1; j <= cacheThreadCount; j++) {
+                logger.info(bookDateStr + " " + cacheThreadCount + "页");
+                jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
+                for (int j = 1; j <= cacheThreadCount; j++) {
 
-                        List<UserBasicInfo> tempUserList = new ArrayList<>();
-                        for (int i = (j - 1) * pageSize; !(i > (j * pageSize - 1) || i > (dataSize - 1)); i++) {
-                            tempUserList.add(userListObject.get(i));
-                        }
-                        //创建每天的子任务
-                        jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_SUB_QUEUE +bookDateStr, JsonUtils.toJson(tempUserList));
+                    List<UserBasicInfo> tempUserList = new ArrayList<>();
+                    for (int i = (j - 1) * pageSize; !(i > (j * pageSize - 1) || i > (dataSize - 1)); i++) {
+                        tempUserList.add(userListObject.get(i));
                     }
-                    //创建每天日结任务
-                    jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_QUEUE,bookDateStr);
-                    startDateByTable = DateTools.getNextDayDate(startDateByTable);
+                    //创建每天的子任务
+                    jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr, JsonUtils.toJson(tempUserList));
                 }
-             }
-            //任务创建完了开始分配任务
-            scheduleDispatcher();
+                //创建每天日结任务
+                jedisTemplate.rpush(RedisKey.REPORT_OF_DAY_QUEUE, bookDateStr);
+                startDateByTable = DateTools.getNextDayDate(startDateByTable);
+            }
         }
+        //任务创建完了开始分配任务
+        scheduleDispatcher();
+    }
 
     //主服务分配任务
-    public void scheduleDispatcher(){
+    public void scheduleDispatcher() {
         //取一个任务,然后通知子服务观察者
-        String bookDateStr=  jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_QUEUE);
-        if(StringUtils.isNotBlank(bookDateStr)){
-           long totalTask=jedisTemplate.llen(RedisKey.REPORT_OF_DAY_SUB_QUEUE+bookDateStr);
+        String bookDateStr = jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_QUEUE);
+        if (StringUtils.isNotBlank(bookDateStr)) {
+            long totalTask = jedisTemplate.llen(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
             //放一个任务到任务桶中
-            jedisTemplate.set(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP,bookDateStr+"|-"+totalTask);
+            jedisTemplate.set(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP, bookDateStr + "|-" + totalTask);
 
             //通知子服务开始干活
-            jedisTemplate.publish(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,bookDateStr);
+            jedisTemplate.publish(RedisKey.REPORT_OF_DAY_SUB_LISSTENER, bookDateStr);
         }
     }
 
     //子服务领任务
-    public void getSchedule(){
-        boolean taskIsNull=false;
-        while (!taskIsNull){
-            String userJsons=null;
-            String bookdateAndTotal=jedisTemplate.get(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP);
-            String bookdate=null;
-            if(StringUtils.isNotBlank(bookdateAndTotal)){
-                bookdate=StringUtils.substring(bookdateAndTotal,0,8);
-                userJsons=jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_SUB_QUEUE+bookdate);
+    public void getSchedule() {
+        boolean taskIsNull = false;
+        while (!taskIsNull) {
+            String userJsons = null;
+            String bookdateAndTotal = jedisTemplate.get(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP);
+            String bookdate = null;
+            if (StringUtils.isNotBlank(bookdateAndTotal)) {
+                bookdate = StringUtils.substring(bookdateAndTotal, 0, 8);
+                userJsons = jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookdate);
 
-            }else {
-                taskIsNull=true;
+            } else {
+                taskIsNull = true;
                 logger.info("没任务了");
                 continue;
             }
-            if(StringUtils.isNotBlank(userJsons)){
-                List<UserBasicInfo> users= JsonUtils.readToList(userJsons,UserBasicInfo.class);
-                dayReportSchedule(bookdate,users);
-            }else {
+            if (StringUtils.isNotBlank(userJsons)) {
+                List<UserBasicInfo> users = JsonUtils.readToList(userJsons, UserBasicInfo.class);
+                dayReportSchedule(bookdate, users);
+            } else {
                 //通知任务中心,我干完了
-                jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER,bookdate);
+                jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, bookdate);
             }
         }
     }
 
 
-    
-    public void lisstenerStart(final ScheduleServiceDayNew scheduleServiceDayNew){
+    public void lisstenerStart(final ScheduleServiceDayNew scheduleServiceDayNew) {
+        String isMaster = null;
         try {
-            String   isMaster=     System.getProperty(FundConstant.IS_MASTER);
-            if(!"0".equals(isMaster)){
-                new Thread(new Runnable() {
-                    
-                    public void run() {
-                        PubLisstener pubLisstener = new PubLisstener();
-                    JedisTemplate    jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
-                        pubLisstener.setJedisTemplate(jedisTemplate);
-                        pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
-
-                        logger.info("开始监听子任务完成状态");
-                        jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
-                    }
-                },"子任务完成状态监听线程").start();
-            }
-        }catch (Exception e){
-            logger.error("",e);
+            isMaster = System.getProperty(FundConstant.IS_MASTER);
+        } catch (Exception e) {
+            logger.error("线程报错了", e);
+            throw new RuntimeException(e);
         }
+        if (!"0".equals(isMaster)) {
+            new Thread(new Runnable() {
+
+                public void run() {
+                    PubLisstener pubLisstener = new PubLisstener();
+                    JedisTemplate jedisTemplate = new JedisTemplate(host, port, timeout, threadCount, password, database);
+                    pubLisstener.setJedisTemplate(jedisTemplate);
+                    pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
+                    logger.info("开始监听子任务完成状态");
+                    jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
+                }
+            }, "子任务完成状态监听线程").start();
+        }
+
         new Thread(new Runnable() {
-            
+
             public void run() {
                 logger.info("开始监听接收任务");
-                JedisTemplate    jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
-                 SubLisstener subLisstener = new SubLisstener();
+                JedisTemplate jedisTemplate = new JedisTemplate(host, port, timeout, threadCount, password, database);
+                SubLisstener subLisstener = new SubLisstener();
                 subLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
 
-                jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,subLisstener);
+                jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_SUB_LISSTENER, subLisstener);
 
             }
-        },"接收任务监听线程").start();
+        }, "接收任务监听线程").start();
     }
 }
