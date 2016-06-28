@@ -10,4 +10,9 @@
         <constructor-arg name="password" value="${redis.password}"/>
         <constructor-arg name="database" value="${redis.database}"/>
     </bean>
-</beans>
+
+    <bean id="zkTemplate" class="com.yjy.common.zk.ZkTemplate">
+         <constructor-arg name="host" value="${zk.host}"/>
+
+    </bean>
+    </beans>

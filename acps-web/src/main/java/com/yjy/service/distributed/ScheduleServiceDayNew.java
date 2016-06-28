@@ -5,6 +5,7 @@ import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
 import com.yjy.common.utils.JsonUtils;
+import com.yjy.common.zk.ZkTemplate;
 import com.yjy.entity.*;
 import com.yjy.repository.mapper.FundbookExtMapper;
 import com.yjy.repository.mapper.FundbookdayExtMapper;
@@ -15,6 +16,10 @@ import com.yjy.service.subandpub.SubLisstener;
 import com.yjy.web.vo.JedisVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +52,9 @@ public class ScheduleServiceDayNew {
 
     @Resource
     private JedisTemplate jedisTemplate;
+
+    @Resource
+    private ZkTemplate zkTemplate;
 
 
     @Value("${redis.host}")
@@ -179,10 +187,7 @@ public class ScheduleServiceDayNew {
         fundbookdayRunner.setJedisTemplate(jedisTemplate);
         fundbookdayRunner.runJob();
         long endRunTime = System.currentTimeMillis();
-        //执行完了 完成数+1,并通知主线程
-        jedisTemplate.incr(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL + start);
-        //通知任务中心,我干完了
-        jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, start);
+
         logger.info((double) (endRunTime - startRunTime) / 1000 + "秒任务全部跑完了");
     }
 
@@ -254,9 +259,10 @@ public class ScheduleServiceDayNew {
         logger.info(bookDateStr + "Cache刷完了" + dataSize + "数据量，" + (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
     }
 
-    //创建任务
+    //创建任务,todo 任务创建了 如果一直没有被消费会被产生很多垃圾数据
     public void scheduleCreate(String start, String end) {
         Map<Integer, List<Fundbookcode>> bookcodemap = cacheFndbookcode();
+        jedisTemplate.del(RedisKey.REPORT_OF_DAY_QUEUE);//删除之前的任务
         jedisTemplate.set(RedisKey.BOOKCODEMAP, JsonUtils.toJson(bookcodemap));
         //1.1根据时间区间算出所有需要删数据的表名
         Date startDate = DateTools.parseDateFromString_yyyyMMdd(start, logger);
@@ -271,9 +277,10 @@ public class ScheduleServiceDayNew {
             Date startDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMdd, delTableName.getStartStr(), logger);
             Date endDateByTable = DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, delTableName.getEndStr() + "23:59:59", logger);
             while (endDateByTable.compareTo(startDateByTable) != -1) {
-
                 //每天
                 String bookDateStr = DateTools.formate_yyyyMMdd(startDateByTable);
+                //删除之前的任务队列
+                jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
                 //今天的活跃用户
                 String currentDayStr = DateTools.formate_yyyyMMdd(startDateByTable);
                 Date createEndTime = DateTools.parseDateFormat_yyyyMMddHHmmss(currentDayStr + "23:59:59", logger);
@@ -284,7 +291,7 @@ public class ScheduleServiceDayNew {
                 final int cacheThreadCount = (dataSize / pageSize) + 1;
 
                 logger.info(bookDateStr + " " + cacheThreadCount + "页");
-                jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
+
                 for (int j = 1; j <= cacheThreadCount; j++) {
 
                     List<UserBasicInfo> tempUserList = new ArrayList<>();
@@ -309,36 +316,35 @@ public class ScheduleServiceDayNew {
         String bookDateStr = jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_QUEUE);
         if (StringUtils.isNotBlank(bookDateStr)) {
             long totalTask = jedisTemplate.llen(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookDateStr);
+            ScheduleVo scheduleVo=new ScheduleVo(bookDateStr,totalTask);
             //放一个任务到任务桶中
-            jedisTemplate.set(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP, bookDateStr + "|-" + totalTask);
-
-            //通知子服务开始干活
-            jedisTemplate.publish(RedisKey.REPORT_OF_DAY_SUB_LISSTENER, bookDateStr);
+            zkTemplate.setData(FundConstant.REPORT_OF_DAY_SUB_LISSTENER,JsonUtils.toJson(scheduleVo));
         }
     }
 
     //子服务领任务
     public void getSchedule() {
         boolean taskIsNull = false;
+        ScheduleVo  scheduleVo=null;
         while (!taskIsNull) {
             String userJsons = null;
-            String bookdateAndTotal = jedisTemplate.get(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TEMP);
-            String bookdate = null;
-            if (StringUtils.isNotBlank(bookdateAndTotal)) {
-                bookdate = StringUtils.substring(bookdateAndTotal, 0, 8);
-                userJsons = jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_SUB_QUEUE + bookdate);
-
+            String scheduleVoJson= zkTemplate.getData(FundConstant.REPORT_OF_DAY_SUB_LISSTENER);
+            if(StringUtils.isNotBlank(scheduleVoJson)){
+                scheduleVo=JsonUtils.readToT(scheduleVoJson,ScheduleVo.class);
+                userJsons = jedisTemplate.lpop(RedisKey.REPORT_OF_DAY_SUB_QUEUE + scheduleVo.getBookdate());
+                if(StringUtils.isNotBlank(userJsons)){
+                    List<UserBasicInfo> users = JsonUtils.readToList(userJsons, UserBasicInfo.class);
+                    dayReportSchedule(scheduleVo.getBookdate(), users);
+                    //执行完了 完成数+1,并通知主线程
+                    jedisTemplate.incr(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL +  scheduleVo.getBookdate());
+                    //通知任务中心,我干完了
+                    String data=users.get(0).getUserid()+"-"+users.get(users.size()-1).getUserid();
+                    zkTemplate.createEphemeralNode(RedisKey.REPORT_OF_DAY_PUB_LISSTENER,data);
+                }else {
+                    logger.info("任务被取完了,等着");
+                }
             } else {
-                taskIsNull = true;
-                logger.info("没任务了");
-                continue;
-            }
-            if (StringUtils.isNotBlank(userJsons)) {
-                List<UserBasicInfo> users = JsonUtils.readToList(userJsons, UserBasicInfo.class);
-                dayReportSchedule(bookdate, users);
-            } else {
-                //通知任务中心,我干完了
-                jedisTemplate.publish(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, bookdate);
+                logger.info("没任务,等着");
             }
         }
     }
@@ -353,17 +359,51 @@ public class ScheduleServiceDayNew {
             throw new RuntimeException(e);
         }
         if (!"0".equals(isMaster)) {
-            new Thread(new Runnable() {
+//           主服务监听
+            CuratorFramework curatorClient = zkTemplate.getCuratorClient();
+            curatorClient.start();
+            PathChildrenCache pathChildrenCache=new PathChildrenCache(curatorClient,FundConstant.REPORT_OF_DAY_PUB_LISSTENER,true);
+            try {
+                pathChildrenCache.start();
+            }catch (Exception e){
+                logger.error("主服务监听报错",e);
+            }
 
-                public void run() {
-                    PubLisstener pubLisstener = new PubLisstener();
-                    JedisTemplate jedisTemplate = new JedisTemplate(host, port, timeout, threadCount, password, database);
-                    pubLisstener.setJedisTemplate(jedisTemplate);
-                    pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
-                    logger.info("开始监听子任务完成状态");
-                    jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
+            PathChildrenCacheListener pathChildrenCacheListener=new PathChildrenCacheListener() {
+                @Override
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
+                    switch (pathChildrenCacheEvent.getType()){
+                        case  CHILD_ADDED:
+                            logger.info("子节点增加 "+pathChildrenCacheEvent.getData()+"  "+pathChildrenCacheEvent.getInitialData());
+                            String scheduleVoJson= zkTemplate.getData(FundConstant.REPORT_OF_DAY_SUB_LISSTENER);
+                            ScheduleVo scheduleVo=JsonUtils.readToT(scheduleVoJson,ScheduleVo.class);
+                                //要确认所有任务都执行完了
+                            long redisTotal=Long.getLong(jedisTemplate.get(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL + scheduleVo.getBookdate()));
+                                if (scheduleVo.getTotalTask()==redisTotal) {
+                                    //如果没任务发布下一个任务
+                                    zkTemplate.deletingChildrenIfNeeded(FundConstant.REPORT_OF_DAY_PUB_LISSTENER);
+                                    zkTemplate.createPersistentNode(FundConstant.REPORT_OF_DAY_PUB_LISSTENER,"0");
+                                    jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL + scheduleVo.getBookdate());
+                                    scheduleServiceDayNew.scheduleDispatcher();
+                                    //todo 如果这里有一天任务卡死 ,所有后面任务都会不能执行
+                                }
+                            break;
+                        case CHILD_REMOVED:
+                            logger.info("子节点被删除 "+pathChildrenCacheEvent.getData()+"  "+pathChildrenCacheEvent.getInitialData());
+                            break;
+                        case CHILD_UPDATED:
+                            logger.info("子节点更新 "+pathChildrenCacheEvent.getData()+" "+pathChildrenCacheEvent.getInitialData());
+                            break;
+                        case CONNECTION_LOST:
+                            logger.info("链接被断开 ");
+                            break;
+                        default:
+                            logger.info("其他事件"+pathChildrenCacheEvent.getType()+" ");
+                    }
                 }
-            }, "子任务完成状态监听线程").start();
+            };
+            pathChildrenCache.getListenable().addListener(pathChildrenCacheListener);
+
         }
 
         new Thread(new Runnable() {

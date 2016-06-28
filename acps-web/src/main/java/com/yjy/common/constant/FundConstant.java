@@ -24,6 +24,8 @@ public class FundConstant {
     public static final String ZK_LOCK="ZK_LOCK";
 
     public static final String IS_MASTER="IS_MASTER";
+    public static String REPORT_OF_DAY_SUB_LISSTENER = "/com/yjy/acps/lisstner/REPORT_OF_DAY_SUB_LISSTENER"; //子任务监听
+    public static String REPORT_OF_DAY_PUB_LISSTENER = "/com/yjy/acps/lisstner/REPORT_OF_DAY_PUB_LISSTENER"; //父服务监听
 
 
 }

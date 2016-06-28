@@ -10,7 +10,7 @@ public class RedisKey {
 	public static String USERS_OF_DAY = "USERS_OF_DAY"; //当天的活跃用户数
 	public static String REPORT_OF_DAY = "REPORT_OF_DAY"; //每日统计任务
 	public static String REPORT_OF_DAY_SUB_QUEUE = "REPORT_OF_DAY_SUB_QUEUE"; //每天子任务队列
-	public static String REPORT_OF_DAY_SUB_QUEUE_TEMP = "REPORT_OF_DAY_SUB_QUEUE"; //每天子任务临时队列
+	public static String REPORT_OF_DAY_SUB_QUEUE_TEMP = "REPORT_OF_DAY_SUB_QUEUE"; //每天子任务临时队列,永远只放一个任务
 	public static String REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL = "REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL"; //每天子任务队列任务数量
 	public static String REPORT_OF_DAY_QUEUE = "REPORT_OF_DAY_QUEUE"; //每天任务队列
 	public static String REPORT_OF_DAY_SUB_LISSTENER = "REPORT_OF_DAY_SUB_LISSTENER"; //子任务监听
