@@ -2,7 +2,6 @@ package com.yjy.web.controller;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
-import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
 import com.yjy.entity.*;
 import com.yjy.service.*;
@@ -54,6 +53,7 @@ public class LoginController {
 
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
+
 
 
 
@@ -216,11 +216,16 @@ public class LoginController {
     }
 
 
-    //全部任务
+    //分布式执行
     @RequestMapping("/scheduleServiceDayNew")
-    public ModelAndView scheduleServiceDayNew(String start,String end){
+    public ModelAndView scheduleServiceDayNew(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
         ModelAndView mv=new ModelAndView();
-        scheduleServiceDayNew.scheduleCreate(start, end);
+        List<UserBasicInfo> users=null;
+        if(StringUtils.isNotBlank(useridsStr)){
+            List<Integer>   useridList=getUserids(useridsStr);
+            users=userService.getUsersByUserids(useridList);
+        }
+        scheduleServiceDayNew.scheduleCreate(start, end,users);
         mv.setViewName("redirect:/index.shtml");
         return  mv;
     }

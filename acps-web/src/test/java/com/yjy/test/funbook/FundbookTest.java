@@ -1,11 +1,8 @@
 package com.yjy.test.funbook;
 
-import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
-import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
-import com.yjy.common.utils.JsonUtils;
 import com.yjy.entity.Fundbook;
 import com.yjy.entity.Fundbookday;
 import com.yjy.service.FundbookDayService;
@@ -13,9 +10,7 @@ import com.yjy.service.FundbookService;
 import com.yjy.service.FundbookcodeService;
 import com.yjy.service.UserService;
 import com.yjy.service.distributed.ScheduleServiceDayNew;
-import com.yjy.service.subandpub.PubLisstener;
-import com.yjy.service.subandpub.SubLisstener;
-import com.yjy.web.vo.JedisVo;
+import com.yjy.service.vo.JedisVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -135,30 +130,30 @@ public class FundbookTest {
     @Test
     public void lisstenerStart() throws  Exception{
 
-                new Thread(new Runnable() {
-
-                    public void run() {
-                          jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
-                        PubLisstener pubLisstener = new PubLisstener();
-                        pubLisstener.setJedisTemplate(jedisTemplate);
-                        pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
-                        logger.info("开始监听子任务完成状态");
-                        jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
-                    }
-                },"子任务完成状态监听线程").start();
-
-
-        new Thread(new Runnable() {
-
-            public void run() {
-                logger.info("开始监听接收任务");
-                 jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
-                SubLisstener subLisstener = new SubLisstener();
-                subLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
-                jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,subLisstener);
-
-            }
-        },"接收任务监听线程").start();
+//                new Thread(new Runnable() {
+//
+//                    public void run() {
+//                          jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
+//                        PubLisstener pubLisstener = new PubLisstener();
+//                        pubLisstener.setJedisTemplate(jedisTemplate);
+//                        pubLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
+//                        logger.info("开始监听子任务完成状态");
+//                        jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_PUB_LISSTENER, pubLisstener);
+//                    }
+//                },"子任务完成状态监听线程").start();
+//
+//
+//        new Thread(new Runnable() {
+//
+//            public void run() {
+//                logger.info("开始监听接收任务");
+//                 jedisTemplate=new JedisTemplate(host,port,timeout,threadCount,password,database);
+//                SubLisstener subLisstener = new SubLisstener();
+//                subLisstener.setScheduleServiceDayNew(scheduleServiceDayNew);
+//                jedisTemplate.subscribe(RedisKey.REPORT_OF_DAY_SUB_LISSTENER,subLisstener);
+//
+//            }
+//        },"接收任务监听线程").start();
 
         Thread.sleep(1000000);
     }

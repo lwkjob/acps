@@ -1,5 +1,6 @@
 package com.yjy.test.funbook;
 
+import com.yjy.common.utils.JsonUtils;
 import com.yjy.common.zk.ZkTemplate;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.*;
@@ -47,26 +48,26 @@ public class ZkDEMO {
 //            }
 //        });
         CuratorFramework client= zkTemplate.getCuratorClient();
-        final PathChildrenCache  pathCache2=new PathChildrenCache(client,"/com/lwk2",false);
-        pathCache2.start();
-        pathCache2.getListenable().addListener(new PathChildrenCacheListener() {
+        final TreeCache  TreeCache=new TreeCache(client,"/com/lwk2");
+        TreeCache.start();
+        TreeCache.getListenable().addListener(new TreeCacheListener() {
             @Override
-            public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
-                switch (pathChildrenCacheEvent.getType()){
-                    case  CHILD_ADDED:
-                        logger.info("子节点增加 "+pathChildrenCacheEvent.getData()+"  "+pathChildrenCacheEvent.getInitialData());
+            public void childEvent(CuratorFramework curatorFramework, TreeCacheEvent event) throws Exception {
+                switch (event.getType()){
+                    case  NODE_ADDED:
+                        logger.info("子节点增加 "+ curatorFramework.getData());
                         break;
-                    case CHILD_REMOVED:
-                        logger.info("子节点被删除 "+pathChildrenCacheEvent.getData()+"  "+pathChildrenCacheEvent.getInitialData());
+                    case NODE_REMOVED:
+                        logger.info("子节点被删除 "+curatorFramework.getData());
                         break;
-                    case CHILD_UPDATED:
-                        logger.info("子节点更新 "+pathChildrenCacheEvent.getData()+" "+pathChildrenCacheEvent.getInitialData());
+                    case NODE_UPDATED:
+                        logger.info("子节点更新 "+curatorFramework.getData());
                         break;
                     case CONNECTION_LOST:
                         logger.info("链接被断开 ");
                         break;
                     default:
-                        logger.info("其他事件"+pathChildrenCacheEvent.getType()+" ");
+                        logger.info("其他事件"+event.getType()+" ");
 
                 }
             }
@@ -78,13 +79,14 @@ public class ZkDEMO {
 //        logger.info("稍等");
 //        client.setData().forPath("/com/lwk","3".getBytes());
 //        client.setData().forPath("/com/lwk2","4".getBytes());
-        zkTemplate.createPersistentNode("/com/lwk2/l1","1");
-        zkTemplate.createPersistentNode("/com/lwk2/l2","2");
-        zkTemplate.createPersistentNode("/com/lwk2/l3","3");
-        zkTemplate.deletingChildrenIfNeeded("/com/lwk2");
-        zkTemplate.createPersistentNode("/com/lwk2","0");
-        zkTemplate.createPersistentNode("/com/lwk2/l1","4");
-        zkTemplate.createPersistentNode("/com/lwk2/l2","5");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l1","1");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l2","2");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l3", "3");
+        zkTemplate.deletingChildrenIfNeeded("/com/lwk2/lisstener");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l4","0");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l5","4");
+        zkTemplate.createPersistentNode("/com/lwk2/lisstener/l6", "5");
+
         TimeUnit.SECONDS.sleep(5000);
 
     }

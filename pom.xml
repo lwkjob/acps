@@ -8,6 +8,8 @@
 
     <modules>
         <module>acps-web</module>
+        <module>acps-jar</module>
+        <module>acps-service</module>
     </modules>
 
 

@@ -291,6 +291,12 @@
                                                         <input class="form-control" id="endDate14" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
                                                     </div>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label class="col-lg-2 control-label" for="userids13">用户编号</label>
+                                                    <div class="col-lg-10">
+                                                        <textarea class="form-control"rows="5" cols="100" name="userids" id="userids13"></textarea>
+                                                    </div>
+                                                </div>
 
                                                 <button type="submit" class="btn btn-primary">走</button>
                                                 <button type="reset" class="btn btn-default">Cancel</button>
