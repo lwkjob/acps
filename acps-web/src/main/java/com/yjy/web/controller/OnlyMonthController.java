@@ -120,4 +120,17 @@ public class OnlyMonthController {
         return useridList;
     }
 
+    //创建月结数据临时表
+    @RequestMapping("/createFundmonthtemp")
+    public ModelAndView createFundmonthtemp(String dateStr){
+        ModelAndView modelAndView=new ModelAndView();
+        modelAndView.setViewName("onlymonth");
+        if(StringUtils.isBlank(dateStr)){
+            logger.info("参数有错误");
+            return modelAndView;
+        }
+        onlyMonthService.createFundmonthtemp(FundConstant.FUNDMONTHTEMP_TABLE_NAME_PRE+dateStr,FundConstant.FUNDBOOK_TABLE_NAME_PRE+dateStr);
+        logger.info("创建成功"+dateStr);
+        return modelAndView;
+    }
 }

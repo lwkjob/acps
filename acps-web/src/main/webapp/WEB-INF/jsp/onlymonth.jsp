@@ -101,7 +101,28 @@
                     </div>
                 </div>
             </div>
-
+            <div class="col-lg-12">
+                <div class="panel panel-default bootstrap-admin-no-table-panel">
+                    <div class="panel-heading">
+                        <div class="text-muted bootstrap-admin-box-title">生成临时表</div>
+                    </div>
+                    <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                        <form class="form-horizontal"  action="${ctx}/onlymonth/createFundmonthtemp.shtml" method="post">
+                            <fieldset>
+                                <legend>生成临时表</legend>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label" for="dateStr">日期</label>
+                                    <div class="col-lg-10">
+                                        <input class="form-control" id="dateStr" type="text" value="" name="dateStr" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">走</button>
+                                <button type="reset" class="btn btn-default">Cancel</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <div class="col-lg-12">
                 <div class="panel panel-default bootstrap-admin-no-table-panel">
