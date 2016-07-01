@@ -7,11 +7,13 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * 线程不安全
  * Created by Administrator on 2016/6/2.
  */
 public class DateTools {
@@ -20,7 +22,7 @@ public class DateTools {
     private static SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
     private static SimpleDateFormat simpleDateFormat_yyyyMMddHHmmss = new SimpleDateFormat("yyyyMMddHH:mm:ss");
 
-    public static Date parseDateFromString_yyyyMM(String dateStr, Logger logger) {
+    public synchronized static Date parseDateFromString_yyyyMM(String dateStr, Logger logger) {
         try {
             return simpleDateFormat_yyyyMM.parse(dateStr);
         } catch (Exception e) {
@@ -29,7 +31,7 @@ public class DateTools {
         }
     }
 
-    public static Date parseDateFormat_yyyyMMddHHmmss(String dateStr, Logger logger) {
+    public synchronized static Date parseDateFormat_yyyyMMddHHmmss(String dateStr, Logger logger) {
         try {
             return simpleDateFormat_yyyyMMddHHmmss.parse(dateStr);
         } catch (Exception e) {
@@ -38,7 +40,7 @@ public class DateTools {
         }
     }
 
-    public static Date parseDateFromString_yyyyMMdd(String dateStr,Logger logger) {
+    public synchronized static Date parseDateFromString_yyyyMMdd(String dateStr,Logger logger) {
         try {
             return simpleDateFormat_yyyyMMdd.parse(dateStr);
         } catch (Exception e) {
@@ -47,7 +49,7 @@ public class DateTools {
         }
     }
 
-    public static Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr,Logger logger) {
+    public synchronized static Date parseDateFromStr(SimpleDateFormat simpleDateFormat, String dateStr,Logger logger) {
 
         Date date = null;
         try {
@@ -59,34 +61,34 @@ public class DateTools {
     }
 
     //取前一天
-    public static Date getPreDayDate(Date startDate) {
+    public synchronized  static Date getPreDayDate(Date startDate) {
         Date preDate = DateUtils.addDays(startDate, -1);
         return preDate;
     }
 
-    public static  String formate_yyyyMM( Date date) {
+    public synchronized  static  String formate_yyyyMM( Date date) {
 
         return simpleDateFormat_yyyyMM.format(date);
     }
 
-    public static  String formate_yyyyMMdd( Date date) {
+    public synchronized static  String formate_yyyyMMdd( Date date) {
 
         return simpleDateFormat_yyyyMMdd.format(date);
     }
 
-    public static  String formate_yyyyMMddHHmmss( Date date) {
+    public synchronized static  String formate_yyyyMMddHHmmss( Date date) {
 
         return simpleDateFormat_yyyyMMddHHmmss.format(date);
     }
 
     //取后一天
-    public static Date getNextDayDate(Date startDate) {
+    public synchronized static Date getNextDayDate(Date startDate) {
         Date preDate = DateUtils.addDays(startDate, 1);
         return preDate;
     }
 
     //获得当月最后一天
-    public static  String getCurrentMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+    public synchronized static  String getCurrentMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
         date=DateUtils.addMonths(date,1);
         date=DateUtils.setDays(date,1);
         date=DateUtils.addDays(date,-1);
@@ -97,7 +99,7 @@ public class DateTools {
 
 
     //获得上个月最后一天
-    public static String getPreMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
+    public synchronized static String getPreMonthLastDay(Date date,SimpleDateFormat simpleDateFormat){
         date=DateUtils.setDays(date,1);
         date=DateUtils.addDays(date,-1);
         return simpleDateFormat.format(date);
@@ -105,7 +107,7 @@ public class DateTools {
 
 
     //取后一月
-    public static Date getNextMonthsDate(Date startDate) {
+    public synchronized static Date getNextMonthsDate(Date startDate) {
         Date preDate = DateUtils.addMonths(startDate, 1);
         return preDate;
     }
@@ -115,7 +117,7 @@ public class DateTools {
      *
      * @return
      */
-    public static Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate,Logger logger) {
+    public synchronized static Map<String, DelTableName> getDeleteTableName(Date startDate, Date endDate,Logger logger) {
         Map<String, DelTableName> map = new LinkedHashMap<>();//一定要有顺序
         while (endDate.compareTo(startDate) != -1) {
             String startStr = simpleDateFormat_yyyyMMdd.format(startDate);
@@ -137,4 +139,5 @@ public class DateTools {
         logger.info("计算需要执行统计的月和月内的天:" + JsonUtils.toJson(map));
         return map;
     }
+
 }

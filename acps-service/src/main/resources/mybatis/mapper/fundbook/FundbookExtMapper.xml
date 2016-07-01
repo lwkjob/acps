@@ -136,7 +136,12 @@
   <select id="selectBookcodes" resultType="java.lang.String" parameterType="map">
     select
     bookcode
-    from  ${tableName} where userid=#{userid}
+    from  ${tableName}
+    <where>
+      <if test="userid!=0">
+        AND userid=#{userid}
+      </if>
+    </where>
     GROUP by bookcode;
 
   </select>

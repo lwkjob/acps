@@ -222,10 +222,9 @@ public class ScheduleServiceDayNew {
                             if (fundbookdaysss != null) {
                                 jedsValue = fundbookdaysss.getBalance().doubleValue() + "";
                             } else {
-                                String preBalanceStr =null;
-                                if (!StringUtils.substring(preDateStr,0,6).equals("201308")) {
-                                    preBalanceStr = jedisTemplate.get(jedsPrekey);
-                                }
+                                String  preBalanceStr = jedisTemplate.get(jedsPrekey);
+
+
                                 jedsValue = preBalanceStr == null ? "0.0" : preBalanceStr;
                             }
                             JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
@@ -364,7 +363,7 @@ public class ScheduleServiceDayNew {
     }
 
 
-    public void lisstenerStart(final ScheduleServiceDayNew scheduleServiceDayNew) {
+    public void lisstenerStart() {
 
         String isMaster = null;
         try {
@@ -402,7 +401,7 @@ public class ScheduleServiceDayNew {
                                     logger.info("恭喜你 完成一天了===============================");
                                     //清空上一个任务任务总数
                                     jedisTemplate.del(RedisKey.REPORT_OF_DAY_SUB_QUEUE_TASK_TOTAL + scheduleVo.getBookdate());
-                                    scheduleServiceDayNew.scheduleDispatcher();
+                                    scheduleDispatcher();
                                     //todo 如果这里有一天任务卡死 ,所有后面任务都会不能执行
                                 }
                             }
@@ -423,23 +422,24 @@ public class ScheduleServiceDayNew {
                 }
             });
             logger.info("主服务开始监听");
-        }
-        NodeCache nodeCache = new NodeCache(curatorClient, FundConstant.REPORT_OF_DAY_SUB_LISSTENER);
-        try {
-            nodeCache.start();
-        } catch (Exception e) {
-            logger.error("子节点监控失败", e);
-        }
-        NodeCacheListener nodeCacheListener = new NodeCacheListener() {
-            @Override
-            public void nodeChanged() throws Exception {
-                logger.info("子任务收到通知:" + zkTemplate.getData(FundConstant.REPORT_OF_DAY_SUB_LISSTENER));
-                //收到通知 就去取一次任务
-                getSchedule();
+        }else {
+            NodeCache nodeCache = new NodeCache(curatorClient, FundConstant.REPORT_OF_DAY_SUB_LISSTENER);
+            try {
+                nodeCache.start();
+            } catch (Exception e) {
+                logger.error("子节点监控失败", e);
             }
-        };
-        nodeCache.getListenable().addListener(nodeCacheListener);
-        logger.info("子====服务开始监听，并尝试获取任务");
-        getSchedule();
+            NodeCacheListener nodeCacheListener = new NodeCacheListener() {
+                @Override
+                public void nodeChanged() throws Exception {
+                    logger.info("子任务收到通知:" + zkTemplate.getData(FundConstant.REPORT_OF_DAY_SUB_LISSTENER));
+                    //收到通知 就去取一次任务
+                    getSchedule();
+                }
+            };
+            nodeCache.getListenable().addListener(nodeCacheListener);
+            logger.info("子====服务开始监听，并尝试获取任务");
+            getSchedule();
+        }
     }
 }

@@ -6,7 +6,7 @@ import com.yjy.entity.Fundbookcode;
 import com.yjy.entity.FundbookcodeExample;
 import com.yjy.entity.Fundbookmonth;
 import com.yjy.service.FundbookcodeService;
-import com.yjy.service.onlyMonth.OnlyMonth;
+import com.yjy.service.onlyMonth.OnlyMonthService;
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,20 +33,27 @@ public class OnlyMonthTest {
     private FundbookcodeService fundbookcodeService;
 
     @Resource
-    private OnlyMonth onlyMonth;
+    private OnlyMonthService onlyMonthService;
 
     @Test
     public void loadCache(){
         Fundbookmonth fundbookmonth=new Fundbookmonth();
-        fundbookmonth.setBookdate(201508);
-        onlyMonth.getByBookdete(fundbookmonth,null);
+        fundbookmonth.setBookdate(201512);
+       // onlyMonthService.getByBookdete(fundbookmonth, null);
     }
 
     @Test
     public void insertFundBookMonth(){
-        Date startDate= DateTools.parseDateFromString_yyyyMM("201509",logger);
-        Date endDate= DateTools.parseDateFromString_yyyyMM("201509",logger);
-        onlyMonth.insertFundBookMonth(startDate, endDate,cacheFndbookcode() , null);
+        Date startDate= DateTools.parseDateFromString_yyyyMM("201601",logger);
+        Date endDate= DateTools.parseDateFromString_yyyyMM("201601",logger);
+       // onlyMonthService.insertFundBookMonth(startDate, endDate, cacheFndbookcode(), null);
+    }
+
+    @Test
+    public void oneByOneUpdateBalance(){
+        Date startDate= DateTools.parseDateFromString_yyyyMM("201601",logger);
+        Date endDate= DateTools.parseDateFromString_yyyyMM("201601",logger);
+        //onlyMonthService.oneByOneUpdateBalance(startDate, endDate, null, null);
     }
 
     //缓存账本到内存中
@@ -66,5 +73,11 @@ public class OnlyMonthTest {
         map.put(FundConstant.TYPEID_PLATFORM, fundbookcodeService.getFundbookcodesByExample(example3));
 
         return map;
+    }
+
+
+    @Test
+    public  void createFundmonthtemp(){
+        onlyMonthService.createFundmonthtemp("fundmonthtemp201604","fundbook201604");
     }
 }

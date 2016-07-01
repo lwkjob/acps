@@ -18,7 +18,8 @@
             </list>
         </property>
     </bean>
-    <import resource="spring/dataSource.xml" />
+    <import resource="spring/spring-dataSource.xml" />
     <import resource="spring/spring-cache.xml" />
-   <!-- <bean id="startUpLissltener" class="com.yjy.service.subandpub.StartUpLissltener"/>-->
+    <!--<import resource="spring/spring-quartz.xml" />-->
+    <bean id="startUpLissltener" class="com.yjy.service.subandpub.StartUpLissltener"/>
 </beans>

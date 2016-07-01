@@ -11,6 +11,7 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,12 +26,16 @@ public class ZkTemplate {
 
     private static Log logger = LogFactory.getLog(ZkTemplate.class);
 
+    @Value("${startLisstener}")
+    private int startLisstener;
+
     public ZkTemplate(String host){
         this.host=host;
-//        ExponentialBackoffRetry retry=new ExponentialBackoffRetry(1000,3);
-//        this. curatorFramework = CuratorFrameworkFactory.newClient(this.host, retry);
-//        curatorFramework.start();
-
+        if(startLisstener==1){
+            ExponentialBackoffRetry retry=new ExponentialBackoffRetry(1000,3);
+            this. curatorFramework = CuratorFrameworkFactory.newClient(this.host, retry);
+            curatorFramework.start();
+        }
     }
 
     public CuratorFramework getCuratorClient(){

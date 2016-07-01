@@ -216,19 +216,6 @@ public class LoginController {
     }
 
 
-    //分布式执行
-    @RequestMapping("/scheduleServiceDayNew")
-    public ModelAndView scheduleServiceDayNew(String start,String end,@RequestParam(value = "userids",required = false)String useridsStr){
-        ModelAndView mv=new ModelAndView();
-        List<UserBasicInfo> users=null;
-        if(StringUtils.isNotBlank(useridsStr)){
-            List<Integer>   useridList=getUserids(useridsStr);
-            users=userService.getUsersByUserids(useridList);
-        }
-        scheduleServiceDayNew.scheduleCreate(start, end,users);
-        mv.setViewName("redirect:/index.shtml");
-        return  mv;
-    }
 
 
 

@@ -82,7 +82,7 @@ public class FundbookdayRunnerNew {
                                 preBalanceStr = jedisTemplate.get(mapPreKey); //查询前一天的余
                             }
                             if (!currentMonthLastDay.equals(preDateStr)) {
-                                jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
+                               // jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
                             }
                             BigDecimal preBalance = null;
                             if (StringUtils.isNotBlank(preBalanceStr)) {
@@ -111,10 +111,10 @@ public class FundbookdayRunnerNew {
                             if (insertFundbookdays.size() % 5000 == 0) {
                                 //每3万条插入一次
                                 long memeryRunTime = System.currentTimeMillis();
-                                logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + ",当前数据量:" + insertFundbookdays.size());
+                                logger.info("内存计算完" + (double) (memeryRunTime - start) / 1000 + " " + bookDateStr + ",当前数据量:" + insertFundbookdays.size());
                                 fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
                                 long insertRunTime = System.currentTimeMillis();
-                                logger.info("插入完成账本" + (float) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr);
+                                logger.info("插入完成账本" + (double) (insertRunTime - memeryRunTime) / 1000 + " " + bookDateStr);
                                 insertFundbookdays = new ArrayList<>();
                                 start=System.currentTimeMillis();
                             }
@@ -124,10 +124,10 @@ public class FundbookdayRunnerNew {
                     if (insertFundbookdays.size() > 0) {
                         //每3万条插入一次
                         long memeryRunTime = System.currentTimeMillis();
-                        logger.info("最后一次内存计算 " + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总数" + insertFundbookdays.size());
+                        logger.info("最后一次内存计算 " + (double) (memeryRunTime - start) / 1000 + " " + bookDateStr + " 总数" + insertFundbookdays.size());
                         fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
                         long insertRunTime = System.currentTimeMillis();
-                        logger.info("最后一次插入完成 " + (float) (insertRunTime - memeryRunTime) / 1000);
+                        logger.info("最后一次插入完成 " + (double) (insertRunTime - memeryRunTime) / 1000);
                     }
                     subcountDownLatch.countDown();
                 }

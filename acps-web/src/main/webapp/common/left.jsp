@@ -6,10 +6,13 @@
       <a href="${ctx}/index.shtml"><i class="glyphicon glyphicon-chevron-right"></i> 跑批任务</a>
     </li>
     <li>
+      <a href="${ctx}/onlymonth/index.shtml"><i class="glyphicon glyphicon-chevron-right"></i>只刷月结</a>
+    </li>
+    <li>
       <a href="${ctx}/fundbooklist.shtml"><i class="glyphicon glyphicon-chevron-right"></i> 报表</a>
     </li>
     <li>
-      <a href="${ctx}/about.html"><i class="glyphicon glyphicon-chevron-right"></i>汇总报表 </a>
+      <a href="${ctx}/distributed/index.shtml"><i class="glyphicon glyphicon-chevron-right"></i>分布式执行日清 </a>
     </li>
 
   </ul>

@@ -41,4 +41,8 @@ public interface FundbookMonthExtMapper {
 
     List<Fundbookmonth> findMonthTemp(@Param("fundbookmonth")Fundbookmonth fundbookmonthExample,
                                         @Param("tableName")String tableName);
+
+    //创建月结临时表
+    void createFundmonthtemp(@Param("fundmonthtemptableName")String fundmonthtemptableName,
+                             @Param("fundbooktableName")String fundbooktableName);
    }

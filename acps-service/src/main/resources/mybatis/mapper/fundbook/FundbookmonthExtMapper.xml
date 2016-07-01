@@ -108,10 +108,7 @@
     select
     <include refid="Base_Column_List" />
      from ${tableName}
-
     <where>
-
-
       <if test="userids !=null and userids.size()!=0">
         AND userid in
         <foreach collection="userids"  open="(" close=")"  item="userid" separator=",">
@@ -128,4 +125,22 @@
       BookCode, UserId,HappenDebit, HappenCredit,Balance
      from ${tableName}
   </select>
+
+
+  <select id="createFundmonthtemp" resultMap="BaseResultMap" parameterType="map" >
+       CREATE  TABLE ${fundmonthtemptableName} SELECT a.Debit happendebit,a.Credit happencredit,a.BookCode,a.UserId,b.Balance FROM (
+        SELECT a.Debit,a.Credit, a.UserId,a.BookCode,a.HappenTime,MAX(b.BookId) AS BookId
+        FROM (
+            SELECT sum(Debit) Debit,sum(Credit) Credit,UserId,BookCode,max(HappenTime) HappenTime FROM ypzdw_fundcapital.${fundbooktableName}
+            GROUP BY UserId,BookCode
+        ) a
+        JOIN ypzdw_fundcapital.${fundbooktableName} b ON a.UserId = b.UserId AND a.BookCode = b.BookCode AND a.HappenTime = b.HappenTime
+        GROUP BY a.UserId,a.BookCode,a.HappenTime
+    ) a
+    JOIN ypzdw_fundcapital.${fundbooktableName} b ON a.UserId = b.UserId AND a.BookCode = b.BookCode AND a.HappenTime = b.HappenTime AND a.BookId = b.BookId
+    ORDER BY BookCode,UserId
+  </select>
+
+
+
 </mapper>

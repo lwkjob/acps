@@ -9,7 +9,7 @@
   </resultMap>
 
   <sql id="Base_Column_List" >
-    userbasic.Companyname Companyname,
+   /* userbasic.Companyname Companyname,这个数据现在不显示*/
     userbasic.UserId userid,
      users.typeId typeid,
      users.CreateTime createTime

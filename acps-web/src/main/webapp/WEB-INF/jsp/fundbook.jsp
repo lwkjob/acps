@@ -239,10 +239,10 @@
                     </div>
                 </div>
 
-            <div class="col-lg-12">
+                        <div class="col-lg-12">
                                 <div class="panel panel-default bootstrap-admin-no-table-panel">
                                     <div class="panel-heading">
-                                        <div class="text-muted bootstrap-admin-box-title">加载本月余</div>
+                                        <div class="text-muted bootstrap-admin-box-title">从日清表加载本月余</div>
                                     </div>
                                     <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
                                         <form class="form-horizontal"  action="${ctx}/loadPreMonthBalance.shtml" method="post">
@@ -270,41 +270,7 @@
                             </div>
 
 
-                <div class="col-lg-12">
-                                <div class="panel panel-default bootstrap-admin-no-table-panel">
-                                    <div class="panel-heading">
-                                        <div class="text-muted bootstrap-admin-box-title">分布式执行任务</div>
-                                    </div>
-                                    <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
-                                        <form class="form-horizontal"  action="${ctx}/scheduleServiceDayNew.shtml" method="post">
-                                            <fieldset>
-                                                <legend>scheduleServiceDayNew</legend>
-                                                <div class="form-group">
-                                                    <label class="col-lg-2 control-label" for="startDate14">开始</label>
-                                                    <div class="col-lg-10">
-                                                        <input class="form-control" id="startDate14" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-lg-2 control-label" for="endDate14">结束</label>
-                                                    <div class="col-lg-10">
-                                                        <input class="form-control" id="endDate14" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMMdd'});"/>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-lg-2 control-label" for="userids13">用户编号</label>
-                                                    <div class="col-lg-10">
-                                                        <textarea class="form-control"rows="5" cols="100" name="userids" id="userids13"></textarea>
-                                                    </div>
-                                                </div>
 
-                                                <button type="submit" class="btn btn-primary">走</button>
-                                                <button type="reset" class="btn btn-default">Cancel</button>
-                                            </fieldset>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
 
             </div>
         </div>
