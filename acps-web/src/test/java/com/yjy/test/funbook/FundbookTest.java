@@ -3,14 +3,14 @@ package com.yjy.test.funbook;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.Fundbook;
-import com.yjy.entity.Fundbookday;
-import com.yjy.service.FundbookDayService;
-import com.yjy.service.FundbookService;
-import com.yjy.service.FundbookcodeService;
-import com.yjy.service.UserService;
-import com.yjy.service.distributed.ScheduleServiceDayNew;
-import com.yjy.service.vo.JedisVo;
+import com.yjy.entity.fundbook.Fundbook;
+import com.yjy.entity.fundbook.Fundbookday;
+import com.yjy.service.fundbook.FundbookDayService;
+import com.yjy.service.fundbook.FundbookService;
+import com.yjy.service.fundbook.FundbookcodeService;
+import com.yjy.service.fundbook.UserService;
+import com.yjy.service.fundbook.distributed.ScheduleServiceDayNew;
+import com.yjy.service.fundbook.vo.JedisVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -111,7 +111,7 @@ public class FundbookTest {
         jedisVos.add(jedisVo2);
         jedisVos.add(jedisVo3);
 
-        jedisTemplate.pipset(jedisVos);
+      //  jedisTemplate.pipset(jedisVos);
         logger.info(jedisTemplate.get("key1"));
         logger.info(jedisTemplate.get("key2"));
         logger.info(jedisTemplate.get("key3"));
@@ -123,7 +123,7 @@ public class FundbookTest {
     public void cacheUsers(){
         String start="20160301";
         String end="20160331";
-        userService.cacheUsers(start, end);
+      //  userService.cacheUsers(start, end);
     }
 
 
@@ -155,6 +155,6 @@ public class FundbookTest {
 //            }
 //        },"接收任务监听线程").start();
 
-        Thread.sleep(1000000);
+        //Thread.sleep(1000000);
     }
 }

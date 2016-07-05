@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yjy.repository.mapper.FundbookExtMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbook" >
+<mapper namespace="com.yjy.repository.mapper.fundbook.FundbookExtMapper" >
+  <resultMap id="BaseResultMap" type="com.yjy.entity.fundbook.Fundbook" >
     <id column="BookId" property="bookid" jdbcType="BIGINT" />
     <result column="EntryId" property="entryid" jdbcType="BIGINT" />
     <result column="EntryNumber" property="entrynumber" jdbcType="VARCHAR" />

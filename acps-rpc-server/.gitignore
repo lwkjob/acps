@@ -1,0 +1,13 @@
+/target/
+/.idea/
+.settings
+/logs/
+
+
+# idea configuration file
+*.iml
+
+
+# eclipse configuration file
+.project
+.classpath

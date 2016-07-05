@@ -2,11 +2,11 @@ package com.yjy.test.funbook;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.Fundbookcode;
-import com.yjy.entity.FundbookcodeExample;
-import com.yjy.entity.Fundbookmonth;
-import com.yjy.service.FundbookcodeService;
-import com.yjy.service.onlyMonth.OnlyMonthService;
+import com.yjy.entity.fundbook.Fundbookcode;
+import com.yjy.entity.fundbook.FundbookcodeExample;
+import com.yjy.entity.fundbook.Fundbookmonth;
+import com.yjy.service.fundbook.FundbookcodeService;
+import com.yjy.service.fundbook.onlyMonth.OnlyMonthService;
 import org.apache.commons.collections.map.HashedMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;

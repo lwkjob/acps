@@ -2,9 +2,9 @@ package com.yjy.web.controller;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.zk.ZkTemplate;
-import com.yjy.entity.UserBasicInfo;
-import com.yjy.service.UserService;
-import com.yjy.service.distributed.ScheduleServiceDayNew;
+import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.service.fundbook.UserService;
+import com.yjy.service.fundbook.distributed.ScheduleServiceDayNew;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

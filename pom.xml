@@ -10,6 +10,7 @@
         <module>acps-web</module>
         <module>acps-jar</module>
         <module>acps-service</module>
+        <module>acps-rpc-server</module>
     </modules>
 
 

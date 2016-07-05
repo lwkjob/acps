@@ -1,7 +1,7 @@
 package com.yjy.test.funbook;
 
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.service.distributed.ScheduleVo;
+import com.yjy.service.fundbook.distributed.ScheduleVo;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
-import com.yjy.service.vo.JedisVo;
+import com.yjy.service.fundbook.vo.JedisVo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.*;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yjy.repository.mapper.FundbookcodeMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.Fundbookcode" >
+<mapper namespace="com.yjy.repository.mapper.fundbook.FundbookcodeMapper" >
+  <resultMap id="BaseResultMap" type="com.yjy.entity.fundbook.Fundbookcode" >
     <id column="Id" property="id" jdbcType="INTEGER" />
     <result column="FundType" property="fundtype" jdbcType="INTEGER" />
     <result column="BookCodeOne" property="bookcodeone" jdbcType="INTEGER" />
@@ -72,7 +72,7 @@
   <sql id="Base_Column_List" >
     Id, FundType, BookCodeOne, RoleCode, BookCodeTwo, BookCodeThree, BookCode, BookCodeDesc
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.entity.FundbookcodeExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.entity.fundbook.FundbookcodeExample" >
     select
     <if test="distinct" >
       distinct
@@ -86,13 +86,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="com.yjy.entity.FundbookcodeExample" >
+  <delete id="deleteByExample" parameterType="com.yjy.entity.fundbook.FundbookcodeExample" >
     delete from fundbookcode
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insertSelective" parameterType="com.yjy.entity.Fundbookcode" >
+  <insert id="insertSelective" parameterType="com.yjy.entity.fundbook.Fundbookcode" >
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
@@ -144,7 +144,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.yjy.entity.FundbookcodeExample" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.yjy.entity.fundbook.FundbookcodeExample" resultType="java.lang.Integer" >
     select count(*) from fundbookcode
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
@@ -196,7 +196,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.yjy.entity.Fundbookcode" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.yjy.entity.fundbook.Fundbookcode" >
     update fundbookcode
     <set >
       <if test="fundtype != null" >

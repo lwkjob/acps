@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 
-import com.yjy.entity.Fundbookcode;
+import com.yjy.entity.fundbook.Fundbookcode;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParseException;
