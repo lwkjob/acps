@@ -29,9 +29,6 @@ public class FundsMonthReportRpcServiceImpl implements FundsMonthReportRpcServic
     @Resource
     private FundsMonthService fundsMonthService;
 
-
-
-
     @Override
     public TFundsMonthPaginationVo findFundsMonthPagination(TRequestFundsMonthVo requestFundsMonthVo) throws TException {
 

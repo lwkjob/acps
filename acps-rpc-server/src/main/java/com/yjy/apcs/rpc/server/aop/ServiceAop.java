@@ -10,13 +10,13 @@ import java.lang.reflect.Array;
 /**
  * Created by Administrator on 2016/7/6.
  */
-public class FuckAop {
+public class ServiceAop {
 
 
 
     ThreadLocal<Long> startTimeLocal=new ThreadLocal<>();
 
-    private static Logger log = LoggerFactory.getLogger(FuckAop.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceAop.class);
 
 
 

@@ -4,6 +4,7 @@ import com.yjy.apcs.rpc.server.report.ReportDetailRpcService;
 import com.yjy.apcs.rpc.server.report.TReportDetailPaginationVo;
 import com.yjy.apcs.rpc.server.report.TRequestReportDetailVo;
 import com.yjy.apcs.rpc.server.report.TResponseReportDetail;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TFastFramedTransport;
 import org.apache.thrift.transport.TSocket;
@@ -22,11 +23,12 @@ public class Client {
 
     public static void main(String[] args) throws Exception{
 //        TTransport tTransport=new TFastFramedTransport(new TSocket("192.168.2.12",1320));
-//        TTransport tTransport=new TFastFramedTransport(new TSocket("192.168.2.130",1320));
-        TTransport tTransport=new TFastFramedTransport(new TSocket("172.31.9.125",1320));
+        TTransport tTransport=new TFastFramedTransport(new TSocket("192.168.2.130",1320));
+//        TTransport tTransport=new TFastFramedTransport(new TSocket("172.31.9.125",1320));
         tTransport.open();
 
         TProtocol protocol=new TBinaryProtocol(tTransport);
+
         TMultiplexedProtocol mp1 = new TMultiplexedProtocol(protocol,"ReportDetailRpcService");
 
         ReportDetailRpcService.Client client=new ReportDetailRpcService.Client(protocol,mp1);
@@ -50,6 +52,8 @@ public class Client {
         }
 //        TimeUnit.SECONDS.sleep(100000);
         tTransport.close();
+
+
     }
 }
 

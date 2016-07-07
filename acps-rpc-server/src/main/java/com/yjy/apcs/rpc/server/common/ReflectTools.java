@@ -1,5 +1,6 @@
 package com.yjy.apcs.rpc.server.common;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class ReflectTools {
                 value = o;
             }
             Field destField = dest.getClass().getDeclaredField(fieldName);
-            String setMethonName = "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            String setMethonName = "set" + StringUtils.capitalize(fieldName);
             destField.setAccessible(true);
             Method setMethon = dest.getClass().getMethod(setMethonName, destField.getType());
             setMethon.invoke(dest, value);
