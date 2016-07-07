@@ -2,9 +2,9 @@ package com.yjy.service.fundbook;
 
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.Fundbookday;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.Fundbookday;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import com.yjy.repository.mapper.fundbook.FundbookdayExtMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

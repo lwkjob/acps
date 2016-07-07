@@ -1,0 +1,71 @@
+	namespace java com.yjy.apcs.rpc.server.report
+	namespace csharp YW.FundCapitalService.IDL
+	struct TResponseReportDetail {
+			    1: optional i64 id,
+                2: optional byte invoicetype,
+                3: optional i32 parentid,
+                4: optional string invoicenumber,
+                5: optional i32 buyerid,
+                6: optional string buyerCompanyname,
+                7: optional string buyerLinkman,
+                8: optional i32 salerid,
+                9: optional i64 happentime,
+                10: optional double totalgoodsprice,
+                11: optional double totalpostprice,
+                12: optional double accgoodsprice,
+                13: optional double accpostprice,
+                14: optional double redpacketgoodsprice,
+                15: optional double redpacketpostprice,
+                16: optional double platformcouponprice,
+                17: optional double salercouponprice,
+                18: optional double salerspecialprice,
+                19: optional double saleragioprice,
+                20: optional double salerfullamount,
+                21: optional double salerchangegoodsprice,
+                22: optional double salerchangepostprice,
+                23: optional double changepostprice,
+                24: optional double balance,
+                25: optional double accreturnpostprice,
+                26: optional double redpacketreturnpostprice
+	}
+
+	struct TReportDetailPaginationVo {
+			1: optional i32 pageSize,   /*每页条数*/
+			2: optional i32 pageCount,  /*总页数*/
+			3: optional i32 count,      /*总条数*/
+			4: optional i32 currentPage, /*当前页*/
+			5: optional list<TResponseReportDetail> data /*数据*/
+	}
+
+    /*客户端请求对象*/
+	struct TRequestReportDetailVo{
+            1:optional string invoicenumber,
+            2:optional string buyerCompanyname,
+            3:optional string buyerLinkman,
+            4:optional bool isSum,   /*true求和,  false明细 */
+            5:optional i32 salerid,
+            6:optional i32 parentId,
+            7:optional i32 currentPage,
+            8:optional i32 pageSize
+    }
+
+	exception ThriftException {
+			1:string errMessage
+			2:i32 errCode
+	}
+
+	service ReportDetailRpcService {
+
+    		 	TReportDetailPaginationVo  findGoodsOutPagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findGoodsBalancePagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findGoodsReceiptPagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findGoodsRefundPagination(1:TRequestReportDetailVo requestReportVo),
+
+    		 	TReportDetailPaginationVo  findFundsBalancePagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findFundsMarkupPagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findFundsReceiptPagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findFundsSettlePagination(1:TRequestReportDetailVo requestReportVo),
+    		 	TReportDetailPaginationVo  findFundsWriteBackPagination(1:TRequestReportDetailVo requestReportVo)
+    }
+
+

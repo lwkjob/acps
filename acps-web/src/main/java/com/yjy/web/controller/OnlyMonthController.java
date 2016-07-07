@@ -2,9 +2,9 @@ package com.yjy.web.controller;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.FundbookcodeExample;
-import com.yjy.entity.fundbook.Fundbookmonth;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.FundbookcodeExample;
+import com.yjy.common.entity.fundbook.Fundbookmonth;
 import com.yjy.service.fundbook.FundbookcodeService;
 import com.yjy.service.fundbook.onlyMonth.OnlyMonthService;
 import com.yjy.web.vo.UpdateBalanceVo;

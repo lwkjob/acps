@@ -1,9 +1,9 @@
 package com.yjy.repository.mapper.fundbook;
 
 import com.yjy.common.dao.Pagination;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.Fundbookmonth;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.Fundbookmonth;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.yjy.repository.mapper.fundbook.UserBasicExtMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.fundbook.UserBasicInfo" >
+  <resultMap id="BaseResultMap" type="com.yjy.common.entity.fundbook.UserBasicInfo" >
     <id     column="UserId"       property="userid"       jdbcType="BIGINT" />
     <result column="companyname"  property="companyname"  jdbcType="VARCHAR" />
     <result column="typeId"       property="typeId"       jdbcType="INTEGER" />

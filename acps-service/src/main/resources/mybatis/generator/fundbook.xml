@@ -27,7 +27,7 @@
         </javaTypeResolver>
 
          <!--实体类  -->
-        <javaModelGenerator targetPackage="com.yjy.entity"
+        <javaModelGenerator targetPackage="com.yjy.common.entity"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>

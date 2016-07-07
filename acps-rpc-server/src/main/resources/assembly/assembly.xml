@@ -7,7 +7,7 @@
         <format>tar.gz</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>acps-jar</baseDirectory>
+    <baseDirectory>acps-rpc-server</baseDirectory>
     <fileSets>
         <fileSet>
             <directory>${project.basedir}</directory>

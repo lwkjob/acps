@@ -1,7 +1,7 @@
 package com.yjy.repository.mapper.fundbook;
 
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.FundbookcodeExample;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.FundbookcodeExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

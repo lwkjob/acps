@@ -1,8 +1,8 @@
 package com.yjy.service.fundbook;
 
 import com.yjy.common.constant.FundConstant;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.FundbookcodeExample;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.FundbookcodeExample;
 import com.yjy.repository.mapper.fundbook.FundbookcodeMapper;
 import org.apache.commons.collections.map.HashedMap;
 import org.springframework.stereotype.Service;

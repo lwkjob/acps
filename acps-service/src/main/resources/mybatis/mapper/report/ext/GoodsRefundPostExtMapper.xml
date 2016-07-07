@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yjy.repository.mapper.report.ext.GoodsRefundPostExtMapper" >
+  <resultMap id="BaseResultMap" type="com.yjy.common.entity.report.GoodsRefundPost" >
+    <id column="Id" property="id" jdbcType="BIGINT" />
+    <result column="InvoiceType" property="invoicetype" jdbcType="TINYINT" />
+    <result column="ParentId" property="parentid" jdbcType="INTEGER" />
+    <result column="InvoiceNumber" property="invoicenumber" jdbcType="VARCHAR" />
+    <result column="BuyerId" property="buyerid" jdbcType="INTEGER" />
+    <result column="Buyer_CompanyName" property="buyerCompanyname" jdbcType="VARCHAR" />
+    <result column="Buyer_LinkMan" property="buyerLinkman" jdbcType="VARCHAR" />
+    <result column="SalerId" property="salerid" jdbcType="INTEGER" />
+    <result column="HappenTime" property="happentime" jdbcType="BIGINT" />
+    <result column="TotalPostPrice" property="totalpostprice" jdbcType="DECIMAL" />
+    <result column="AccReturnPostPrice" property="accreturnpostprice" jdbcType="DECIMAL" />
+    <result column="RedpacketReturnPostPrice" property="redpacketreturnpostprice" jdbcType="DECIMAL" />
+    <result column="ChangePostPrice" property="changepostprice" jdbcType="DECIMAL" />
+    <result column="Balance" property="balance" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <if test="goodsRefundPost !=null and goodsRefundPost.invoicenumber != null and goodsRefundPost.invoicenumber !='' ">
+        AND InvoiceNumber = #{goodsRefundPost.invoicenumber}
+      </if>
+      <if test="goodsRefundPost !=null and goodsRefundPost.buyerCompanyname != null and goodsRefundPost.buyerCompanyname !='' ">
+        OR Buyer_CompanyName LIKE "%"#{goodsRefundPost.buyerCompanyname}"%"
+      </if>
+      <if test="goodsRefundPost !=null and goodsRefundPost.buyerLinkman != null and goodsRefundPost.buyerLinkman !='' ">
+        OR Buyer_LinkMan LIKE "%"#{goodsRefundPost.buyerLinkman}"%"
+      </if>
+
+      <if test="goodsRefundPost !=null and goodsRefundPost.parentid != null">
+        AND parentid = #{goodsRefundPost.parentid}
+      </if>
+
+      <if test="goodsRefundPost !=null and goodsRefundPost.salerid != null">
+        AND SalerId = #{goodsRefundPost.salerid}
+      </if>
+    </where>
+  </sql>
+   
+  <sql id="Base_Column_List" >
+    Id, InvoiceType, ParentId, InvoiceNumber, BuyerId, Buyer_CompanyName, Buyer_LinkMan, 
+    SalerId, HappenTime, TotalPostPrice, AccReturnPostPrice, RedpacketReturnPostPrice, 
+    ChangePostPrice, Balance
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.common.entity.report.GoodsRefundPostExample" >
+    select
+
+    <include refid="Base_Column_List" />
+    from reportsaleronlinegoodstoredrefundpost
+
+      <include refid="Example_Where_Clause" />
+    ORDER  BY InvoiceNumber
+  </select>
+
+  <select id="sumByExample" resultMap="BaseResultMap" parameterType="com.yjy.common.entity.report.GoodsRefundPostExample" >
+    select
+     sum(TotalPostPrice) TotalPostPrice, sum(AccReturnPostPrice) AccReturnPostPrice, sum(RedpacketReturnPostPrice) RedpacketReturnPostPrice,
+    sum( ChangePostPrice) ChangePostPrice, sum(Balance) Balance
+
+    from reportsaleronlinegoodstoredrefundpost
+
+      <include refid="Example_Where_Clause" />
+
+  </select>
+   
+  <select id="countByExample" parameterType="com.yjy.common.entity.report.GoodsRefundPostExample" resultType="java.lang.Integer" >
+    select count(*) from reportsaleronlinegoodstoredrefundpost
+
+      <include refid="Example_Where_Clause" />
+
+  </select>
+  
+</mapper>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.yjy.repository.mapper.report.GoodsOutExtMapper" >
-  <resultMap id="BaseResultMap" type="com.yjy.entity.report.GoodsOut" >
+<mapper namespace="com.yjy.repository.mapper.report.ext.GoodsOutExtMapper" >
+  <resultMap id="BaseResultMap" type="com.yjy.common.entity.report.GoodsOut" >
     <id column="Id" property="id" jdbcType="BIGINT" />
     <result column="InvoiceType" property="invoicetype" jdbcType="TINYINT" />
     <result column="ParentId" property="parentid" jdbcType="INTEGER" />
@@ -28,14 +28,22 @@
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
-        <if test="goodsOut !=null and goodsOut.invoicenumber != null">
-           AND InvoiceNumber=#{goodsOut.invoicenumber}
+        <if test="goodsOut !=null and goodsOut.invoicenumber != null and goodsOut.invoicenumber != '' ">
+           AND InvoiceNumber = #{goodsOut.invoicenumber}
         </if>
-      <if test="goodsOut !=null and goodsOut.buyerCompanyname != null">
-        OR Buyer_CompanyName LIKE   "%"#{goodsOut.buyerCompanyname}"%"
+      <if test="goodsOut !=null and goodsOut.buyerCompanyname != null and goodsOut.buyerCompanyname !='' ">
+        OR Buyer_CompanyName LIKE "%"#{goodsOut.buyerCompanyname}"%"
       </if>
-      <if test="goodsOut !=null and goodsOut.buyerLinkman != null">
+      <if test="goodsOut !=null and goodsOut.buyerLinkman != null and goodsOut.buyerLinkman !='' ">
         OR Buyer_LinkMan LIKE "%"#{goodsOut.buyerLinkman}"%"
+      </if>
+
+      <if test="goodsOut !=null and goodsOut.parentid != null">
+        AND parentid = #{goodsOut.parentid}
+      </if>
+
+      <if test="goodsOut !=null and goodsOut.salerid != null">
+        AND SalerId = #{goodsOut.salerid}
       </if>
     </where>
   </sql>
@@ -46,15 +54,28 @@
     RedPacketGoodsPrice, RedPacketPostPrice, PlatformCouponPrice, SalerCouponPrice, SalerSpecialPrice, 
     SalerAgioPrice, SalerFullAmount, SalerChangeGoodsPrice, SalerChangePostPrice, Balance
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.entity.report.GoodsOut" >
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.yjy.common.entity.report.GoodsOut" >
     select <include refid="Base_Column_List" />
      from reportsaleronlinegoodstoout
 
       <include refid="Example_Where_Clause" />
+    ORDER  BY InvoiceNumber
+  </select>
+
+  <select id="sumByExample" resultMap="BaseResultMap" parameterType="com.yjy.common.entity.report.GoodsOut" >
+    select
+    sum(TotalGoodsPrice) TotalGoodsPrice, sum(TotalPostPrice) TotalPostPrice, sum(AccGoodsPrice) AccGoodsPrice, sum(AccPostPrice) AccPostPrice,
+    sum(RedPacketGoodsPrice) RedPacketGoodsPrice, sum(RedPacketPostPrice) RedPacketPostPrice, sum(PlatformCouponPrice) PlatformCouponPrice, sum(SalerCouponPrice) SalerCouponPrice, sum(SalerSpecialPrice) SalerSpecialPrice,
+    sum(SalerAgioPrice) SalerAgioPrice, sum(SalerFullAmount) SalerFullAmount, sum(SalerChangeGoodsPrice) SalerChangeGoodsPrice, sum(SalerChangePostPrice) SalerChangePostPrice, sum(Balance) Balance
+
+     from reportsaleronlinegoodstoout
+
+    <include refid="Example_Where_Clause" />
 
   </select>
 
-  <select id="countByExample" parameterType="com.yjy.entity.report.GoodsOut" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.yjy.common.entity.report.GoodsOut" resultType="java.lang.Integer" >
     select count(*) from reportsaleronlinegoodstoout
 
       <include refid="Example_Where_Clause" />

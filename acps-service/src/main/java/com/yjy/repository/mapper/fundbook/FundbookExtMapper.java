@@ -1,8 +1,8 @@
 package com.yjy.repository.mapper.fundbook;
 
 import com.yjy.common.dao.Pagination;
-import com.yjy.entity.fundbook.Fundbook;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.Fundbook;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import com.yjy.repository.dto.SumMonthByBookcode;
 import org.apache.ibatis.annotations.Param;
 

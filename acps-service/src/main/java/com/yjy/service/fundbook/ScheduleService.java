@@ -1,9 +1,9 @@
 package com.yjy.service.fundbook;
 
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.DelTableName;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
+import com.yjy.common.utils.DelTableName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

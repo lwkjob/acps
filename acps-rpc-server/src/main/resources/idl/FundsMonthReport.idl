@@ -1,0 +1,56 @@
+	namespace java com.yjy.apcs.rpc.server.report
+	namespace csharp YW.FundCapitalService.IDL
+
+     /*返回的数据*/
+   struct TFundsMonthResponseReport {
+			1:optional  i64 id,
+			2:optional  i32 curyear,
+			3:optional  i32 curmonth,
+			4:optional  i32 salerid,
+			5:optional  double prevbalance,
+			6:optional  double curreceiptprice,
+			7:optional  double curredprice,
+			8:optional  double curmarkupprice,
+			9:optional  double cursettleprice,
+			10:optional  double curbalance
+
+
+  }
+
+       /*返回分页对象*/
+	struct TFundsMonthPaginationVo {
+			1: optional i32 pageSize,   /*每页条数*/
+			2: optional i32 pageCount,  /*总页数*/
+			3: optional i32 count,      /*总条数*/
+			4: optional i32 currentPage, /*当前页*/
+			5: optional list<TFundsMonthResponseReport> data /*数据*/
+	}
+
+        /*客户端请求对象 */
+	struct TRequestFundsMonthVo{
+			1:optional i32 salerid,
+			2:optional i32 currentPage,
+			3:optional i32 pageSize
+   }
+
+	struct TRequestFundsMonthByIdVo{
+			1:optional i32 salerid,
+			2:optional i32 Id,
+   }
+
+	exception ThriftException {
+			1:string errMessage
+			2:i32 errCode
+	}
+
+	service FundsMonthReportRpcService {
+
+    		 	TFundsMonthPaginationVo findFundsMonthPagination(1:TRequestFundsMonthVo requestFundsMonthVo),
+
+    		 	TFundsMonthPaginationVo findFundsMonthById(1:TRequestFundsMonthByIdVo requestFundsMonthByIdVo)
+    }
+
+
+
+
+

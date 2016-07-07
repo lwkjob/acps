@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    		http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="jedisTemplate" class="com.yjy.common.redis.JedisTemplate">
+        <constructor-arg name="host" value="${redis.host}"/>
+        <constructor-arg name="port" value="${redis.port}"/>
+        <constructor-arg name="timeout" value="${redis.timeout}"/>
+        <constructor-arg name="threadCount" value="${redis.threadCount}"/>
+        <constructor-arg name="password" value="${redis.password}"/>
+        <constructor-arg name="database" value="${redis.database}"/>
+    </bean>
+
+    <bean id="zkTemplate" class="com.yjy.common.zk.ZkTemplate">
+         <constructor-arg name="host" value="${zk.host}"/>
+
+    </bean>
+    </beans>

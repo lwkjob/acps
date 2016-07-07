@@ -2,7 +2,7 @@ package com.yjy.web.controller;
 
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.zk.ZkTemplate;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import com.yjy.service.fundbook.UserService;
 import com.yjy.service.fundbook.distributed.ScheduleServiceDayNew;
 import org.apache.commons.lang3.StringUtils;

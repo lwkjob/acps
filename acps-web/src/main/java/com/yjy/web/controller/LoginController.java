@@ -3,7 +3,7 @@ package com.yjy.web.controller;
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.dao.Pagination;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.*;
+import com.yjy.common.entity.fundbook.*;
 import com.yjy.service.fundbook.*;
 import com.yjy.service.fundbook.distributed.ScheduleServiceDayNew;
 import com.yjy.web.vo.UpdateBalanceVo;

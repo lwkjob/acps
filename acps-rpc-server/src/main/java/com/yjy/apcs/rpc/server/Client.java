@@ -1,10 +1,9 @@
 package com.yjy.apcs.rpc.server;
 
-import com.yjy.apcs.rpc.server.report.FundCapitalRpcService;
-import com.yjy.apcs.rpc.server.report.TPaginationVo;
-import com.yjy.apcs.rpc.server.report.TRequestReportVo;
-import com.yjy.apcs.rpc.server.report.TResponseReport;
-import org.apache.thrift.TNonblockingMultiFetchClient;
+import com.yjy.apcs.rpc.server.report.ReportDetailRpcService;
+import com.yjy.apcs.rpc.server.report.TReportDetailPaginationVo;
+import com.yjy.apcs.rpc.server.report.TRequestReportDetailVo;
+import com.yjy.apcs.rpc.server.report.TResponseReportDetail;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.transport.TFastFramedTransport;
 import org.apache.thrift.transport.TSocket;
@@ -22,25 +21,31 @@ public class Client {
 
 
     public static void main(String[] args) throws Exception{
-        TTransport tTransport=new TFastFramedTransport(new TSocket("localhost",1320));
+//        TTransport tTransport=new TFastFramedTransport(new TSocket("192.168.2.12",1320));
+//        TTransport tTransport=new TFastFramedTransport(new TSocket("192.168.2.130",1320));
+        TTransport tTransport=new TFastFramedTransport(new TSocket("172.31.9.125",1320));
         tTransport.open();
 
-//        TProtocol protocol=new TCompactProtocol(tTransport);
         TProtocol protocol=new TBinaryProtocol(tTransport);
-        TMultiplexedProtocol mp1 = new TMultiplexedProtocol(protocol,"FundCapitalRpcService");
-        FundCapitalRpcService.Client client=new FundCapitalRpcService.Client(protocol,mp1);
+        TMultiplexedProtocol mp1 = new TMultiplexedProtocol(protocol,"ReportDetailRpcService");
 
-        TRequestReportVo requestRrportVo=new TRequestReportVo();
+        ReportDetailRpcService.Client client=new ReportDetailRpcService.Client(protocol,mp1);
+
+        TRequestReportDetailVo requestRrportVo=new TRequestReportDetailVo();
 //      requestRrportVo.setBuyerCompanyname("1");
 //      requestRrportVo.setBuyerLinkman("2");
         requestRrportVo.setInvoicenumber("DD5115020004691");
+        requestRrportVo.setBuyerCompanyname("DD5115020004691");
+        requestRrportVo.setBuyerLinkman("DD5115020004691");
         requestRrportVo.setPageSize(10);
         requestRrportVo.setCurrentPage(1);
-        TPaginationVo paginationGoodsOutList = client.findPaginationGoodsOutList(requestRrportVo);
+//        requestRrportVo.setIsSum(true);
+        TReportDetailPaginationVo paginationGoodsOutList = client.findGoodsOutPagination(requestRrportVo);
+//        TReportDetailPaginationVo paginationGoodsOutList = client.findGoodsBalancePagination(requestRrportVo);
 
-        List<TResponseReport> data = paginationGoodsOutList.getData();
+        List<TResponseReportDetail> data = paginationGoodsOutList.getData();
         if (data!=null)
-        for(TResponseReport goodsOut:data){
+        for(TResponseReportDetail goodsOut:data){
             logger.info(goodsOut.getBuyerCompanyname()+"  "+goodsOut.getInvoicenumber()+" "+goodsOut.getTotalgoodsprice());
         }
 //        TimeUnit.SECONDS.sleep(100000);

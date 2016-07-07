@@ -3,7 +3,7 @@ package com.yjy.service.fundbook;
 import com.yjy.common.redis.JedisTemplate;
 import com.yjy.common.redis.RedisKey;
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import com.yjy.repository.mapper.fundbook.UserBasicExtMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

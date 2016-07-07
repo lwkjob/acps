@@ -19,11 +19,12 @@
         </property>
     </bean>
     <import resource="classpath:spring/spring-dataSource.xml" />
-    <import resource="classpath:spring/spring-cache.xml" />
 
+    <!--<import resource="classpath:aop-logger.xml" />-->
     <bean id="acpsRpcServer" class="com.yjy.apcs.rpc.server.AcpsRpcServer">
 
         <constructor-arg name="point" value="${acps.rpc.server.point}"/>
 
     </bean>
+
 </beans>

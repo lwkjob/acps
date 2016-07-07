@@ -1,9 +1,9 @@
 package com.yjy.service.fundbook.onlyMonth;
 
 import com.yjy.common.utils.DateTools;
-import com.yjy.entity.fundbook.DelTableName;
-import com.yjy.entity.fundbook.Fundbookcode;
-import com.yjy.entity.fundbook.UserBasicInfo;
+import com.yjy.common.entity.fundbook.Fundbookcode;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
+import com.yjy.common.utils.DelTableName;
 import com.yjy.service.fundbook.FundbookService;
 import com.yjy.service.fundbook.FundbookcodeService;
 import org.slf4j.Logger;
