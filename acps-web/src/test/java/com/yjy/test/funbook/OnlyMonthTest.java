@@ -78,6 +78,6 @@ public class OnlyMonthTest {
 
     @Test
     public  void createFundmonthtemp(){
-        //onlyMonthService.createFundmonthtemp("fundmonthtemp201603","fundbook201603");
+        onlyMonthService.createFundmonthtemp("fundmonthtemp201512","fundbook201512");
     }
 }

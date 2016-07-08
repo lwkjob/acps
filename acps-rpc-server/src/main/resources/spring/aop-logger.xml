@@ -11,7 +11,7 @@
       <bean id="audience" class="com.yjy.apcs.rpc.server.aop.ServiceAop" />
        <aop:config proxy-target-class="true">
               <aop:aspect ref="audience" >
-                     <aop:pointcut id="performance" expression="  execution(* com.yjy.service.report..*(..)) "/>
+                     <aop:pointcut id="performance" expression="  execution(* com.yjy.apcs.rpc.server.service..*(..)) "/>
                      <aop:before pointcut-ref="performance" method="takeSeats"/>
                      <aop:after-returning pointcut-ref="performance" method="applaud" returning="returning"/>
                      <aop:after-throwing pointcut-ref="performance" method="afterThrowing" throwing="e"/>

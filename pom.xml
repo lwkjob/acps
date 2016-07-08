@@ -5,6 +5,7 @@
     <artifactId>acps-tools</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
+    <description>account process service</description>
 
     <modules>
         <module>acps-common</module>

@@ -57,7 +57,7 @@ public class OnlyMonthService {
 
 
 
-    //分页更新上月最后一天的余额到redis,从日结表中查
+    //从月结表中,分页更新上月最后一天的余额到redis
     public void getByBookdete(final Fundbookmonth fundbookmonth,final List<Integer> userids) {
         final   Integer bookdate = fundbookmonth.getBookdate();
         final String tablename = FundConstant.FUNDBOOKMONTH_TABLE_NAME_PRE + StringUtils.substring(bookdate + "", 0, 6);

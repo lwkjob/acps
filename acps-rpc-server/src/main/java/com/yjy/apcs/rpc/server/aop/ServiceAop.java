@@ -58,11 +58,11 @@ public class ServiceAop {
     //    方法执行后
     public void applaud(JoinPoint joinPoint,Object returning){
 
-        String methodName=  joinPoint.getSignature().getName();
+      //  String methodName=  joinPoint.getSignature().getName();
 
-        Class classez=joinPoint.getTarget().getClass();
+      //  Class classez=joinPoint.getTarget().getClass();
 
-        log.info(classez.toString().substring(28) + ":" + methodName + "()  方法结束了 监控性能\r\n 返回值：" + returning);
+      //  log.info(classez.toString().substring(28) + ":" + methodName + "()  方法结束了 监控性能\r\n 返回值：" + returning);
 
         long endTime= Long.valueOf(System.currentTimeMillis());
 
@@ -73,8 +73,11 @@ public class ServiceAop {
 
     //异常监控
     public void afterThrowing(JoinPoint joinPoint,Exception e) throws Throwable {
+
+        Object[] objects= joinPoint.getArgs();
+
         String methodName=  joinPoint.getSignature().getName();
         Class classez=joinPoint.getTarget().getClass();
-        log.error(classez.toString().substring(28) + ":" + methodName + "() 方法出异常了:" + e.getMessage() + "\n", e);
+        log.error(classez.toString().substring(28) + ":" + methodName + "() 方法出异常了:" + e.getMessage() + "\n"+objects[0], e);
     }
 }

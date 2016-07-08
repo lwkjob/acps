@@ -8,21 +8,17 @@
        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
         default-autowire="byName">
 
-    <context:component-scan base-package="com.yjy"></context:component-scan>
-
-    <!-- 属性文件读入 -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:application.properties</value>
-            </list>
-        </property>
+    <bean  id="reportProcessor" class="com.yjy.apcs.rpc.server.report.ReportDetailRpcService$Processor">
+        <constructor-arg name="iface" ref="reportDetailRpcServiceImpl"/>
     </bean>
-    <import resource="classpath:spring/spring-dataSource.xml" />
 
-    <import resource="classpath:spring/aop-logger.xml" />
+    <bean  id="fundsProcessor" class="com.yjy.apcs.rpc.server.report.FundsMonthReportRpcService$Processor">
+        <constructor-arg name="iface" ref="fundsMonthReportRpcServiceImpl" />
+    </bean>
 
-    <import resource="classpath:spring/rpc-config.xml" />
+    <bean  id="goodsProcessor" class="com.yjy.apcs.rpc.server.report.GoodsMonthReportRpcService$Processor">
+        <constructor-arg name="iface" ref="goodsMonthReportRpcServiceImpl"/>
+    </bean>
 
     <bean id="acpsRpcServer" class="com.yjy.apcs.rpc.server.AcpsRpcServer">
 

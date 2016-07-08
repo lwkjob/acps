@@ -76,7 +76,7 @@ public class ReportDetailRpcServiceImpl implements ReportDetailRpcService.Iface 
             if (data != null && data.size() > 0) {
                 for (GoodsOut orig : data) {
                     com.yjy.apcs.rpc.server.report.TResponseReportDetail dest = new com.yjy.apcs.rpc.server.report.TResponseReportDetail();
-                    if(orig!=null){
+                    if (orig != null) {
                         ReflectTools.copyBean(dest, orig);
                     }
                     resultdata.add(dest);
@@ -142,7 +142,6 @@ public class ReportDetailRpcServiceImpl implements ReportDetailRpcService.Iface 
         goodsReceipt.setSalerid(requestReportVo.getSalerid());
         Pagination pagination = new Pagination(requestReportVo.getCurrentPage(), requestReportVo.getPageSize());
         TReportDetailPaginationVo paginationVo = new TReportDetailPaginationVo();
-
         Pagination<GoodsReceipt> resuletPagination = new Pagination<>();
         if (requestReportVo.isIsSum()) {
             //求和

@@ -22,7 +22,7 @@ public class DateTools {
 
     public synchronized static Date parseDateFromString_yyyyMM(String dateStr, Logger logger) {
         try {
-            return simpleDateFormat_yyyyMM.parse(dateStr);
+            return simpleDateFormat_yyyyMM.parse(StringUtils.substring(dateStr,0,6));
         } catch (Exception e) {
             logger.info("传入的执行时间有错误", e);
             throw new RuntimeException("传入的执行时间有错误");

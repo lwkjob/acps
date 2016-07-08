@@ -22,11 +22,13 @@ public class AcpsRpcServer {
 
 
     @Resource
-    private ReportDetailRpcServiceImpl reportRpcServiceImpl;
+    private ReportDetailRpcService.Processor reportProcessor;
+
     @Resource
-    private FundsMonthReportRpcServiceImpl fundsMonthReportRpcServiceImpl;
+    private FundsMonthReportRpcService.Processor fundsprocess;
+
     @Resource
-    private GoodsMonthReportRpcServiceImpl goodsMonthReportRpcServiceImpl;
+    private GoodsMonthReportRpcService.Processor goodsprocess;
 
 
     private int point;
@@ -47,21 +49,17 @@ public class AcpsRpcServer {
 
             TProtocolFactory protocolFactory = new TBinaryProtocol.Factory();
 
-            ReportDetailRpcService.Processor process = new ReportDetailRpcService.Processor(reportRpcServiceImpl);
-            FundsMonthReportRpcService.Processor fundsprocess = new FundsMonthReportRpcService.Processor(fundsMonthReportRpcServiceImpl);
-            GoodsMonthReportRpcService.Processor goodsprocess = new GoodsMonthReportRpcService.Processor(goodsMonthReportRpcServiceImpl);
 
 
             TMultiplexedProcessor protocalClazz = new TMultiplexedProcessor();
-            protocalClazz.registerProcessor("ReportDetailRpcService", process);
+            protocalClazz.registerProcessor("ReportDetailRpcService", reportProcessor);
             protocalClazz.registerProcessor("FundsMonthReportRpcService", fundsprocess);
             protocalClazz.registerProcessor("GoodsMonthReportRpcService", goodsprocess);
 
 
 
             TServer server = new TThreadedSelectorServer(
-                    new TThreadedSelectorServer
-                            .Args(serverSocket)
+                    new TThreadedSelectorServer.Args(serverSocket)
                             .protocolFactory(protocolFactory)
                             .transportFactory(tTransportFactory)
                             .processor(protocalClazz)
