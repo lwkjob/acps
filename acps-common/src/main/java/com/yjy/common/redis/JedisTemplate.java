@@ -1,6 +1,7 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import redis.clients.jedis.*;
@@ -693,7 +694,11 @@ public class JedisTemplate implements Serializable {
      * @return
      */
     public <T> List<T> getListObject(String key, Class<T> clazz) {
-        return JsonUtils.readToList(get(key), clazz);
+        String redisValue= get(key);
+        if(StringUtils.isBlank(redisValue)){
+            return null;
+        }
+        return JsonUtils.readToList(redisValue, clazz);
     }
 
 

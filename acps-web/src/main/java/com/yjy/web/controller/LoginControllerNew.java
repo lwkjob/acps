@@ -118,7 +118,7 @@ public class LoginControllerNew {
                  //日清
                  startDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getStartDate(), logger);
                  endDate = DateTools.parseDateFromString_yyyyMMdd(updateBalanceVo.getEndDate(), logger);
-                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
+                 fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users, false);
                  break;
              case 2:
                  //月结

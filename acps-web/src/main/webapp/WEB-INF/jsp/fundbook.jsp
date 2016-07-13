@@ -137,7 +137,7 @@
                                     <div class="form-group">
                                         <label class="col-lg-2 control-label" for="userids2">用户编号</label>
                                         <div class="col-lg-10">
-                                           <textarea class="form-control" rows="5" cols="100" name="userids" id="userids2"> </textarea>
+                                           <textarea class="form-control" rows="5" cols="100" name="userids" id="userids2"></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group ">

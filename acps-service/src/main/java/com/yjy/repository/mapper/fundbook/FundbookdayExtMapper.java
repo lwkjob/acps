@@ -39,6 +39,8 @@ public interface FundbookdayExtMapper {
     void deleteAll(@Param("tableName")String tableName);
 
 
+
+
     List<Fundbookday> selectByExample(@Param("fundbookday") Fundbookday fundbookday,
                                       @Param("tablename") String tablename,
                                       @Param("pagination") Pagination pagination,

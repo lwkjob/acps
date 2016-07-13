@@ -69,7 +69,7 @@ public class FundbookDayService {
 
 
     //插入日清数据
-    public int insertFundBookDay(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users) {
+    public int insertFundBookDay(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users, boolean isJob) {
 
 
 //        if(bookcodes==null || bookcodes.size()==0){
@@ -88,8 +88,10 @@ public class FundbookDayService {
             DelTableName delTableName = deleteTableNameMap.get(key);
 
             String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-
-            if(users==null||users.size()<=0){
+            if(isJob){
+                int dateInt= Integer.parseInt(DateTools.formate_yyyyMMdd(startDate));//如:20130603
+                fundbookdayExtMapper.deleteFundbookDay(null, null, fundbookDayTableName, dateInt, dateInt);
+            }else if(users==null||users.size()<=0){
                 //1.2删除需要统计的数据
                 fundbookdayExtMapper.deleteAll(fundbookDayTableName);
             }else {
@@ -117,8 +119,11 @@ public class FundbookDayService {
                 List<UserBasicInfo> userOfMonthList = null;
                 if(users==null||users.size()==0){
                     fundbookdayMap = getStringFundbookdayMap(delTableName.getTableNameSuffix(), startDateByTable, createEndTime);
-
                     userOfMonthList = jedisTemplate.getListObject(RedisKey.USERS_OF_DAY + bookDateStr, UserBasicInfo.class);
+                    if(userOfMonthList==null){
+                        //  今天的活跃用户数
+                       userOfMonthList = userBasicExtMapper.getUsers(0, 0, 0, 0, createEndTime.getTime() / 1000l);
+                    }
 
                 }else {
                     fundbookdayMap = getStringFundbookdayMapUsers(delTableName.getTableNameSuffix(), startDateByTable, createEndTime,users);

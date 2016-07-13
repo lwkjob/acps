@@ -56,6 +56,11 @@ public class OnlyMonthTest {
         //onlyMonthService.oneByOneUpdateBalance(startDate, endDate, null, null);
     }
 
+    @Test
+    public void oneByOneUpdateBalanceByday(){
+        onlyMonthService.oneByOneUpdateBalanceByDay("20131031", null);
+    }
+
     //缓存账本到内存中
     private Map<Integer, List<Fundbookcode>> cacheFndbookcode() {
         Map<Integer, List<Fundbookcode>> map = new HashedMap();
@@ -78,6 +83,6 @@ public class OnlyMonthTest {
 
     @Test
     public  void createFundmonthtemp(){
-        onlyMonthService.createFundmonthtemp("fundmonthtemp201512","fundbook201512");
+        //onlyMonthService.createFundmonthtemp("fundmonthtemp201512","fundbook201512");
     }
 }

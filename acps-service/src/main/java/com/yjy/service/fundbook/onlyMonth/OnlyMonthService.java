@@ -100,7 +100,9 @@ public class OnlyMonthService {
     private void cachePreMonthBalace(List<Fundbookmonth> list) {
         long start=System.currentTimeMillis();
         for (Fundbookmonth fundbookmonth : list) {
+
             String rediskey = RedisKey.MONTH_CACHE + fundbookmonth.getBookdate() + "|-" + fundbookmonth.getBookcode() + "|-" + fundbookmonth.getUserid();
+
             jedisTemplate.set(rediskey, fundbookmonth.getBalance().doubleValue() + "");
         }
         long end=System.currentTimeMillis();
@@ -302,6 +304,7 @@ public class OnlyMonthService {
 
     }
 
+    //按月刷余额
     public void oneByOneUpdateBalance(Date startDate, final Date endDate, final List<Fundbookcode> bookcodes,  List<Integer> userids) {
 
         //轮训每一个月
@@ -420,6 +423,118 @@ public class OnlyMonthService {
         }
     }
 
+
+    //按天刷余额
+    public void oneByOneUpdateBalanceByDay(String jobDatesrt,List<Integer> userids) {
+
+        final Date jobStartDate= DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, jobDatesrt + "00:00:00", logger);
+        final Date jobEndDate= DateTools.parseDateFromStr(simpleDateFormat_yyyyMMddHHmmss, jobDatesrt + "23:59:59", logger);
+        Date jobPreDayDate = DateTools.getPreDayDate(jobStartDate);
+        final String jobPreDateStr=DateTools.formate_yyyyMMdd(jobPreDayDate);
+        //前一个月最后一天
+
+            final String fundbookTableName = FundConstant.FUNDBOOK_TABLE_NAME_PRE + StringUtils.substring(jobDatesrt,0,6);
+            List<Integer> selectUserids = null;
+            if (userids != null&&userids.size()!=0) {
+                selectUserids = userids;
+            } else {
+                //发生数据的用户
+                selectUserids = fundbookExtMapper.selectUserids(fundbookTableName);
+            }
+            final int dataSize = selectUserids.size(); //01,23,4;
+            final int pageSize = dataSize/20;
+            final int cacheThreadCount = (dataSize / pageSize) + 1;
+            logger.info("总用户:" + dataSize + " 刷余额" + jobDatesrt + " " + cacheThreadCount + "页");
+            final CountDownLatch countDownLatch = new CountDownLatch(cacheThreadCount);
+            ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
+            for (int j = 1; j <= cacheThreadCount; j++) {
+                final int jm = j;
+                final List<Integer> selectUseridss = selectUserids;
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<Fundbook> insertFunbooks = new ArrayList<>();
+                        for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
+                            int userid = selectUseridss.get(i);
+                            //当期有发生数据的账本
+                            List<String> bookcodeList = fundbookExtMapper.selectBookcodes(fundbookTableName, userid);
+
+                            for (String bookcode : bookcodeList) {
+
+//                                Fundbookday fundbookday = new Fundbookday(); //查询上一个月的(查询条件)
+//                                fundbookday.setBookcode(bookcode);
+//                                fundbookday.setUserid(userid);
+                                //前一个月 这个用户 这个账本 最后一条数据
+                                String prebalanceStr = null;
+                                String prebalancekey = String.format("%s|-%s|-%s", jobPreDateStr, bookcode, userid);
+
+                                prebalanceStr = jedisTemplate.get(prebalancekey);
+                                BigDecimal firstPreBalance = new BigDecimal("0");
+                                Fundbook preFundbook = new Fundbook();
+                                if (prebalanceStr != null) {
+                                    firstPreBalance = new BigDecimal(prebalanceStr);
+                                }
+                                preFundbook.setBalance(firstPreBalance);
+
+                                //取当前用户账本中的数据
+                                Fundbook fundbook = new Fundbook(); // (查询条件)
+                                fundbook.setBookcode(bookcode);
+                                fundbook.setUserid(userid);
+                                List<Fundbook> fundbooks = fundbookExtMapper.selectByExample(fundbook, fundbookTableName, jobStartDate.getTime()/1000l, jobEndDate.getTime()/1000l, false);
+
+                                //轮训账本表中每一条数据
+                                if (fundbooks != null && fundbooks.size() > 0) {
+                                    for (int m = 0; m < fundbooks.size(); m++) {
+                                        Fundbook iFundbook = fundbooks.get(m);
+                                        BigDecimal preBalance = preFundbook.getBalance();
+                                        if (Integer.parseInt(StringUtils.substring(bookcode, 0, 4)) == FundConstant.FUND_TYPE_DEBT) {
+                                            //负债类公式: 上期贷余 + 本期发生贷 - 本期发生借 = 本期贷余
+                                            BigDecimal credit = iFundbook.getCredit();  //当期发生贷
+                                            BigDecimal debit = iFundbook.getDebit();  //当期发生借
+                                            BigDecimal iBalance = preBalance.add(credit).subtract(debit);
+                                            iFundbook.setBalance(iBalance);
+                                        } else {
+                                            BigDecimal credit = iFundbook.getCredit();  //当期发生贷
+                                            BigDecimal debit = iFundbook.getDebit();  //当期发生借
+                                            //资产类公式和损益类: 上期借余 + 本期发生借 - 本期发生贷 = 本期借余
+                                            BigDecimal iBalance = preBalance.add(debit).subtract(credit);
+                                            iFundbook.setBalance(iBalance);
+                                        }
+                                        insertFunbooks.add(iFundbook);
+                                        if (insertFunbooks.size() % 10000 == 0) {
+                                            long startupdate=System.currentTimeMillis();
+                                            fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, fundbookTableName);
+                                            long endupdate=System.currentTimeMillis();
+                                            logger.info(jm+" "+(double)(endupdate-startupdate)/1000 +  " 更新完成一次");
+                                            insertFunbooks = new ArrayList<>();
+
+                                        }
+                                        //轮训下一个条
+                                        preFundbook = iFundbook;
+                                    }
+                                }
+
+                            }
+
+                        }
+                        if(insertFunbooks.size()>0){
+                            logger.info(jm + " 本线程最后一次更新余额" + insertFunbooks.size());
+                            fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, fundbookTableName);
+                        }
+                        insertFunbooks = null;
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+            try {
+
+                countDownLatch.await();
+                executorService.shutdown();
+            } catch (Exception e) {
+                logger.error("刷新余额", e);
+            }
+            logger.info(fundbookTableName + "本月余额刷完了");
+    }
 
     private boolean isContains(List<Fundbookcode> bookcodes, String bookCode) {
         for (Fundbookcode s : bookcodes) {
