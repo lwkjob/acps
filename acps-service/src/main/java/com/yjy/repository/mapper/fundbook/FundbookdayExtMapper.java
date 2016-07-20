@@ -46,6 +46,6 @@ public interface FundbookdayExtMapper {
                                       @Param("pagination") Pagination pagination,
                                       @Param("userids") List<Integer> userids);
 
-
+    void deleteAndCreateTable(@Param("tableName")String tableName);
 
 }

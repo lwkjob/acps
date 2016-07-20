@@ -87,16 +87,7 @@ public class FundbookDayService {
             //每个月
             DelTableName delTableName = deleteTableNameMap.get(key);
 
-            String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + delTableName.getTableNameSuffix();
-            if(isJob){
-                int dateInt= Integer.parseInt(DateTools.formate_yyyyMMdd(startDate));//如:20130603
-                fundbookdayExtMapper.deleteFundbookDay(null, null, fundbookDayTableName, dateInt, dateInt);
-            }else if(users==null||users.size()<=0){
-                //1.2删除需要统计的数据
-                fundbookdayExtMapper.deleteAll(fundbookDayTableName);
-            }else {
-                fundbookdayExtMapper.deleteFundbookDay(null,users,fundbookDayTableName,0,0);
-            }
+
 
             //3 每个表，每个用户，每天，每个账本一条数据
             //3.2每个用户
@@ -110,8 +101,16 @@ public class FundbookDayService {
             CountDownLatch countDownLatch=new CountDownLatch(threadCount);
             long startMonthTime = System.currentTimeMillis();
             while (endDateByTable.compareTo(startDateByTable) != -1) {//1.每天
-
                 String bookDateStr = simpleDateFormat_yyyyMMdd.format(startDateByTable);
+                String fundbookDayTableName = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + bookDateStr;
+                if(users==null||users.size()<=0){
+                    //1.2删除需要统计的数据
+                    fundbookdayExtMapper.deleteAndCreateTable(fundbookDayTableName);
+//                    fundbookdayExtMapper.deleteAll(fundbookDayTableName);
+                }else {
+                    fundbookdayExtMapper.deleteFundbookDay(null,users,fundbookDayTableName,0,0);
+                }
+
                 Date createEndTime = parseDateFromStr(simpleDateFormat_yyyyMMddhhmmss, bookDateStr + "23:59:59");
                 //今天活跃数据
                 Map<String, Fundbookday> fundbookdayMap =null;
@@ -156,9 +155,9 @@ public class FundbookDayService {
                 countDownLatch.await();
                 executorService.shutdown();
                 long end = System.currentTimeMillis();
-                logger.info(fundbookDayTableName+"日清跑完了"+ (float) (end - startMonthTime) / 1000 + "秒");
+                logger.info(delTableName+"日结跑完了"+ (float) (end - startMonthTime) / 1000 + "秒");
             }catch (Exception e){
-                logger.error("日结报错了"+fundbookDayTableName,e);
+                logger.error("日结报错了"+delTableName,e);
             }
         }
         long end = System.currentTimeMillis();
@@ -213,7 +212,7 @@ public class FundbookDayService {
 
         //今天的所有用户分多线程刷余额到redis
         final int dataSize = userOfMonthList.size();
-        final int pageSize = 1000;
+        final int pageSize = 8000;//每个线程处理的用户数
         final int cacheThreadCount = (dataSize / pageSize) + 1;
         final CountDownLatch countDownLatch = new CountDownLatch(cacheThreadCount);
         ExecutorService executorService = Executors.newFixedThreadPool(cacheThreadCount);
@@ -243,7 +242,7 @@ public class FundbookDayService {
                             JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
                             setJedisVos.add(jedisVo);
 
-                            if (setJedisVos.size() % 8000 == 0) {
+                            if (setJedisVos.size() % 15000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipset(setJedisVos);
 
@@ -444,9 +443,10 @@ public class FundbookDayService {
     //分页更新上月最后一天的余额到redis,从日结表中查
     public void getByBookdete(final Fundbookday fundbookday,final List<Integer> userids) {
         final   Integer bookdate = fundbookday.getBookdate();
-        final String tablename = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + StringUtils.substring(bookdate + "", 0, 6);
+        final String tablename = FundConstant.FUNDBOOKDAY_TABLE_NAME_PRE + bookdate;
         final int pagesize = 8000;//一次取
         Pagination pagination = new Pagination(1, pagesize);
+        //第一次的 pagesize= 8000 条
         List<Fundbookday> list = fundbookdayExtMapper.selectByExample(fundbookday, tablename, pagination, userids);
         logger.info(bookdate+" 总页数" + pagination.getPageCount());
         if (list != null && list.size() > 0) {

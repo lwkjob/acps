@@ -1,6 +1,7 @@
 package com.yjy.service.fundbook;
 
 import com.yjy.common.redis.JedisTemplate;
+import com.yjy.common.redis.JedisVo;
 import com.yjy.common.utils.DateTools;
 import com.yjy.common.entity.fundbook.Fundbookcode;
 import com.yjy.common.entity.fundbook.Fundbookday;
@@ -55,7 +56,7 @@ public class FundbookdayRunner implements Runnable {
         long start = System.currentTimeMillis();
         final String currentMonthLastDay = DateTools.getCurrentMonthLastDay(DateTools.parseDateFromString_yyyyMMdd(preDateStr, logger), simpleDateFormat_yyyyMMdd);
         final int dataSize = users.size();
-        final int pageSize = 2000;
+        final int pageSize = 8000;
         final int cacheThreadCount = (dataSize / pageSize) + 1;
         logger.info(bookDateStr +"日清 "+cacheThreadCount + "页");
         final CountDownLatch subcountDownLatch = new CountDownLatch(cacheThreadCount);
@@ -68,6 +69,7 @@ public class FundbookdayRunner implements Runnable {
                 public void run() {
                     List<Fundbookday> insertFundbookdays = new ArrayList<>();
                     long start = System.currentTimeMillis();
+                    List<JedisVo> delJedisVos = new ArrayList<JedisVo>();
                     for (int i = (jm - 1) * pageSize; !(i > (jm * pageSize - 1) || i > (dataSize - 1)); i++) {
 
                         //当期活跃用户
@@ -94,8 +96,20 @@ public class FundbookdayRunner implements Runnable {
                             }
 
                             if (!currentMonthLastDay.equals(preDateStr)) {
-                                jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
+                               // jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
+                                JedisVo deljedisVo = new JedisVo(mapPreKey);
+                                delJedisVos.add(deljedisVo);
+                                if (delJedisVos.size() % 15000 == 0) {
+                                    long cacheStart = System.currentTimeMillis();
+                                    jedisTemplate.pipdel(delJedisVos);
+                                    long cacheEnd = System.currentTimeMillis();
+                                    logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                    delJedisVos=new ArrayList<JedisVo>();
+
+                                }
                             }
+
+
                             BigDecimal preBalance = null;
                             if (StringUtils.isNotBlank(preBalanceStr)) {
                                 preBalance = new BigDecimal(preBalanceStr);
@@ -120,7 +134,7 @@ public class FundbookdayRunner implements Runnable {
                             }
 //                jedisTemplate.set(mapKey, fundbookday.getBalance().doubleValue() + "");
                             insertFundbookdays.add(fundbookday);
-                            if (insertFundbookdays.size() % 6000 == 0) {
+                            if (insertFundbookdays.size() % 3000 == 0) {
                                 //每3万条插入一次
                                 long memeryRunTime = System.currentTimeMillis();
                                 logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + ",当前数据量:" + insertFundbookdays.size());
