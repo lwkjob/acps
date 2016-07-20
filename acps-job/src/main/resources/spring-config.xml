@@ -20,6 +20,6 @@
     </bean>
     <import resource="spring/spring-dataSource.xml" />
     <import resource="spring/spring-cache.xml" />
-    <import resource="spring/spring-quartz.xml" />
+    <!--<import resource="spring/spring-quartz.xml" />-->
     <bean id="startUpLissltener" class="com.yjy.service.fundbook.subandpub.StartUpLissltener"/>
 </beans>

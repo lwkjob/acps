@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+         http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+       default-autowire="byName">
+
+    <context:property-placeholder location="classpath:application.properties" ignore-resource-not-found="true" ignore-unresolvable="true"/>
+
+    <util:properties id="jdbcProps" location="classpath:application.properties"/>
+
+    <!-- hibernate validator -->
+    <!--<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>-->
+
+    <bean id="dataSource" name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close" lazy-init="false">
+        <!-- 驱动 -->
+        <property name="driverClass" value="#{jdbcProps['jdbc.driver']}"/>
+        <!-- 连接地址 -->
+        <property name="jdbcUrl" value="#{jdbcProps['jdbc.url']}"/>
+        <!-- 用户名 -->
+        <property name="user" value="#{jdbcProps['jdbc.username']}"/>
+        <!-- 密码 -->
+        <property name="password" value="#{jdbcProps['jdbc.password']}"/>
+
+        <!--连接池中保留的最大连接数。默认值: 15 -->
+        <property name="maxPoolSize" value="30"/>
+
+        <!-- 连接池中保留的最小连接数，默认为：3-->
+        <property name="minPoolSize" value="10"/>
+
+        <!-- 初始化连接池中的连接数，取值应在minPoolSize与maxPoolSize之间，默认为3-->
+        <property name="initialPoolSize" value="30"/>
+
+
+        <!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。默认值: 3 -->
+        <property name="acquireIncrement" value="10"/>
+
+        <!--定义在从数据库获取新连接失败后重复尝试的次数。默认值: 30 ；小于等于0表示无限次-->
+        <property name="acquireRetryAttempts" value="0"/>
+
+        <property name="preferredTestQuery" value=" SELECT 1 from dual"/>
+
+        <property name="idleConnectionTestPeriod" value="10000"/>
+
+
+
+    </bean>
+
+    <!-- MyBatis配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configurationProperties">
+            <props>
+                <prop key="cacheEnabled">false</prop>
+                <prop key="localCacheScope">STATEMENT</prop>
+            </props>
+        </property>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis/mybatisConfig.xml"/>
+        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->
+        <property name="typeAliasesPackage"  value="com.yjy.common.entity.* "/>
+        <!-- 显式指定Mapper文件位置 -->
+        <property name="mapperLocations" value="classpath:/mybatis/mapper/**/*Mapper.xml"/>
+        <property name="plugins">
+            <list>
+                <bean class="com.yjy.common.mybatis.interceptor.PaginationInterceptor">
+                    <property name="dataBaseDialect">
+                        <bean class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+                            <property name="staticField">
+                                <value>com.yjy.common.mybatis.DataBaseDialect.MYSQL</value>
+                            </property>
+                        </bean>
+                    </property>
+                </bean>
+                <bean class="com.yjy.common.mybatis.interceptor.ExecutorInterceptor"/>
+                <bean class="com.yjy.common.mybatis.interceptor.WriteDataInterceptor"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--扫描basePackage下所有mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value=" com.yjy.repository"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--<property name="annotationClass" value="org.springframework.stereotype.Repository"/>-->
+    </bean>
+
+    <!-- 另一个事务管理器, Jdbc单数据源事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 使用annotation定义事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+    <!-- 定义aspectj -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>
