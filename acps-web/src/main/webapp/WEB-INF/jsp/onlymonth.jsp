@@ -73,27 +73,7 @@
                                         <input value="" class="form-control" id="endDate" type="text" name="endDate" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="col-lg-2 control-label" for="userids">用户编号</label>
-                                    <div class="col-lg-10">
-                                        <textarea class="form-control" rows="5" cols="100" name="userids" id="userids"></textarea>
-                                    </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="col-lg-2 control-label" for="accBook">选择账本</label>
-                                    <div class="col-lg-10">
-                                        <select id="accBook" class="form-control"  name="accBook">
-                                            <option value="">全部账本</option>
-                                            <c:forEach items="${bookcodes}" var="bookcode">
-                                                <option value="${bookcode.fundtype}&&${bookcode.bookcode}">
-                                                        ${bookcode.bookcodedesc}(${bookcode.bookcode})
-                                                </option>
-                                            </c:forEach>
-                                        </select>
-                                        <span class="help-block">选择一个账本统计</span>
-                                    </div>
-                                </div>
                                 <button type="submit" class="btn btn-primary">刷新余额</button>
                                 <button type="reset" class="btn btn-default">Cancel</button>
                             </fieldset>
@@ -143,6 +123,37 @@
                                     <label class="col-lg-2 control-label" for="endDate1">结束</label>
                                     <div class="col-lg-10">
                                         <input class="form-control" id="endDate1" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">走</button>
+                                <button type="reset" class="btn btn-default">Cancel</button>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-lg-12">
+                <div class="panel panel-default bootstrap-admin-no-table-panel">
+                    <div class="panel-heading">
+                        <div class="text-muted bootstrap-admin-box-title">只刷月结</div>
+                    </div>
+                    <div class="bootstrap-admin-no-table-panel-content bootstrap-admin-panel-content collapse in">
+                        <form class="form-horizontal"  action="${ctx}/onlymonth/shceduleAll.shtml" method="post">
+                            <fieldset>
+                                <legend>只刷月结</legend>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label" for="startDate4">开始</label>
+                                    <div class="col-lg-10">
+                                        <input class="form-control" id="startDate4" type="text" value="" name="start" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-2 control-label" for="endDate4">结束</label>
+                                    <div class="col-lg-10">
+                                        <input class="form-control" id="endDate4" type="text" value="" name="end" readonly onClick="WdatePicker({dateFmt:'yyyyMM'});"/>
                                     </div>
                                 </div>
 

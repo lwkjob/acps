@@ -45,7 +45,13 @@ public interface FundbookdayExtMapper {
                                       @Param("tablename") String tablename,
                                       @Param("pagination") Pagination pagination,
                                       @Param("userids") List<Integer> userids);
+    List<Fundbookday> getBalance( @Param("tablename") String tablename,
+                                  @Param("pagination") Pagination pagination,
+                                  @Param("userids") List<Integer> userids);
 
     void deleteAndCreateTable(@Param("tableName")String tableName);
 
+    List<Fundbookday> sumThisMonth(@Param("tableNames")List<String> tableNames);
+
+    List<Fundbookday> getBySql(@Param("sql")String sql);
 }

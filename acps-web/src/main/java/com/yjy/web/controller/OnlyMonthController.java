@@ -10,6 +10,7 @@ import com.yjy.service.fundbook.onlyMonth.OnlyMonthService;
 import com.yjy.web.vo.UpdateBalanceVo;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -50,6 +51,31 @@ public class OnlyMonthController {
         return modelAndView;
     }
 
+    @RequestMapping("/shceduleAll")
+    public ModelAndView shceduleAll(String start,String end){
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("onlymonth");
+        Date date1 = DateTools.parseDateFromString_yyyyMM(start, logger);
+        Date date2 = DateTools.parseDateFromString_yyyyMM(end, logger);
+
+        while (date2.compareTo(date1)!=-1){
+            Date preMonth = new DateTime(date1).plusMonths(-1).toDate();
+            int preMonthInt=Integer.parseInt(DateTools.formate_yyyyMM(preMonth)) ;
+            loadCache(preMonthInt);
+           String  loadDate=DateTools.formate_yyyyMM(date1);
+            UpdateBalanceVo updateBalanceVo=new UpdateBalanceVo();
+            updateBalanceVo.setStartDate(loadDate);
+            updateBalanceVo.setEndDate(loadDate);
+            oneByOneUpdateBalance(updateBalanceVo);
+            createFundmonthtemp(loadDate);
+            insertFundBookMonth(loadDate, loadDate);
+            date1=DateTools.getNextMonthsDate(date1);
+        }
+
+        return modelAndView;
+    }
+
+
     //加载上个月的余额到redis
     @RequestMapping("/loadCache")
     public ModelAndView loadCache(int loadDate) {
@@ -61,16 +87,7 @@ public class OnlyMonthController {
         return modelAndView;
     }
 
-    //统计月结数据
-    @RequestMapping("/insertFundBookMonth")
-    public ModelAndView insertFundBookMonth(String start, String end) {
-        ModelAndView modelAndView = new ModelAndView();
-        Date startDate = DateTools.parseDateFromString_yyyyMM(start, logger);
-        Date endDate = DateTools.parseDateFromString_yyyyMM(end, logger);
-        onlyMonthService.insertFundBookMonth(startDate, endDate, cacheFndbookcode(), null);
-        modelAndView.setViewName("onlymonth");
-        return modelAndView;
-    }
+
 
     //缓存账本到内存中
     private Map<Integer, List<Fundbookcode>> cacheFndbookcode() {
@@ -131,8 +148,20 @@ public class OnlyMonthController {
             logger.info("参数有错误");
             return modelAndView;
         }
-        onlyMonthService.createFundmonthtemp(FundConstant.FUNDMONTHTEMP_TABLE_NAME_PRE+dateStr,FundConstant.FUNDBOOK_TABLE_NAME_PRE+dateStr);
-        logger.info("创建成功"+dateStr);
+        onlyMonthService.createFundmonthtemp(FundConstant.FUNDMONTHTEMP_TABLE_NAME_PRE + dateStr, FundConstant.FUNDBOOK_TABLE_NAME_PRE + dateStr);
+        logger.info("创建成功" + dateStr);
         return modelAndView;
     }
+
+    //统计月结数据
+    @RequestMapping("/insertFundBookMonth")
+    public ModelAndView insertFundBookMonth(String start, String end) {
+        ModelAndView modelAndView = new ModelAndView();
+        Date startDate = DateTools.parseDateFromString_yyyyMM(start, logger);
+        Date endDate = DateTools.parseDateFromString_yyyyMM(end, logger);
+        onlyMonthService.insertFundBookMonth(startDate, endDate, cacheFndbookcode(), null);
+        modelAndView.setViewName("onlymonth");
+        return modelAndView;
+    }
+
 }

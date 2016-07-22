@@ -230,7 +230,7 @@ public class ScheduleServiceDayNew {
                             }
                             JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
                             setJedisVos.add(jedisVo);
-                            if (setJedisVos.size() % 4000 == 0) {
+                            if (setJedisVos.size()>0&&setJedisVos.size() % 4000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipset(setJedisVos);
 

@@ -91,30 +91,27 @@ public class FundbookdayRunner implements Runnable {
                             String mapPreKey = String.format("%s|-%s|-%s", preDateStr, fundbookday.getBookcode(), fundbookday.getUserid());
 
                             String preBalanceStr = null;
-                            if (!preDateStr.equals("20130831")) {//201309之前没有数据
-                                preBalanceStr = jedisTemplate.get(mapPreKey); //查询前一天的余
-                            }
 
-                            if (!currentMonthLastDay.equals(preDateStr)) {
-                               // jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
-                                JedisVo deljedisVo = new JedisVo(mapPreKey);
-                                delJedisVos.add(deljedisVo);
-                                if (delJedisVos.size() % 15000 == 0) {
-                                    long cacheStart = System.currentTimeMillis();
-                                    jedisTemplate.pipdel(delJedisVos);
-                                    long cacheEnd = System.currentTimeMillis();
-                                    logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
-                                    delJedisVos=new ArrayList<JedisVo>();
-
-                                }
-                            }
-
+                            preBalanceStr = jedisTemplate.get(mapPreKey); //查询前一天的余
 
                             BigDecimal preBalance = null;
                             if (StringUtils.isNotBlank(preBalanceStr)) {
                                 preBalance = new BigDecimal(preBalanceStr);
+                                if (!currentMonthLastDay.equals(preDateStr)) {
+                                    // jedisTemplate.del(mapPreKey);  //用了就删了他,留下每月的最后一条数据
+                                    JedisVo deljedisVo = new JedisVo(mapPreKey);
+                                    delJedisVos.add(deljedisVo);
+                                    if (delJedisVos.size()>0&&delJedisVos.size() % 15000 == 0) {
+                                        long cacheStart = System.currentTimeMillis();
+                                        jedisTemplate.pipdel(delJedisVos);
+                                        long cacheEnd = System.currentTimeMillis();
+                                        logger.info(bookDateStr + "批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                                        delJedisVos=new ArrayList<JedisVo>();
+                                    }
+                                }
                             } else {
                                 preBalance = new BigDecimal("0");
+
                             }
 
                             Fundbookday fundbookdayActive = fundbookdayMap.get(mapKey);
@@ -134,7 +131,7 @@ public class FundbookdayRunner implements Runnable {
                             }
 //                jedisTemplate.set(mapKey, fundbookday.getBalance().doubleValue() + "");
                             insertFundbookdays.add(fundbookday);
-                            if (insertFundbookdays.size() % 3000 == 0) {
+                            if (insertFundbookdays.size()>0&&insertFundbookdays.size() % 3000 == 0) {
                                 //每3万条插入一次
                                 long memeryRunTime = System.currentTimeMillis();
                                 logger.info("内存计算完" + (float) (memeryRunTime - start) / 1000 + " " + bookDateStr + ",当前数据量:" + insertFundbookdays.size());
@@ -155,6 +152,13 @@ public class FundbookdayRunner implements Runnable {
                         fundbookdayExtMapper.batchInsert(insertFundbookdays, fundbookDayTableName);
                         long insertRunTime = System.currentTimeMillis();
                         logger.info("最后一次插入完成 " + (float) (insertRunTime - memeryRunTime) / 1000);
+                    }
+                    if (delJedisVos.size() > 0) {
+                        long cacheStart = System.currentTimeMillis();
+                        jedisTemplate.pipdel(delJedisVos);
+                        long cacheEnd = System.currentTimeMillis();
+                        logger.info(bookDateStr + "最后一次批量del" +delJedisVos.size()+"数据量，"+ (double) (cacheEnd - cacheStart) / 1000 + " " + preDateStr);
+                        delJedisVos=new ArrayList<JedisVo>();
                     }
                     subcountDownLatch.countDown();
                 }

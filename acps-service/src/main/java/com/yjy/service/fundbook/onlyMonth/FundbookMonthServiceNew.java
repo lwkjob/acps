@@ -141,7 +141,7 @@ public class FundbookMonthServiceNew {
                             fundbookmonth.setHappencredit(sumMonthByBookcode.getCredit());
                         }
                         insertfundbookmonthList.add(fundbookmonth);
-                        if (insertfundbookmonthList.size() % 10000 == 0) {
+                        if (insertfundbookmonthList.size()>0&&insertfundbookmonthList.size() % 10000 == 0) {
                             long memeoryRunTime = System.currentTimeMillis();
                             fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                             long insertRunTime = System.currentTimeMillis();
@@ -222,7 +222,7 @@ public class FundbookMonthServiceNew {
                                 fundbookmonth.setHappencredit(sumMonthByBookcode.getCredit());
                             }
                             insertfundbookmonthList.add(fundbookmonth);
-                            if (insertfundbookmonthList.size() % 10000 == 0) {
+                            if (insertfundbookmonthList.size() >0&&insertfundbookmonthList.size() % 10000 == 0) {
                                 long memeoryRunTime = System.currentTimeMillis();
                                 fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                                 long insertRunTime = System.currentTimeMillis();

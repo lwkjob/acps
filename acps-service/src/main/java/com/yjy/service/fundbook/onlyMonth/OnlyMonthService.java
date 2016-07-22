@@ -113,7 +113,7 @@ public class OnlyMonthService {
     public int insertFundBookMonth(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users) {
 
         long startRunTime = System.currentTimeMillis();
-        logger.info("...........................");
+        logger.info("...........insertFundBookMonth................");
         while (endDate.compareTo(startDate) != -1) {
             String bookDateStr=DateTools.formate_yyyyMM(startDate);
             //本月最后一天
@@ -225,7 +225,7 @@ public class OnlyMonthService {
                             //3.3每个账本
 
                             String prebalanceStr = null;
-                            if (!bookDateStr.equals("201309")) {//201309之前没有数据
+
                                 String prebalancekey = RedisKey.MONTH_CACHE+String.format("%s|-%s|-%s", StringUtils.substring(preMonthLastDay,0,6), bookcode.getBookcode(), userBasicInfo.getUserid());
 
                                 prebalanceStr = jedisTemplate.get(prebalancekey);
@@ -233,7 +233,7 @@ public class OnlyMonthService {
 //                                if (prebalanceStr != null) {
 //                                    jedisTemplate.del(prebalancekey);
 //                                }
-                            }
+
                             BigDecimal preBalance = null;
                             BigDecimal balance = null;
                             String mapKey=list2MapKey(userBasicInfo.getUserid(),bookcode.getBookcode());
@@ -263,7 +263,7 @@ public class OnlyMonthService {
                             fundbookmonth.setBalance(balance);
 //                            jedisTemplate.set(RedisKey.MONTH_CACHE+String.format("%s|-%s|-%s", StringUtils.substring(bookDateStr,0,6), bookcode.getBookcode(), userBasicInfo.getUserid()),balance.doubleValue()+"");
                             insertfundbookmonthList.add(fundbookmonth);
-                            if (insertfundbookmonthList.size() % 5000 == 0) {
+                            if (insertfundbookmonthList.size()>0&&insertfundbookmonthList.size() % 5000 == 0) {
                                 long memeoryRunTime = System.currentTimeMillis();
                                 fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                                 long insertRunTime = System.currentTimeMillis();
@@ -348,10 +348,10 @@ public class OnlyMonthService {
 //                                fundbookday.setUserid(userid);
                                 //前一个月 这个用户 这个账本 最后一条数据
                                 String prebalanceStr = null;
-                                if (!startStr_yyyyMM.equals("201309")) {//201309之前没有数据
-                                    String prebalancekey = RedisKey.MONTH_CACHE+String.format("%s|-%s|-%s", StringUtils.substring(preMonthLastDay,0,6), bookcode, userid);
-                                    prebalanceStr = jedisTemplate.get(prebalancekey);
-                                }
+
+                                String prebalancekey = RedisKey.MONTH_CACHE+String.format("%s|-%s|-%s", StringUtils.substring(preMonthLastDay,0,6), bookcode, userid);
+                                prebalanceStr = jedisTemplate.get(prebalancekey);
+
                                 BigDecimal firstPreBalance = new BigDecimal("0");
                                 Fundbook preFundbook = new Fundbook();
                                 if (prebalanceStr != null) {
@@ -384,7 +384,7 @@ public class OnlyMonthService {
                                             iFundbook.setBalance(iBalance);
                                         }
                                         insertFunbooks.add(iFundbook);
-                                        if (insertFunbooks.size() % 10000 == 0) {
+                                        if (insertFunbooks.size()>0&&insertFunbooks.size() % 10000 == 0) {
                                             long startupdate=System.currentTimeMillis();
                                             fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);
                                             long endupdate=System.currentTimeMillis();
@@ -501,7 +501,7 @@ public class OnlyMonthService {
                                             iFundbook.setBalance(iBalance);
                                         }
                                         insertFunbooks.add(iFundbook);
-                                        if (insertFunbooks.size() % 10000 == 0) {
+                                        if (insertFunbooks.size()>0&&insertFunbooks.size() % 10000 == 0) {
                                             long startupdate=System.currentTimeMillis();
                                             fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, fundbookTableName);
                                             long endupdate=System.currentTimeMillis();

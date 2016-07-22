@@ -3,7 +3,6 @@ package com.yjy.service.fundbook.quartz;
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.entity.fundbook.Fundbookcode;
 import com.yjy.common.entity.fundbook.FundbookcodeExample;
-import com.yjy.common.entity.fundbook.Fundbookmonth;
 import com.yjy.common.utils.DateTools;
 import com.yjy.service.fundbook.FundbookDayService;
 import com.yjy.service.fundbook.FundbookMonthService;
@@ -11,7 +10,6 @@ import com.yjy.service.fundbook.FundbookcodeService;
 import com.yjy.service.fundbook.onlyMonth.OnlyMonthService;
 import org.apache.commons.collections.map.HashedMap;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

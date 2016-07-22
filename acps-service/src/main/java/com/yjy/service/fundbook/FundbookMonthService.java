@@ -102,27 +102,28 @@ public class FundbookMonthService {
                         String balancekey = String.format("%s|-%s|-%s", currentMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
                         String balanceStr = jedisTemplate.get(balancekey);
                         String prebalanceStr = null;
-                        if (!bookDateStr.equals("201309")) {//201309之前没有数据
-                            String prebalancekey = String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
-                            prebalanceStr = jedisTemplate.get(prebalancekey);
-                            if (prebalanceStr != null) {
-                                jedisTemplate.del(prebalancekey);
-                            }
-                        }
+
+                        String prebalancekey = String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
+                        prebalanceStr = jedisTemplate.get(prebalancekey);
+
+
                         BigDecimal preBalance = null;
                         BigDecimal balance = null;
+                        if (StringUtils.isNotBlank(prebalanceStr)) {
+                            preBalance = new BigDecimal(prebalanceStr);
+                            jedisTemplate.del(prebalancekey);
+                        }else {
+                            preBalance = new BigDecimal(0);
+                        }
 
-                        if (balanceStr != null) {
+
+                        if (StringUtils.isNotBlank(balanceStr)) {
                             balance = new BigDecimal(balanceStr);
                         } else {
                             balance = new BigDecimal(0);
                         }
 
-                        if (prebalanceStr != null) {
-                            preBalance = new BigDecimal(prebalanceStr);
-                        } else {
-                            preBalance = new BigDecimal(0);
-                        }
+
                         Fundbookmonth fundbookmonth = new Fundbookmonth();
                         fundbookmonth.setUserid(userBasicInfo.getUserid());
                         fundbookmonth.setBookdate(Integer.parseInt(bookDateStr));
@@ -140,7 +141,7 @@ public class FundbookMonthService {
                         }
                         insertfundbookmonthList.add(fundbookmonth);
 
-                        if (insertfundbookmonthList.size() % 2000 == 0) {
+                        if (insertfundbookmonthList.size()>0&&insertfundbookmonthList.size() % 2000 == 0) {
                             long memeoryRunTime = System.currentTimeMillis();
                             logger.info("内存计算:"+(double)(memeoryRunTime-startF)/1000);
                             startF= System.currentTimeMillis();
@@ -187,26 +188,25 @@ public class FundbookMonthService {
                             String balancekey = String.format("%s|-%s|-%s", currentMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
                             String balanceStr = jedisTemplate.get(balancekey);
                             String prebalanceStr = null;
-                            if (!bookDateStr.equals("201309")) {//201309之前没有数据
-                                String prebalancekey = String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
-                                prebalanceStr = jedisTemplate.get(prebalancekey);
-                                if (prebalanceStr != null) {
-                                    jedisTemplate.del(prebalancekey);
-                                }
-                            }
+
+                            String prebalancekey = String.format("%s|-%s|-%s", preMonthLastDay, bookcode.getBookcode(), userBasicInfo.getUserid());
+                            prebalanceStr = jedisTemplate.get(prebalancekey);
+
+
                             BigDecimal preBalance = null;
                             BigDecimal balance = null;
+                            if (StringUtils.isNotBlank(prebalanceStr)) {
+                                preBalance = new BigDecimal(prebalanceStr);
+                                jedisTemplate.del(prebalancekey);
+                            }else {
+                                preBalance = new BigDecimal(0);
+                            }
 
-                            if (balanceStr != null) {
+
+                            if (StringUtils.isNotBlank(balanceStr)) {
                                 balance = new BigDecimal(balanceStr);
                             } else {
                                 balance = new BigDecimal(0);
-                            }
-
-                            if (prebalanceStr != null) {
-                                preBalance = new BigDecimal(prebalanceStr);
-                            } else {
-                                preBalance = new BigDecimal(0);
                             }
                             Fundbookmonth fundbookmonth = new Fundbookmonth();
                             fundbookmonth.setUserid(userBasicInfo.getUserid());
@@ -224,7 +224,7 @@ public class FundbookMonthService {
                                 fundbookmonth.setHappencredit(sumMonthByBookcode.getCredit());
                             }
                             insertfundbookmonthList.add(fundbookmonth);
-                            if (insertfundbookmonthList.size() % 10000 == 0) {
+                            if (insertfundbookmonthList.size()>0&&insertfundbookmonthList.size() % 10000 == 0) {
                                 long memeoryRunTime = System.currentTimeMillis();
                                 fundbookMonthExtMapper.batchInsert(insertfundbookmonthList, monthTableName);
                                 long insertRunTime = System.currentTimeMillis();

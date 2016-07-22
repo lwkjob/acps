@@ -128,7 +128,7 @@ public class FundbookService {
                                             iFundbook.setBalance(iBalance);
                                         }
                                         insertFunbooks.add(iFundbook);
-                                        if (insertFunbooks.size() % 10000 == 0) {
+                                        if (insertFunbooks.size()>0&&insertFunbooks.size() % 10000 == 0) {
                                             long startupdate=System.currentTimeMillis();
                                             logger.info(jm + " 准备更新数量" + insertFunbooks.size());
                                             fundbookExtMapper.batchUpdateByPrimaryKeySelective(insertFunbooks, tableName);

@@ -57,6 +57,26 @@
     </select>
 
 
+     <select id="getBalance" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List"/>
+        from ${tablename}
+        <where>
+
+            <if test="userids!=null and userids.size>0">
+              AND  userid in
+                <foreach collection="userids" item="userid" separator="," open="(" close=")">
+                    #{userid}
+                </foreach>
+            </if>
+            AND Balance != 0
+        </where>
+    </select>
+
+
+
+
+
     <delete id="deleteFundbookDay" parameterType="map">
         DELETE FROM ${tablename}
         <where>
@@ -138,5 +158,17 @@
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='资金业务日清账本'
 
     </update>
+
+    <select id="sumThisMonth"  parameterType="map" resultMap="BaseResultMap">
+        SELECT  sum(HappenDebit) HappenDebit,sum(HappenCredit) HappenCredit from
+        <foreach collection="tableNames"  open="(" close=")" item="tablename" separator="union all">
+            SELECT sum(HappenDebit) HappenDebit,sum(HappenCredit) HappenCredit from ${tablename}
+        </foreach>
+          as aa
+    </select>
+
+    <select id="getBySql"  parameterType="map" resultMap="BaseResultMap">
+         ${sql}
+    </select>
 
 </mapper>

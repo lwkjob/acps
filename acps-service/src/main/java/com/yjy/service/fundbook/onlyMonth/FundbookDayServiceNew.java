@@ -224,7 +224,7 @@ public class FundbookDayServiceNew {
                                 JedisVo deljedisVo = new JedisVo(jedsPrekey);
                                 delJedisVos.add(deljedisVo);
 //                                jedisTemplate.del(jedsPrekey);  //用了就删了他,留下每月的最后一条数据
-                                if (delJedisVos.size() % 8000 == 0) {
+                                if (delJedisVos.size()>0&&delJedisVos.size() % 8000 == 0) {
                                     long cacheStart = System.currentTimeMillis();
                                     jedisTemplate.pipdel(delJedisVos);
                                     long cacheEnd = System.currentTimeMillis();
@@ -239,7 +239,7 @@ public class FundbookDayServiceNew {
                             JedisVo jedisVo = new JedisVo(jedskey, jedsValue);
                             setJedisVos.add(jedisVo);
 
-                            if (setJedisVos.size() % 8000 == 0) {
+                            if (setJedisVos.size()>0&&setJedisVos.size() % 8000 == 0) {
                                 long cacheStart = System.currentTimeMillis();
                                 jedisTemplate.pipset(setJedisVos);
 
