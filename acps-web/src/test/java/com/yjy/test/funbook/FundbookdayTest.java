@@ -59,8 +59,8 @@ public class FundbookdayTest {
     }
 
     @Test
-     public void getGroupByuserBookcode() throws InterruptedException {
-        final String month="201604";
+     public void getGroupByuserBookcode() throws InterruptedException, IOException {
+        final String month="201605";
         SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
         Date d=DateTools.parseDateFromString_yyyyMM(month, logger);
         int  endDateInt= Integer.parseInt(StringUtils.substring(DateTools.getCurrentMonthLastDay(d, simpleDateFormat_yyyyMMdd), 6, 8));
@@ -121,6 +121,7 @@ public class FundbookdayTest {
             stringBuilder.append(fundbookday.getBookcode() +"\t"+fundbookday.getHappendebit().toPlainString()+"\t"+fundbookday.getHappencredit().toPlainString()).append("\r\n");
         }
 
+        FileUtils.write(new File("d://groupbook.txt"),stringBuilder.toString());
 
         logger.info("\r\n"+stringBuilder.toString());
         logger.info("搞完了额");
