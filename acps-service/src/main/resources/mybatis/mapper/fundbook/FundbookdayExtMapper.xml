@@ -127,7 +127,7 @@
 
     <select id="getSumMonthGroupBookcodeWhereUserid" resultType="com.yjy.repository.dto.SumMonthByBookcode" parameterType="map">
         select
-        bookcode,sum(happendebit) debit,sum(happencredit) credit,userid
+        bookcode,sum(debit) debit,sum(credit) credit,userid
         from ${tablename}
          where userid=#{userid} group by bookcode;
     </select>
