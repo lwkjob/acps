@@ -59,7 +59,7 @@ public class ScheduleService {
 
                 fundbookService.oneByOneUpdateBalance(startDateByTable, endDateByTable, fundbookcodes, userids);
 
-                fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users, false);
+                fundbookDayService.insertFundBookDay(startDateByTable, endDateByTable, bookcodemap, users);
 
                 fundbookMonthService.insertFundBookMonth(startDateByTable, endDateByTable, bookcodemap,users);
 

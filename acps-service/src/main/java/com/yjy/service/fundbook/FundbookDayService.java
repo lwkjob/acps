@@ -73,7 +73,7 @@ public class FundbookDayService {
 
 
     //插入日清数据
-    public int insertFundBookDay(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users, boolean isJob) {
+    public int insertFundBookDay(Date startDate, Date endDate, Map<Integer, List<Fundbookcode>> bookcodemap, List<UserBasicInfo> users) {
 
 
 //        if(bookcodes==null || bookcodes.size()==0){

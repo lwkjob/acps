@@ -60,7 +60,7 @@ public class FundbookdayTest {
 
     @Test
      public void getGroupByuserBookcode() throws InterruptedException, IOException {
-        final String month="201605";
+        final String month="201606";
         SimpleDateFormat simpleDateFormat_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
         Date d=DateTools.parseDateFromString_yyyyMM(month, logger);
         int  endDateInt= Integer.parseInt(StringUtils.substring(DateTools.getCurrentMonthLastDay(d, simpleDateFormat_yyyyMMdd), 6, 8));

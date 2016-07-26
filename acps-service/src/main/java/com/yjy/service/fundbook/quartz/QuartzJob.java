@@ -3,6 +3,7 @@ package com.yjy.service.fundbook.quartz;
 import com.yjy.common.constant.FundConstant;
 import com.yjy.common.entity.fundbook.Fundbookcode;
 import com.yjy.common.entity.fundbook.FundbookcodeExample;
+import com.yjy.common.entity.fundbook.UserBasicInfo;
 import com.yjy.common.utils.DateTools;
 import com.yjy.service.fundbook.FundbookDayService;
 import com.yjy.service.fundbook.FundbookMonthService;
@@ -12,6 +13,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -22,8 +24,9 @@ import java.util.Map;
 /**
  * Created by Administrator on 2016/7/1.
  */
-public class QuartzTest {
-    private static final Logger logger = LoggerFactory.getLogger(QuartzTest.class);
+@Component
+public class QuartzJob {
+    private static final Logger logger = LoggerFactory.getLogger(QuartzJob.class);
 
 
     @Resource
@@ -44,7 +47,7 @@ public class QuartzTest {
 
 
 
-    public void doWorkMd(){
+    public void doWork(){
         Date lastDay = DateTime.now().plusDays(-1).toDate();
         String jobDateStr=DateTools.formate_yyyyMMdd(lastDay) ;//"20131031";
 
@@ -55,11 +58,29 @@ public class QuartzTest {
         Date startDate = DateTools.parseDateFromString_yyyyMMdd(jobDateStr, logger);
         Date endDate = DateTools.parseDateFromString_yyyyMMdd(jobDateStr, logger);
         logger.info("开始跑日清"+jobDateStr);
-        fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, null, true);
+        fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, null);
         String currentMonthLastDay = DateTools.getCurrentMonthLastDay(startDate, simpleDateFormat_yyyyMMdd);
         if(currentMonthLastDay.equals(jobDateStr)){
             logger.info("最后一天跑月结"+jobDateStr);
             fundbookMonthService.insertFundBookMonth(startDate,startDate,bookcodemap,null);
+        }
+    }
+
+    public void requestDoWork(String jobDateStr, List<Integer> userids, List<UserBasicInfo> users){
+
+
+        logger.info("开始刷余额"+jobDateStr);
+        Map<Integer,List<Fundbookcode>> bookcodemap=  cacheFndbookcode();
+        //刷余额
+        onlyMonthService.oneByOneUpdateBalanceByDay(jobDateStr,userids);
+        Date startDate = DateTools.parseDateFromString_yyyyMMdd(jobDateStr, logger);
+        Date endDate = DateTools.parseDateFromString_yyyyMMdd(jobDateStr, logger);
+        logger.info("开始跑日清"+jobDateStr);
+        fundbookDayService.insertFundBookDay(startDate, endDate, bookcodemap, users);
+        String currentMonthLastDay = DateTools.getCurrentMonthLastDay(startDate, simpleDateFormat_yyyyMMdd);
+        if(currentMonthLastDay.equals(jobDateStr)){
+            logger.info("最后一天跑月结"+jobDateStr);
+            fundbookMonthService.insertFundBookMonth(startDate,startDate,bookcodemap,users);
         }
     }
 

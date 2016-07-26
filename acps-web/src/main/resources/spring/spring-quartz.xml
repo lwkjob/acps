@@ -5,7 +5,7 @@
        default-autowire="byName">
 
     <!-- 要调用的工作类 -->
-    <bean id="quartzJob" class="com.yjy.service.fundbook.quartz.QuartzTest"></bean>
+    <bean id="quartzJob" class="com.yjy.service.fundbook.quartz.QuartzJob"></bean>
     <!-- 定义调用对象和调用对象的方法 -->
     <bean id="jobtask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
         <!-- 调用的类 -->
@@ -14,7 +14,7 @@
         </property>
         <!-- 调用类中的方法 -->
         <property name="targetMethod">
-            <value>doWorkMd</value>
+            <value>doWork</value>
         </property>
     </bean>
     <!-- 定义触发时间 -->
