@@ -78,6 +78,7 @@
 
 
     <delete id="deleteFundbookDay" parameterType="map">
+        create table if not EXISTS   ${tablename} <include refid="createTable"/>;
         DELETE FROM ${tablename}
         <where>
 
@@ -139,7 +140,11 @@
 
     <update id="deleteAndCreateTable" parameterType="map">
         DROP TABLE IF EXISTS ${tableName};
-       CREATE TABLE ${tableName} (
+        CREATE TABLE ${tableName} <include refid="createTable"/>
+    </update>
+
+    <sql id="createTable">
+         (
           `Id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自动编号',
           `BookId` bigint(20) NOT NULL DEFAULT '0' COMMENT '账本编号',
           `BookCode` varchar(255) NOT NULL COMMENT '科目编号与科目编号之间用 - 分隔',
@@ -156,8 +161,7 @@
           KEY `Index_BookCode` (`BookCode`),
           KEY `Index_BookId` (`BookId`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='资金业务日清账本'
-
-    </update>
+    </sql>
 
     <select id="sumThisMonth"  parameterType="map" resultMap="BaseResultMap">
         SELECT  sum(HappenDebit) HappenDebit,sum(HappenCredit) HappenCredit from

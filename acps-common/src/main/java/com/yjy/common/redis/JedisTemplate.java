@@ -1,6 +1,7 @@
 package com.yjy.common.redis;
 
 import com.yjy.common.utils.JsonUtils;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -751,8 +752,25 @@ public class JedisTemplate implements Serializable {
     }
 
     public static void main(String[] args) throws  Exception{
-//        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.12",6379,15000,5,"123",1);
-        final   JedisTemplate jedisTemplate=new JedisTemplate("127.0.0.1",6379,15000,5,1);
+        final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.231",6379,15000,5,"123",0);
+//      final   JedisTemplate jedisTemplate=new JedisTemplate("192.168.2.231",6379,15000,5,1);
+        jedisTemplate.set("fuck","fuck");
+        System.out.println(jedisTemplate.get("fuck"));
+        String hget = jedisTemplate.hget("lwkhset", "f1");
+        Map<String, String> lwkhset = jedisTemplate.hgetAll("lwkhset");
+
+        for (String kk:lwkhset.keySet()){
+            System.out.println(kk+"="+lwkhset.get(kk));
+        }
+        System.out.println(hget);
+
+        Map<String,Map> hmap=new HashedMap();
+        hmap.put("lwkhset2",lwkhset);
+        jedisTemplate.hset(hmap);
+        jedisTemplate.hset("lwkhset2","f1","212");
+        jedisTemplate.sadd("121","1313","123213");
+        jedisTemplate.sadd("121","4444","55555");
+
 
     }
 }
